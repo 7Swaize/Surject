@@ -1,0 +1,63 @@
+<Project>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <NoWarn>NU1701,CS0436</NoWarn>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Unity3D.SDK" PrivateAssets="all" ExcludeAssets="runtime" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.Bcl.HashCode" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(UseRoslynPackages)' == 'true'">
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime;build;native;contentfiles;analyzers;buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" ExcludeAssets="runtime" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" ExcludeAssets="runtime" PrivateAssets="all" />
+    </ItemGroup>
+    
+    
+    <!-- Sources:
+        - https://github.com/dotnet/roslyn/issues/79272#issuecomment-3046703615
+        - https://github.com/lextudio/sharpsnmppro.mib.extensions/blob/master/MibSourceGenerator/MibSourceGenerator.csproj#L34
+    -->
+    <!-- This solution is really for convienience when testing locally via Project References.
+        It isn't needed if our generators and analyzers were packaged via nuget. 
+    --> 
+    <ItemGroup Condition="'$(MergeAnalyzerDependencies)' == 'true' AND '$(Configuration)' == 'Debug'">
+        <PackageReference Include="ILRepack" >
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <Target Name="ILRepackMerge" AfterTargets="Build" Condition="'$(MergeAnalyzerDependencies)' == 'true' AND '$(Configuration)' == 'Debug'" >
+        <PropertyGroup>
+            <_OutputDir>$(OutputPath)</_OutputDir>
+            <_MergedAssembly>$(_OutputDir)$(AssemblyName).dll</_MergedAssembly>
+            <_MainAssembly>$(_OutputDir)$(AssemblyName).Original.dll</_MainAssembly>
+            <_SharedAssembly>$(SolutionDir)src\Surject.Shared\bin\$(Configuration)\netstandard2.0\Surject.Shared.dll</_SharedAssembly>
+
+            <_RoslynLibPath>$(USERPROFILE)\.nuget\packages\microsoft.codeanalysis.common\4.3.0\lib\netstandard2.0</_RoslynLibPath>
+        </PropertyGroup>
+        <ItemGroup>
+            <_AssembliesToMerge Include="$(_MainAssembly)" />
+            <_AssembliesToMerge Include="$(_SharedAssembly)" />
+        </ItemGroup>
+        <Move SourceFiles="$(_MergedAssembly)" DestinationFiles="$(_MainAssembly)" Condition="Exists('$(_MergedAssembly)')" />
+        <Exec Command="&quot;$(ILRepack)&quot; /wildcards /internalize /lib:$(_OutputDir) /lib:$(_RoslynLibPath) /out:$(_MergedAssembly) @(_AssembliesToMerge->'&quot;%(FullPath)&quot;', ' ')" Condition="Exists('$(ILRepack)')" ContinueOnError="false" />
+        <Delete Files="$(_MainAssembly)" Condition="Exists('$(_MergedAssembly)')" />
+        <Message Importance="high" Text="ILRepack merged assemblies to $(_MergedAssembly) (replaced original)" />
+    </Target>
+</Project>

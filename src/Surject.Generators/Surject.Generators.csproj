@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <UseRoslynPackages>true</UseRoslynPackages>
+        <MergeAnalyzerDependencies>false</MergeAnalyzerDependencies>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Surject.Abstractions\Surject.Abstractions.csproj" />
+        <ProjectReference Include="..\Surject.Shared\Surject.Shared.csproj" />
+    </ItemGroup>
+
+</Project>

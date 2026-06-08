@@ -1,0 +1,71 @@
+# AI Generated
+
+############################################
+# OS / Environment (Windows)
+############################################
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.stackdump
+
+############################################
+# .NET / C#
+############################################
+# Build results
+bin/
+obj/
+out/
+publish/
+
+# Test results
+TestResults/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/packages/
+.nuget/cache/
+.nuget/temp/
+
+# Rider / ReSharper caches
+.idea/
+*.sln.iml
+*.DotSettings.user
+
+# Visual Studio (in case solution is opened there)
+.vs/
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+############################################
+# JetBrains Rider
+############################################
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/contentModel.xml
+
+############################################
+# VS Code
+############################################
+.vscode/
+!.vscode/extensions.json
+
+############################################
+# Logs / Diagnostics
+############################################
+*.log
+
+############################################
+# Misc
+############################################
+*.tmp
+*.bak
+*.swp
+*.orig
