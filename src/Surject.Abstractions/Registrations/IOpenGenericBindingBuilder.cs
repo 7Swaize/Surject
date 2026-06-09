@@ -3,19 +3,19 @@ using System;
 namespace Surject.Abstractions.Registrations;
 
 public interface IOpenGenericBindingBuilder {
-    IOpenGenericBindingBuilder To(Type openContractType);
-    IOpenGenericBindingBuilder ToImplementedInterfaces();
-    IOpenGenericBindingBuilder WithId(string id);
+    public IOpenGenericBindingBuilder To(Type openContractType);
+    public IOpenGenericBindingBuilder ToImplementedInterfaces();
+    public IOpenGenericBindingBuilder WithId(string id);
     
-    IOpenGenericBindingBuilder Pooled(int initialSize = 1);
+    public IOpenGenericBindingBuilder Pooled(int initialSize = 1);
     
-    IOpenGenericBindingBuilder Eager();
-    IOpenGenericBindingBuilder Lazy();
+    public IOpenGenericBindingBuilder Eager();
+    public IOpenGenericBindingBuilder Lazy();
     
-    IOpenGenericBindingBuilder OverrideExisting();
-    IOpenGenericBindingBuilder AsCollection(int order = 0);
-    IOpenGenericBindingBuilder AsPrimary();
+    public IOpenGenericBindingBuilder OverrideExisting();
+    public IOpenGenericBindingBuilder AsCollection(int order = 0);
+    public IOpenGenericBindingBuilder AsPrimary();
     
-    IOpenGenericBindingBuilder DoNotDispose();
-    IOpenGenericBindingBuilder TrackDisposable();
+    public IOpenGenericBindingBuilder DoNotDispose();
+    public IOpenGenericBindingBuilder TrackDisposable();
 }
