@@ -32,3 +32,7 @@ public sealed class InjectFactoryAttribute : Attribute { }
 
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Parameter)]
 public sealed class InjectPrimaryAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Parameter)]
+public sealed class InjectAsyncAttribute : Attribute { }
+

@@ -2,7 +2,7 @@ using System;
 
 namespace Surject.Abstractions.Resolutions;
 
-public interface IResolver {
+public interface IResolver : IAsyncResolver {
     public T Resolve<T>() where T : class;
     public T? ResolveOptional<T>() where T : class;
     public T ResolveKeyed<T>(string key) where T : class;

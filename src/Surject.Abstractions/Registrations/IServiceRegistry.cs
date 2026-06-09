@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Surject.Abstractions.Modifiers;
 using Surject.Abstractions.Resolutions;
 
@@ -14,4 +16,7 @@ public interface IServiceRegistry {
 
     public IBindingBuilder<TImpl> AddToCollection<TImpl>(Lifetime lifetime, int order = 0) where TImpl : class;
     public IBindingBuilder<TImpl> AddPrimaryToCollection<TImpl, TContract>(int order = 0) where TImpl : class;
+
+    public IAsyncBindingBuilder<T> AddAsyncFactory<T>(Func<IResolver, CancellationToken, ValueTask<T>> factory, Lifetime lifetime)
+        where T : class;
 }
