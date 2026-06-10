@@ -11,4 +11,8 @@
         <ProjectReference Include="..\Surject.Shared\Surject.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Models\Collections\" />
+    </ItemGroup>
+
 </Project>
