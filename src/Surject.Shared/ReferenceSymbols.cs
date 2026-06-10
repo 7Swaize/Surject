@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 namespace Surject.Shared;
 
 public sealed class ReferenceSymbolsBuilder {

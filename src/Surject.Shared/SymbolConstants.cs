@@ -1,5 +1,5 @@
 namespace Surject.Shared;
 
 public static class SymbolConstants {
-    public const string ScopeProviderAttributeFQN = "Surject.Abstractions.Attributes.ScopeProviderAttribute";
+    public const string ScopeProviderAttributeFQN = "Surject.Abstractions.Attributes.ScopeAttribute";
 }
