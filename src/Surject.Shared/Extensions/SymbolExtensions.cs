@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 
 public static class SymbolExtensions {
@@ -50,6 +51,11 @@ public static class SymbolExtensions {
         
             attributeData = null;
             return false;   
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T As<T>() where T : ISymbol {
+            return (T)self;
         }
     }
 }

@@ -6,6 +6,55 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
 public static class TypeSymbolExtensions {
+        private static readonly SymbolDisplayFormat GenericDefinitionFQNGlobal = new(
+        globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+        genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters
+    );
+
+    private static readonly SymbolDisplayFormat GenericDefinitionFQNNoGlobal = new(
+        globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+        genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters
+    );
+
+    private static readonly SymbolDisplayFormat ConstructedTypeFQNGlobal = new(
+        globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+        genericsOptions:
+            SymbolDisplayGenericsOptions.IncludeTypeParameters |
+            SymbolDisplayGenericsOptions.IncludeVariance,
+        miscellaneousOptions:
+            SymbolDisplayMiscellaneousOptions.ExpandNullable |
+            SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier |
+            SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers
+    );
+
+    private static readonly SymbolDisplayFormat ConstructedTypeFQNNoGlobal = new(
+        globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+        genericsOptions:
+            SymbolDisplayGenericsOptions.IncludeTypeParameters |
+            SymbolDisplayGenericsOptions.IncludeVariance,
+        miscellaneousOptions:
+            SymbolDisplayMiscellaneousOptions.ExpandNullable |
+            SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier |
+            SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers
+    );
+
+    private static readonly SymbolDisplayFormat GenericArityFQNGlobal = new(
+        globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+        genericsOptions: SymbolDisplayGenericsOptions.None
+    );
+
+    private static readonly SymbolDisplayFormat GenericArityFQNNoGlobal = new(
+        globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+        genericsOptions: SymbolDisplayGenericsOptions.None
+    );
+    
+    
     extension(ITypeSymbol self) {
         /// <summary>
         /// Fully-qualified generic type definition.
@@ -13,11 +62,17 @@ public static class TypeSymbolExtensions {
         /// </summary>
         public string GetGenericDefinitionFQN(bool includeGlobal = true) {
             return self.ToDisplayString(
-                new SymbolDisplayFormat(
-                    globalNamespaceStyle: includeGlobal ? SymbolDisplayGlobalNamespaceStyle.Included : SymbolDisplayGlobalNamespaceStyle.Omitted,
-                    typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
-                    genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters
-                )
+                includeGlobal ? GenericDefinitionFQNGlobal : GenericDefinitionFQNNoGlobal
+            );
+        }
+
+        /// <summary>
+        /// Fully-qualified constructed generic type.
+        /// Example: global::System.Collections.Generic.Dictionary&lt;string, int&gt;
+        /// </summary>
+        public string GetConstructedTypeFQN(bool includeGlobal = true) {
+            return self.ToDisplayString(
+                includeGlobal ? ConstructedTypeFQNGlobal : ConstructedTypeFQNNoGlobal
             );
         }
         
@@ -31,35 +86,10 @@ public static class TypeSymbolExtensions {
             }
 
             string baseName = named.ToDisplayString(
-                new SymbolDisplayFormat(
-                    globalNamespaceStyle: includeGlobal ? SymbolDisplayGlobalNamespaceStyle.Included : SymbolDisplayGlobalNamespaceStyle.Omitted,
-                    typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
-                    genericsOptions: SymbolDisplayGenericsOptions.None
-                )
+                includeGlobal ? GenericArityFQNGlobal : GenericArityFQNNoGlobal
             );
 
             return $"{baseName}<{new string(',', named.Arity - 1)}>";
-        }
-        
-        /// <summary>
-        /// Fully-qualified constructed generic type.
-        /// Example: global::System.Collections.Generic.Dictionary&lt;string, int&gt;
-        /// </summary>
-        public string GetConstructedTypeFQN(bool includeGlobal = true) {
-            return self.ToDisplayString(
-                new SymbolDisplayFormat(
-                    globalNamespaceStyle: includeGlobal
-                        ? SymbolDisplayGlobalNamespaceStyle.Included
-                        : SymbolDisplayGlobalNamespaceStyle.Omitted,
-                    typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
-                    genericsOptions:
-                    SymbolDisplayGenericsOptions.IncludeTypeParameters |
-                    SymbolDisplayGenericsOptions.IncludeVariance,
-                    miscellaneousOptions:
-                    SymbolDisplayMiscellaneousOptions.ExpandNullable |
-                    SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier
-                )
-            );
         }
         
         /// <summary>
@@ -84,11 +114,7 @@ public static class TypeSymbolExtensions {
         
         public string GetFQNWithGenericsOmitted(bool includeGlobal = true) {
             return self.ToDisplayString(
-                new SymbolDisplayFormat(
-                    globalNamespaceStyle: includeGlobal ? SymbolDisplayGlobalNamespaceStyle.Included : SymbolDisplayGlobalNamespaceStyle.Omitted,
-                    typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
-                    genericsOptions: SymbolDisplayGenericsOptions.None
-                )
+                includeGlobal ? GenericArityFQNGlobal : GenericArityFQNNoGlobal
             );
         }
         
