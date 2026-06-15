@@ -12,12 +12,15 @@ using Surject.Shared.Helpers;
 namespace Surject.Generators.Discovery.ServiceRegistration;
 
 internal static class BindingRegistrationParser {
-    internal static BindingModel Parse(InvocationExpressionSyntax rootInvocation, DiscoveryUtils utils, SemanticModel semanticModel) {
+    internal static BindingModel? Parse(InvocationExpressionSyntax rootInvocation, DiscoveryUtils utils, SemanticModel semanticModel) {
         if (!TryExtractChain(rootInvocation, out var outermost, out Span<InvocationExpressionSyntax> modSyntax)) {
-            return null!;
+            return null;
         }
 
-        EntryCommandModel entry = ParseEntry(outermost, utils, semanticModel);
+        if (!TryParseEntry(outermost, utils, semanticModel, out EntryCommandModel entry)) {
+            return null;
+        }
+        
         ImmutableArray<ModifierCommandModel> modifiers = ParseModifiers(modSyntax, utils, semanticModel);
         
         RegistrationNormalizer normalizer = new RegistrationNormalizer(modifiers);
@@ -51,23 +54,25 @@ internal static class BindingRegistrationParser {
         return true;
     }
 
-    private static EntryCommandModel ParseEntry(
+    private static bool TryParseEntry(
         InvocationExpressionSyntax syntax,
         DiscoveryUtils utils,
-        SemanticModel semanticModel) 
+        SemanticModel semanticModel,
+        out EntryCommandModel entry) 
     {
+        entry = default;
         if (ModelExtensions.GetSymbolInfo(semanticModel, syntax).Symbol is not IMethodSymbol method) {
-            return default;
+            return false;
         }
 
         if (!IsRegistryMethod(method, utils)) {
-            return default;
+            return false;
         }
 
         LifetimeKind lifetime = ExtractLifetime(syntax, semanticModel);
         ITypeReferenceModel? implType = ExtractNthTypeArg(method, 0, utils);
 
-        return method.Name switch {
+        entry = method.Name switch {
             "Add" => EntryCommandModel.Add(implType!, lifetime),
             "AddFactory" => EntryCommandModel.AddFactory(
                 implType!,
@@ -112,6 +117,8 @@ internal static class BindingRegistrationParser {
             ),
             _ => throw new InvalidOperationException($"Unhandled Entry method name '{method.Name}'.")
         };
+        
+        return true;
     }
 
     private static ImmutableArray<ModifierCommandModel> ParseModifiers(

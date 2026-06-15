@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Models.Collections;
+using Surject.Generators.Models.Primitives;
 
 
 namespace Surject.Generators.Models.Concepts;
@@ -21,20 +22,18 @@ internal sealed record ContainerModel {
             .GetSyntax()
             .DescendantNodes()
             .OfType<InvocationExpressionSyntax>()
-            .Where(invocation => !IsPartOfLargerChain(invocation));
+            .Where(inv => !inv.IsPartOfLargerChain());
         
         Bindings = invocations
             .Select(inv => BindingRegistrationParser.Parse(inv, utils, context.SemanticModel))
-            .ToImmutableArray()
-            .AsEquatableArray();
-    }
-    
-    private static bool IsPartOfLargerChain(InvocationExpressionSyntax invocation) {
-        return invocation.Parent is MemberAccessExpressionSyntax member &&
-               member.Parent is InvocationExpressionSyntax;
+            .Where(b => b != null)
+            .ToImmutableArray()!;
+
+        ContainerDecl = new ClassDeclModel((INamedTypeSymbol)context.TargetSymbol, utils);
     }
     
     private const string KScopeContextMethodName = "Configure";
     
+    internal ClassDeclModel ContainerDecl { get; init; }
     internal EquatableArray<BindingModel> Bindings { get; init; }
 }
