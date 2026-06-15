@@ -11,6 +11,10 @@
 
     <ItemGroup>
         <PackageReference Include="Unity3D.SDK" PrivateAssets="all" ExcludeAssets="runtime" />
+        <PackageReference Include="PolySharp">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
