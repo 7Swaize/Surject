@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Models.Primitives;
+using Surject.Shared.Helpers;
 
 namespace Surject.Generators.Models.Concepts;
 
@@ -84,13 +85,9 @@ internal readonly record struct EntryCommandModel {
             EntryKind.AddNewComponent => visitor.VisitAddNewComponent(this),
             EntryKind.AddFromPrefab => visitor.VisitAddFromPrefab(this),
             EntryKind.Decorate => visitor.VisitDecorate(this),
-            _ => ThrowUnknownKind<TResult>(Kind),
+            _ => ThrowHelpers.ThrowUnhandledBranch<TResult>(Kind)
         };
     }
-    
-    [DoesNotReturn]
-    private static TResult ThrowUnknownKind<TResult>(EntryKind kind) =>
-        throw new InvalidOperationException($"Unhandled EntryKind '{kind}' in visitor dispatch.");
 }
 
 internal enum EntryKind : byte {

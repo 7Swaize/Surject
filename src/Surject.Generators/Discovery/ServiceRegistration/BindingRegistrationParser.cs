@@ -108,7 +108,7 @@ internal static class BindingRegistrationParser {
                     contract: implType!,
                     decorator: ExtractNthTypeArg(method, 1, utils)!
                 ),
-            _ => throw new InvalidOperationException($"Unhandled Entry method name '{method.Name}'.")
+            _ => ThrowHelpers.ThrowUnhandledBranch<EntryCommandModel>(method.Name)
         };
         
         return true;
@@ -202,7 +202,7 @@ internal static class BindingRegistrationParser {
                 => ModifierCommandModel.WithGameObjectName(ExtractNthStringArg(syntax, 0, semanticModel)),
             nameof(IComponentInstantiationBindingBuilder<>.DoNotDestroy) 
                 => ModifierCommandModel.DoNotDestroy(),
-            _ => throw new InvalidOperationException($"Unhandled Modifier method name '{method.Name}'.")
+            _ => ThrowHelpers.ThrowUnhandledBranch<ModifierCommandModel>(method.Name)
         };
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -289,7 +289,7 @@ internal static class BindingRegistrationParser {
             return method.MethodKind switch {
                 MethodKind.Constructor => new ConstructorCreationModel(method, utils),
                 MethodKind.Ordinary => new FactoryMethodCreationModel(method, utils),
-                _ => throw new InvalidOperationException("Constructor or static Factory Method was expected and not provided.")
+                _ => ThrowHelpers.ThrowUnhandledBranch<ServiceCreationModel>(method.MethodKind)
             };
         }
         

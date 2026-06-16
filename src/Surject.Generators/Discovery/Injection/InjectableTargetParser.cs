@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
+using Surject.Shared.Helpers;
 
 namespace Surject.Generators.Discovery.Injection;
 
@@ -89,7 +90,7 @@ internal static class InjectableTargetParser {
                     p => Parse(p, TryGetMode(p, modeMap) ?? InjectionMode.Standard, compilation, utils, modeMap)
                 )]
             },
-            _ => throw new InvalidOperationException($"Invalid target symbol kind: {targetSymbol.Kind}")
+            _ => ThrowHelpers.ThrowUnhandledBranch<InjectableMemberModel>(targetSymbol.Kind)
         };
     }
 

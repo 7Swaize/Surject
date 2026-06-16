@@ -1,11 +1,12 @@
 using System;
+using Surject.Shared.Helpers;
 
 public static class WeakReferenceExtensions {
     extension<T>(WeakReference<T> weakReference) where T : class {
         public T GetTargetOrThrow() {
             return weakReference.TryGetTarget(out T? target)
                 ? target 
-                : throw new ObjectDisposedException(nameof(T));
+                : ThrowHelpers.ThrowWeakReferenceCollected<T>();
         }
     }
 }

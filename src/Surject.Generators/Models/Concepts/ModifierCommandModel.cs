@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Models.Primitives;
+using Surject.Shared.Helpers;
 
 namespace Surject.Generators.Models.Concepts;
 
@@ -95,13 +96,9 @@ internal readonly record struct ModifierCommandModel {
             ModifierKind.UnderObjectOfType => visitor.VisitUnderObjectOfType(this),
             ModifierKind.WithGameObjectName => visitor.VisitWithGameObjectName(this),
             ModifierKind.DoNotDestroy => visitor.VisitDoNotDestroy(this),
-            _ => ThrowUnknownKind<TResult>(Kind),
+            _ => ThrowHelpers.ThrowUnhandledBranch<TResult>(Kind),
         };
     }
-
-    [DoesNotReturn]
-    private static TResult ThrowUnknownKind<TResult>(ModifierKind kind) =>
-        throw new InvalidOperationException($"Unhandled ModifierKind '{kind}' in visitor dispatch.");
 }
 
 internal enum ModifierKind : byte {
