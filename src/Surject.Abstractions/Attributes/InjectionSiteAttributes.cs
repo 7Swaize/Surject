@@ -26,10 +26,6 @@ public sealed class IdAttribute(string key) : Attribute {
 public sealed class InjectableAttribute : Attribute { }
 
 
-[AttributeUsage(AttributeTargets.Method)]
-public sealed class InjectFactoryAttribute : Attribute { }
-
-
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Parameter)]
 public sealed class InjectPrimaryAttribute : Attribute { }
 
