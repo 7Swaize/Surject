@@ -2,6 +2,7 @@
     
     <PropertyGroup>
         <UseRoslynPackages>true</UseRoslynPackages>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     
 </Project>

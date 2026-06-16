@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Surject.Shared\Surject.Shared.csproj" />
+        <ProjectReference Include="..\Surject.Abstractions\Surject.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>
