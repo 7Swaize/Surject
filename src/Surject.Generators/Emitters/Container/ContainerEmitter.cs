@@ -2,7 +2,6 @@ using System.CodeDom.Compiler;
 using System.IO;
 using System.Text;
 using Microsoft.CodeAnalysis.Text;
-using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Models.Concepts;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
@@ -13,9 +12,28 @@ internal static class ContainerEmitter {
         using StringWriter sr = new();
         using IndentedTextWriter writer = new(sr);
         
-        SurjectHeaderEmitter.WriteGeneratedFileHeader(writer);
+        EmitHelpers.EmitGeneratedFileHeader(writer);
+        
+        if (model.Decl.ClassAsTypeRef.Namespace is not null) {
+            writer.WriteLine($"namespace {model.Decl.ClassAsTypeRef.Namespace} {{");
+            writer.Indent++;
+        }
+        
+        new ContainerDeclEmitter(model).Emit(writer);
+        
+        // TODO
+        
+        // closes class
+        writer.Indent--;
+        writer.WriteLine("}");
+        
+        if (model.Decl.ClassAsTypeRef.Namespace is not null) {
+            writer.Indent--;
+            writer.WriteLine("}");
+        }
+        
 
         SourceText text = SourceText.From(sr.ToString(), Encoding.UTF8);
-        return ($"{model.ContainerDecl.ClassAsTypeRef.FlattenedNameNonArityBased}.g.cs", text);
+        return ($"{model.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}.g.cs", text);
     }
 }
