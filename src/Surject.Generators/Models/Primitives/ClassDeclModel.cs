@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Surject.Generators.Discovery;
 
 namespace Surject.Generators.Models.Primitives;
 
