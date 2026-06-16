@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Surject.Generators.Models;
+using Surject.Abstractions.Attributes;
+using Surject.Abstractions.Registrations;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
@@ -12,7 +14,7 @@ using Surject.Shared.Helpers;
 namespace Surject.Generators.Discovery.ServiceRegistration;
 
 internal static class BindingRegistrationParser {
-    internal static BindingModel? Parse(InvocationExpressionSyntax rootInvocation, DiscoveryUtils utils, SemanticModel semanticModel) {
+    internal static RegistrationModel? Parse(InvocationExpressionSyntax rootInvocation, DiscoveryUtils utils, SemanticModel semanticModel) {
         if (!TryExtractChain(rootInvocation, out var outermost, out Span<InvocationExpressionSyntax> modSyntax)) {
             return null;
         }
@@ -24,7 +26,7 @@ internal static class BindingRegistrationParser {
         ImmutableArray<ModifierCommandModel> modifiers = ParseModifiers(modSyntax, utils, semanticModel);
         
         RegistrationNormalizer normalizer = new RegistrationNormalizer(modifiers);
-        return entry.Accept<RegistrationNormalizer, BindingModel>(ref normalizer);
+        return entry.Accept<RegistrationNormalizer, RegistrationModel>(ref normalizer);
     }
     
     private static bool TryExtractChain(
@@ -61,64 +63,69 @@ internal static class BindingRegistrationParser {
         out EntryCommandModel entry) 
     {
         entry = default;
-        if (ModelExtensions.GetSymbolInfo(semanticModel, syntax).Symbol is not IMethodSymbol method) {
+        if (semanticModel.GetSymbolInfo(syntax).Symbol is not IMethodSymbol method
+            || !IsRegistryMethod(method, semanticModel)) 
+        {
             return false;
         }
-
-        if (!IsRegistryMethod(method, utils)) {
-            return false;
-        }
-
+        
         LifetimeKind lifetime = ExtractLifetime(syntax, semanticModel);
         ITypeReferenceModel? implType = ExtractNthTypeArg(method, 0, utils);
 
         entry = method.Name switch {
-            "Add" => EntryCommandModel.Add(implType!, lifetime),
-            "AddFactory" => EntryCommandModel.AddFactory(
-                implType!,
-                lifetime,
-                InvokeAnonymousExprFQNRewriter(ExtractAnonymousExpr(syntax, 1), semanticModel)
-            ),
-            "AddOpenGeneric" => EntryCommandModel.AddOpenGeneric(
-                ExtractNthArgTypeOf(syntax, 0, utils, semanticModel),
-                lifetime
-            ),
-            "AddToCollection" => EntryCommandModel.AddToCollection(
-                implType!,
-                lifetime,
-                ExtractNthIntArg(syntax, 1, semanticModel)
-            ),
-            "AddPrimaryToCollection" => EntryCommandModel.AddPrimaryToCollection(
-                implType!,
-                lifetime,
-                ExtractNthIntArg(syntax, 1, semanticModel)
-            ),
-            "AddAsyncFactory" => EntryCommandModel.AddAsyncFactory(
-                implType!,
-                lifetime,
-                InvokeAnonymousExprFQNRewriter(ExtractAnonymousExpr(syntax, 1), semanticModel)
-            ),
-            "AddFromHierarchy" => EntryCommandModel.AddFromHierarchy(implType!, lifetime),
-            "AddAllFromHierarchy" => EntryCommandModel.AddAllFromHierarchy(implType!, lifetime),
-            "AddFromSibling" => EntryCommandModel.AddFromSibling(implType!, lifetime),
-            "AddFromChildren" => EntryCommandModel.AddAllFromChildren(implType!, lifetime),
-            "AddAllFromChildren" => EntryCommandModel.AddAllFromChildren(implType!, lifetime),
-            "AddFromParent" => EntryCommandModel.AddFromParent(implType!, lifetime),
-            "AddAllFromParent" => EntryCommandModel.AddAllFromParent(implType!, lifetime),
-            "AddNewComponent" => EntryCommandModel.AddNewComponent(implType!, lifetime),
-            "AddFromPrefab" => EntryCommandModel.AddFromPrefab(
-                implType!,
-                lifetime,
-                ExtractNthArgAsString(syntax, 1)
-            ),
-            "Decorate" => EntryCommandModel.Decorate(
-                contract: ExtractNthTypeArg(method, 0, utils)!,
-                decorator: ExtractNthTypeArg(method, 1, utils)!
-            ),
+            nameof(IServiceRegistry.Add) 
+                => EntryCommandModel.Add(CreateServiceModel(implType!), lifetime),
+            nameof(IServiceRegistry.AddFactory)
+                => EntryCommandModel.AddFactory(implType!, lifetime, RewriteAnonymousExpr(1)),
+            nameof(IServiceRegistry.AddOpenGeneric)
+                => EntryCommandModel.AddOpenGeneric(CreateServiceModel(ExtractNthArgTypeOf(syntax, 0, utils, semanticModel)), lifetime),
+            nameof(IServiceRegistry.AddToCollection)
+                => EntryCommandModel.AddToCollection(CreateServiceModel(implType!), lifetime, ExtractNthIntArg(syntax, 1, semanticModel)),
+            nameof(IServiceRegistry.AddPrimaryToCollection) 
+                => EntryCommandModel.AddPrimaryToCollection(CreateServiceModel(implType!), lifetime, ExtractNthIntArg(syntax, 1, semanticModel)),
+            nameof(IServiceRegistry.AddAsyncFactory)
+                => EntryCommandModel.AddAsyncFactory(implType!, lifetime, RewriteAnonymousExpr(1)),
+            nameof(IServiceRegistry.AddFromHierarchy)
+                => EntryCommandModel.AddFromHierarchy(CreateServiceModel(implType!), lifetime),
+            nameof(IServiceRegistry.AddAllFromHierarchy)
+                => EntryCommandModel.AddAllFromHierarchy(CreateServiceModel(implType!), lifetime),
+            nameof(IServiceRegistry.AddFromSibling)
+                => EntryCommandModel.AddFromSibling(CreateServiceModel(implType!), lifetime),
+            nameof(IServiceRegistry.AddFromChildren)
+                => EntryCommandModel.AddFromChildren(CreateServiceModel(implType!), lifetime),
+            nameof(IServiceRegistry.AddAllFromChildren)
+                => EntryCommandModel.AddAllFromChildren(CreateServiceModel(implType!), lifetime),
+            nameof(IServiceRegistry.AddFromParent)
+                => EntryCommandModel.AddFromParent(CreateServiceModel(implType!), lifetime),
+            nameof(IServiceRegistry.AddAllFromParent)
+                => EntryCommandModel.AddAllFromParent(CreateServiceModel(implType!), lifetime),
+            nameof(IServiceRegistry.AddNewComponent)
+                => EntryCommandModel.AddNewComponent(CreateServiceModel(implType!), lifetime),
+            nameof(IServiceRegistry.AddFromPrefab)
+                => EntryCommandModel.AddFromPrefab(CreateServiceModel(implType!), lifetime, ExtractNthArgAsString(syntax, 1)),
+            nameof(IServiceRegistry.Decorate)
+                => EntryCommandModel.Decorate(
+                    contract: implType!,
+                    decorator: ExtractNthTypeArg(method, 1, utils)!
+                ),
             _ => throw new InvalidOperationException($"Unhandled Entry method name '{method.Name}'.")
         };
         
         return true;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        string RewriteAnonymousExpr(int index) => 
+            InvokeAnonymousExprFQNRewriter(ExtractAnonymousExpr(syntax, index), semanticModel);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        ServiceModel CreateServiceModel(ITypeReferenceModel typeRef) => new() {
+            TypeRef = typeRef,
+            CreationModel = ExtractServiceCreationModel(
+                (INamedTypeSymbol)typeRef.UnderlyingTypeSymbol,
+                utils,
+                semanticModel
+            )
+        };
     }
 
     private static ImmutableArray<ModifierCommandModel> ParseModifiers(
@@ -147,45 +154,66 @@ internal static class BindingRegistrationParser {
         }
 
         return method.Name switch {
-            "To" => ModifierCommandModel.To(
-                ExtractNthTypeArg(method, 0, utils) ?? ExtractNthArgTypeOf(syntax, 0, utils, semanticModel)
-            ),
-            "ToImplementedInterfaces" => ModifierCommandModel.ToImplementedInterfaces(),
-            "WithId" => ModifierCommandModel.WithId(ExtractNthStringArg(syntax, 0, semanticModel)),
-            "Pooled" => ModifierCommandModel.Pooled(ExtractNthIntArg(syntax, 0, semanticModel)),
-            "Eager" => ModifierCommandModel.Eager(),
-            "Lazy" => ModifierCommandModel.Lazy(),
-            "FromFactory" => ModifierCommandModel.FromFactory(
-                InvokeAnonymousExprFQNRewriter(ExtractAnonymousExpr(syntax, 1), semanticModel)
-            ),
-            "FromInjectFactory" => ModifierCommandModel.FromInjectFactory(),
-            "WithArgument" => ModifierCommandModel.WithArgument(
-                ExtractNthStringArg(syntax, 0, semanticModel),
-                ExtractNthTypeArg(method, 0, utils)!,
-                ExtractNthArgAsString(syntax, 1)
-            ),
-            "WhenInjectedInto" => ModifierCommandModel.WhenInjectedInto(ExtractNthTypeArg(method, 0, utils)!),
-            "When" => ModifierCommandModel.When(
-                InvokeAnonymousExprFQNRewriter(ExtractAnonymousExpr(syntax, 1), semanticModel)
-            ),
-            "OverrideExisting" => ModifierCommandModel.OverrideExisting(),
-            "AsCollection" => ModifierCommandModel.AsCollection(ExtractNthIntArg(syntax, 0, semanticModel)),
-            "AsPrimary" => ModifierCommandModel.AsPrimary(),
-            "DoNotDispose" => ModifierCommandModel.DoNotDispose(),
-            "TrackDisposable" => ModifierCommandModel.TrackDisposable(),
+            nameof(IBindingBuilder<>.To)
+                => ModifierCommandModel.To(
+                    ExtractNthTypeArg(method, 0, utils) ?? ExtractNthArgTypeOf(syntax, 0, utils, semanticModel)
+                ),
+            nameof(IBindingBuilder<>.ToImplementedInterfaces)
+                => ModifierCommandModel.ToImplementedInterfaces(),
+            nameof(IBindingBuilder<>.WithId) 
+                => ModifierCommandModel.WithId(ExtractNthStringArg(syntax, 0, semanticModel)),
+            nameof(IBindingBuilder<>.Pooled) 
+                => ModifierCommandModel.Pooled(ExtractNthIntArg(syntax, 0, semanticModel)),
+            nameof(IBindingBuilder<>.Eager) 
+                => ModifierCommandModel.Eager(),
+            nameof(IBindingBuilder<>.Lazy) 
+                => ModifierCommandModel.Lazy(),
+            nameof(IBindingBuilder<>.FromFactory) 
+                => ModifierCommandModel.FromFactory(RewriteAnonymousExpr(1)),
+            nameof(IBindingBuilder<>.FromInjectFactory) 
+                => ModifierCommandModel.FromInjectFactory(),
+            nameof(IBindingBuilder<>.WithArgument) 
+                => ModifierCommandModel.WithArgument(
+                    ExtractNthStringArg(syntax, 0, semanticModel),
+                    ExtractNthTypeArg(method, 0, utils)!,
+                    ExtractNthArgAsString(syntax, 1)
+                ),
+            nameof(IBindingBuilder<>.WhenInjectedInto)
+                => ModifierCommandModel.WhenInjectedInto(ExtractNthTypeArg(method, 0, utils)!),
+            nameof(IBindingBuilder<>.When) 
+                => ModifierCommandModel.When(RewriteAnonymousExpr(1)),
+            nameof(IBindingBuilder<>.OverrideExisting) 
+                => ModifierCommandModel.OverrideExisting(),
+            nameof(IBindingBuilder<>.AsCollection) 
+                => ModifierCommandModel.AsCollection(ExtractNthIntArg(syntax, 0, semanticModel)),
+            nameof(IBindingBuilder<>.AsPrimary) 
+                => ModifierCommandModel.AsPrimary(),
+            nameof(IBindingBuilder<>.DoNotDispose)
+                => ModifierCommandModel.DoNotDispose(),
+            nameof(IBindingBuilder<>.TrackDisposable) 
+                => ModifierCommandModel.TrackDisposable(),
             
             // Unity component specific
-            "UnderTransform" => ModifierCommandModel.UnderTransform(ExtractNthArgAsString(syntax, 0)),
-            "UnderObjectOfType" => ModifierCommandModel.UnderObjectOfType(ExtractNthTypeArg(method, 0, utils)!),
-            "WithGameObjectName" => ModifierCommandModel.WithGameObjectName(ExtractNthStringArg(syntax, 0, semanticModel)),
-            "DoNotDestroy" => ModifierCommandModel.DoNotDestroy(),
+            nameof(IComponentInstantiationBindingBuilder<>.UnderTransform) 
+                => ModifierCommandModel.UnderTransform(ExtractNthArgAsString(syntax, 0)),
+            nameof(IComponentInstantiationBindingBuilder<>.UnderObjectOfType) 
+                => ModifierCommandModel.UnderObjectOfType(ExtractNthTypeArg(method, 0, utils)!),
+            nameof(IComponentInstantiationBindingBuilder<>.WithGameObjectName)
+                => ModifierCommandModel.WithGameObjectName(ExtractNthStringArg(syntax, 0, semanticModel)),
+            nameof(IComponentInstantiationBindingBuilder<>.DoNotDestroy) 
+                => ModifierCommandModel.DoNotDestroy(),
             _ => throw new InvalidOperationException($"Unhandled Modifier method name '{method.Name}'.")
         };
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        string RewriteAnonymousExpr(int index) => 
+            InvokeAnonymousExprFQNRewriter(ExtractAnonymousExpr(syntax, index), semanticModel);
     }
 
-    private static bool IsRegistryMethod(IMethodSymbol method, DiscoveryUtils utils) {
+    private static bool IsRegistryMethod(IMethodSymbol method, SemanticModel semanticModel) {
         INamedTypeSymbol? type = method.ContainingType;
-        if (!SymbolEqualityComparer.Default.Equals(type, utils.ReferenceSymbols.IServiceRegistry)) {
+        INamedTypeSymbol? target = semanticModel.Compilation.GetTypeByMetadataName(typeof(IServiceRegistry).FullName!);
+        if (!SymbolEqualityComparer.Default.Equals(type, target)) {
             return false;
         }
         
@@ -245,51 +273,32 @@ internal static class BindingRegistrationParser {
         return syntax.ArgumentList.Arguments[index].Expression.ToString();
     }
 
+    private static ServiceCreationModel ExtractServiceCreationModel(
+        INamedTypeSymbol serviceDef,
+        DiscoveryUtils utils,
+        SemanticModel semanticModel)
+    {
+        INamedTypeSymbol? targetAttr =
+            semanticModel.Compilation.GetTypeByMetadataName(typeof(ConstructWithAttribute).FullName!);
+        
+        foreach (IMethodSymbol method in serviceDef.GetMembers().OfType<IMethodSymbol>()) {
+            if (!method.ValidateAnnotatedWith(targetAttr!)) {
+                continue;
+            }
+            
+            return method.MethodKind switch {
+                MethodKind.Constructor => new ConstructorCreationModel(method, utils),
+                MethodKind.Ordinary => new FactoryMethodCreationModel(method, utils),
+                _ => throw new InvalidOperationException("Constructor or static Factory Method was expected and not provided.")
+            };
+        }
+        
+        return new MonoBehaviourCreationModel();
+    }
+
     private static string InvokeAnonymousExprFQNRewriter(AnonymousFunctionExpressionSyntax expr, SemanticModel semanticModel) {
         AnonymousExprFQNRewriter rewriter = new AnonymousExprFQNRewriter(semanticModel);
         AnonymousFunctionExpressionSyntax rewritten = (AnonymousFunctionExpressionSyntax)rewriter.Visit(expr);
         return rewritten.ToFullString();
-    }
-}
-
-
-internal sealed class AnonymousExprFQNRewriter : CSharpSyntaxRewriter {
-    private readonly SemanticModel _semanticModel;
-    
-    internal AnonymousExprFQNRewriter(SemanticModel semanticModel) {
-        _semanticModel = semanticModel;
-    }
-
-    public override SyntaxNode? VisitIdentifierName(IdentifierNameSyntax node) {
-        ISymbol? symbol = _semanticModel.GetSymbolInfo(node).Symbol;
-
-        if (symbol is INamedTypeSymbol named) {
-            string fqn = named.GetConstructedTypeFQN();
-            return SyntaxFactory.ParseTypeName(fqn).WithTriviaFrom(node);
-        }
-        
-        return base.VisitIdentifierName(node);
-    }
-
-    public override SyntaxNode? VisitGenericName(GenericNameSyntax node) {
-        ISymbol? symbol = _semanticModel.GetSymbolInfo(node).Symbol;
-
-        if (symbol is INamedTypeSymbol named) {
-            string fqn = named.GetConstructedTypeFQN();
-            return SyntaxFactory.ParseTypeName(fqn).WithTriviaFrom(node);
-        }
-        
-        return base.VisitGenericName(node);
-    }
-
-    public override SyntaxNode? VisitArrayType(ArrayTypeSyntax node) {
-        ISymbol? symbol = _semanticModel.GetSymbolInfo(node).Symbol;
-        
-        if (symbol is IArrayTypeSymbol array) {
-            string fqn = array.GetConstructedTypeFQN();
-            return SyntaxFactory.ParseTypeName(fqn).WithTriviaFrom(node);
-        }
-        
-        return base.VisitArrayType(node);   
     }
 }

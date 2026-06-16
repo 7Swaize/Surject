@@ -8,5 +8,6 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.0" />
     <PackageVersion Include="PolySharp" Version="1.16.0" />
     <PackageVersion Include="Unity3D.SDK" Version="2021.1.14.1" />
+    <PackageVersion Include="ZLinq" Version="1.5.6" />
   </ItemGroup>
 </Project>

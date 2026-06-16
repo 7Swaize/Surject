@@ -3,43 +3,43 @@ using Surject.Generators.Models.Concepts;
 
 namespace Surject.Generators.Discovery.ServiceRegistration;
 
-internal readonly struct RegistrationNormalizer : IEntryCommandVisitor<BindingModel> {
+internal readonly struct RegistrationNormalizer : IEntryCommandVisitor<RegistrationModel> {
     private readonly ImmutableArray<ModifierCommandModel> _parsedModifiers;
     
     internal RegistrationNormalizer(ImmutableArray<ModifierCommandModel> parsedModifiers) {
         _parsedModifiers = parsedModifiers;
     }
 
-    public BindingModel VisitAdd(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitAddFactory(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitAddOpenGeneric(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitAddAsyncFactory(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitAddFromHierarchy(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitAddAllFromHierarchy(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitAddFromSibling(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitAddFromChildren(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitAddAllFromChildren(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitAddFromParent(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitAddAllFromParent(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitAddNewComponent(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitAddFromPrefab(in EntryCommandModel cmd) => Wrap(cmd);
-    public BindingModel VisitDecorate(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAdd(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAddFactory(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAddOpenGeneric(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAddAsyncFactory(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAddFromHierarchy(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAddAllFromHierarchy(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAddFromSibling(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAddFromChildren(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAddAllFromChildren(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAddFromParent(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAddAllFromParent(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAddNewComponent(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitAddFromPrefab(in EntryCommandModel cmd) => Wrap(cmd);
+    public RegistrationModel VisitDecorate(in EntryCommandModel cmd) => Wrap(cmd);
 
-    public BindingModel VisitAddToCollection(in EntryCommandModel cmd) {
-        EntryCommandModel normalized = EntryCommandModel.Add(cmd.ImplType, cmd.Lifetime);
+    public RegistrationModel VisitAddToCollection(in EntryCommandModel cmd) {
+        EntryCommandModel normalized = EntryCommandModel.Add(cmd.Service, cmd.Lifetime);
         ImmutableArray<ModifierCommandModel> modifiers = _parsedModifiers.Insert(0, ModifierCommandModel.AsCollection(cmd.OrderHint));
-        return new BindingModel(normalized, modifiers);
+        return new RegistrationModel(normalized, modifiers);
     }
 
-    public BindingModel VisitAddPrimaryToCollection(in EntryCommandModel cmd) {
-        EntryCommandModel normalized = EntryCommandModel.Add(cmd.ImplType, cmd.Lifetime);
+    public RegistrationModel VisitAddPrimaryToCollection(in EntryCommandModel cmd) {
+        EntryCommandModel normalized = EntryCommandModel.Add(cmd.Service, cmd.Lifetime);
         ImmutableArray<ModifierCommandModel> modifiers = _parsedModifiers
             .Insert(0, ModifierCommandModel.AsCollection(cmd.OrderHint))
             .Insert(0, ModifierCommandModel.AsPrimary());
-        return new BindingModel(normalized, modifiers);
+        return new RegistrationModel(normalized, modifiers);
     }
 
-    private BindingModel Wrap(in EntryCommandModel cmd) {
-        return new BindingModel(cmd, _parsedModifiers);
+    private RegistrationModel Wrap(in EntryCommandModel cmd) {
+        return new RegistrationModel(cmd, _parsedModifiers);
     }
 }

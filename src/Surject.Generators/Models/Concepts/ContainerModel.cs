@@ -3,20 +3,22 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Surject.Abstractions.Registrations;
+using Surject.Generators.Discovery;
 using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Models.Collections;
 using Surject.Generators.Models.Primitives;
 
-
 namespace Surject.Generators.Models.Concepts;
 
 internal sealed record ContainerModel {
-    internal ContainerModel(GeneratorAttributeSyntaxContext context, DiscoveryUtils utils) {
+    internal ContainerModel(in GeneratorAttributeSyntaxContext context, DiscoveryUtils utils) {
+        SemanticModel semanticModel = context.SemanticModel;
         IMethodSymbol registrationMethod = context.TargetSymbol
             .As<INamedTypeSymbol>()
             .GetMembers()
             .OfType<IMethodSymbol>()
-            .First(m => m.Name == KScopeContextMethodName);
+            .First(m => m.Name == nameof(ScopeContext.Configure));
         
         IEnumerable<InvocationExpressionSyntax> invocations = registrationMethod.DeclaringSyntaxReferences[0]
             .GetSyntax()
@@ -25,15 +27,13 @@ internal sealed record ContainerModel {
             .Where(inv => !inv.IsPartOfLargerChain());
         
         Bindings = invocations
-            .Select(inv => BindingRegistrationParser.Parse(inv, utils, context.SemanticModel))
+            .Select(inv => BindingRegistrationParser.Parse(inv, utils, semanticModel))
             .Where(b => b != null)
             .ToImmutableArray()!;
 
-        ContainerDecl = new ClassDeclModel((INamedTypeSymbol)context.TargetSymbol, utils);
+        Decl = new ClassDeclModel((INamedTypeSymbol)context.TargetSymbol, utils);
     }
     
-    private const string KScopeContextMethodName = "Configure";
-    
-    internal ClassDeclModel ContainerDecl { get; init; }
-    internal EquatableArray<BindingModel> Bindings { get; init; }
+    internal ClassDeclModel Decl { get; init; }
+    internal EquatableArray<RegistrationModel> Bindings { get; init; }
 }

@@ -3,8 +3,8 @@ using Surject.Generators.Models.Collections;
 
 namespace Surject.Generators.Models.Concepts;
 
-internal record BindingModel {
-    internal BindingModel(EntryCommandModel entry, ImmutableArray<ModifierCommandModel> modifiers) {
+internal record RegistrationModel {
+    internal RegistrationModel(EntryCommandModel entry, ImmutableArray<ModifierCommandModel> modifiers) {
         Entry = entry;
         Modifiers = modifiers;
     }
