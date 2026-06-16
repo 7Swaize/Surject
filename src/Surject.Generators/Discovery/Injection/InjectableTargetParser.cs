@@ -90,7 +90,7 @@ internal static class InjectableTargetParser {
                     p => Parse(p, TryGetMode(p, modeMap) ?? InjectionMode.Standard, compilation, utils, modeMap)
                 )]
             },
-            _ => ThrowHelpers.ThrowUnhandledBranch<InjectableMemberModel>(targetSymbol.Kind)
+            _ => ThrowHelper.ThrowUnhandledBranch<InjectableMemberModel>(targetSymbol.Kind)
         };
     }
 

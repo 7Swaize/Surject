@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Surject.Shared.Helpers;
 
-public static class ThrowHelpers {
+public static class ThrowHelper {
     [DoesNotReturn]
     public static TResult ThrowUnhandledBranch<TResult>(object value) =>
         throw new InvalidOperationException($"Unhandled value '{value}' in switch statement.");

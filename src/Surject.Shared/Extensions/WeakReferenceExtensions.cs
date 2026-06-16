@@ -6,7 +6,7 @@ public static class WeakReferenceExtensions {
         public T GetTargetOrThrow() {
             return weakReference.TryGetTarget(out T? target)
                 ? target 
-                : ThrowHelpers.ThrowWeakReferenceCollected<T>();
+                : ThrowHelper.ThrowWeakReferenceCollected<T>();
         }
     }
 }
