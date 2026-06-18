@@ -5,10 +5,10 @@ using Microsoft.CodeAnalysis.Text;
 using Surject.Generators.Models.Concepts;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
-namespace Surject.Generators.Emitters.Container;
+namespace Surject.Generators.Emitters.InjectableTargets;
 
-internal static class ContainerEmitter {
-    internal static GeneratedSource Emit(ContainerModel model) {
+internal static class InjectableTargetEmitter {
+    internal static GeneratedSource Emit(InjectableTargetModel model) {
         using StringWriter sr = new();
         using IndentedTextWriter writer = new(sr);
         
@@ -21,7 +21,7 @@ internal static class ContainerEmitter {
         
         EmitHelpers.EmitClassDeclarationFromModel(model.Decl, writer);
         
-        // TODO
+        new InjectMethodEmitter(model).Emit(writer);
         
         // closes class
         writer.Indent--;
@@ -32,7 +32,6 @@ internal static class ContainerEmitter {
             writer.WriteLine("}");
         }
         
-
         SourceText text = SourceText.From(sr.ToString(), Encoding.UTF8);
         return ($"{model.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}.g.cs", text);
     }

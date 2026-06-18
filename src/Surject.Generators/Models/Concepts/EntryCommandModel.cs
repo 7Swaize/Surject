@@ -1,5 +1,3 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
 using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;

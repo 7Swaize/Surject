@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
+using Surject.Generators.Models.Collections;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
@@ -20,7 +21,7 @@ internal static class InjectableTargetParser {
         
     ];
 
-    internal static ImmutableArray<InjectableMemberModel> GetMembersToInject(
+    internal static EquatableArray<InjectableMemberModel> GetMembersToInject(
         INamedTypeSymbol target,
         Compilation compilation,
         DiscoveryUtils utils)
@@ -37,22 +38,37 @@ internal static class InjectableTargetParser {
         }
 
         foreach (ISymbol member in target.GetMembers()) {
-            if (TryGetMode(member, modeMap) is { } mode) {
-                builder.Add(Parse(member, mode, compilation, utils, modeMap));
+            if (GetMode(member, modeMap) is var mode && mode != InjectionMode.None) {
+                continue;
             }
+            
+            builder.Add(Parse(member, mode, compilation, utils, modeMap));
         }
         
-        return builder.ToImmutable();
+        return builder.ToImmutable().AsEquatableArray();
     }
 
-    private static InjectionMode? TryGetMode(ISymbol symbol, Dictionary<INamedTypeSymbol, InjectionMode> modeMap) {
+    private static InjectionMode GetMode(ISymbol symbol, Dictionary<INamedTypeSymbol, InjectionMode> modeMap) {
+        InjectionMode res = InjectionMode.None;
+        
         foreach (AttributeData attr in symbol.GetAttributes()) {
             if (attr.AttributeClass is not null && modeMap.TryGetValue(attr.AttributeClass, out InjectionMode mode)) {
-                return mode;
+                res |= mode;
             }
         }
-        
-        return null;
+
+        ITypeSymbol? fieldType = symbol switch {
+            IFieldSymbol field => field.Type,
+            IPropertySymbol prop => prop.Type,
+            IParameterSymbol param => param.Type,
+            _ => null
+        };
+
+        if (fieldType is IArrayTypeSymbol) {
+            res |= InjectionMode.All;
+        }
+
+        return res;
     }
     
     private static InjectableMemberModel Parse(
@@ -62,33 +78,49 @@ internal static class InjectableTargetParser {
         DiscoveryUtils utils,
         Dictionary<INamedTypeSymbol, InjectionMode> modeMap)
     {
+        string? id = CheckId(targetSymbol, compilation);
+        InjectionMode effectiveMode = id is not null 
+            ? mode | InjectionMode.Keyed
+            : mode;
+        
         return targetSymbol switch {
             IFieldSymbol field => new InjectableMemberModel {
-                Mode = mode,
+                Name = field.Name,
+                Mode = effectiveMode,
                 Site = InjectionSiteKind.Field,
-                TypeRef = utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(field.Type),
-                Id = CheckId(targetSymbol, compilation)
+                TypeToRequest = GetTypeToRequest(field.Type, mode, utils),
+                Id = id
             },
-            IPropertySymbol prop => new InjectableMemberModel {
-                Mode = mode,
+            IPropertySymbol property => new InjectableMemberModel {
+                Name = property.Name,
+                Mode = effectiveMode,
                 Site = InjectionSiteKind.Property,
-                TypeRef = utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(prop.Type),
-                Id = CheckId(targetSymbol, compilation)
+                TypeToRequest = GetTypeToRequest(property.Type, mode, utils),
+                Id = id
             },
             IParameterSymbol param => new InjectableMemberModel {
-                Mode = mode,
+                Name = param.Name,
+                Mode = effectiveMode,
                 Site = InjectionSiteKind.Parameter,
-                TypeRef = utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(param.Type),
-                Id = CheckId(targetSymbol, compilation)
+                TypeToRequest = GetTypeToRequest(param.Type, mode, utils),
+                Id = id
             },
-            IMethodSymbol meth => new InjectableMemberModel {
-                Mode = mode,
+            IMethodSymbol method => new InjectableMemberModel {
+                Name = method.Name,
+                Mode = effectiveMode,
                 Site = InjectionSiteKind.Method,
-                MethodRef = new MethodModel(meth, utils),
-                Id = CheckId(targetSymbol, compilation),
-                Parameters = [.. meth.Parameters.Select(
-                    p => Parse(p, TryGetMode(p, modeMap) ?? InjectionMode.Standard, compilation, utils, modeMap)
-                )]
+                MethodRef = new MethodModel(method, utils),
+                Id = id,
+                Parameters = method.Parameters.Select(param => {
+                    InjectionMode parameterMode = GetMode(param, modeMap);
+                    return Parse(
+                        param,
+                        parameterMode == InjectionMode.None ? InjectionMode.Standard : parameterMode,
+                        compilation,
+                        utils,
+                        modeMap
+                    );
+                }).ToImmutableArray().AsEquatableArray()
             },
             _ => ThrowHelper.ThrowUnhandledBranch<InjectableMemberModel>(targetSymbol.Kind)
         };
@@ -102,5 +134,27 @@ internal static class InjectableTargetParser {
         }
         
         return data.ConstructorArguments[0].Value?.ToString();
+    }
+
+    private static ITypeReferenceModel GetTypeToRequest(ITypeSymbol target, InjectionMode mode, DiscoveryUtils utils) {
+        return mode switch {
+            _ when (mode & (InjectionMode.Lazy | InjectionMode.Async)) == (InjectionMode.Lazy | InjectionMode.Async) =>
+                utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
+                    target.As<INamedTypeSymbol>().TypeArguments[0].As<IArrayTypeSymbol>().ElementType
+                ),
+            _ when (mode & InjectionMode.Lazy) != 0 =>
+                utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
+                    target.As<INamedTypeSymbol>().TypeArguments[0]
+                ),
+            _ when (mode & InjectionMode.Async) != 0 =>
+                utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
+                    target.As<INamedTypeSymbol>().TypeArguments[0]
+                ),
+            _ when (mode & InjectionMode.All) != 0 =>
+                utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
+                    target.As<IArrayTypeSymbol>().ElementType
+                ),
+            _ => utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(target)
+        };
     }
 }

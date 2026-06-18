@@ -1,4 +1,6 @@
 using System.CodeDom.Compiler;
+using System.Linq;
+using Surject.Generators.Models.Primitives;
 
 namespace Surject.Generators.Emitters;
 
@@ -40,5 +42,32 @@ internal static class EmitHelpers {
         writer.Indent++;
         writer.WriteLine($"global::System.ComponentModel.EditorBrowsableState.Never)]");
         writer.Indent--;
-    }   
+    }
+
+    internal static void EmitPreserveAttribute(IndentedTextWriter writer) {
+        writer.WriteLine("[global::UnityEngine.Scripting.Preserve]");
+    }
+
+    internal static void EmitClassDeclarationFromModel(ClassDeclModel decl, IndentedTextWriter writer) {
+        string accessibility = decl.AccessModifier.AsDeclString();
+        string isPartial = decl.IsPartial ? "partial " : string.Empty;
+        string isSealed = decl.IsSealed ? "sealed " : string.Empty;
+        string isStatic = decl.IsStatic ? "static " : string.Empty;
+        
+        string typeParams = decl.ClassAsTypeRef.TypeParameters.Length > 0
+            ? "<" + string.Join(", ", decl.ClassAsTypeRef.TypeParameters.Select(static tp => tp.FQNGenericBased)) + ">"
+            : string.Empty;
+
+        string constraints = decl.ClassAsTypeRef.Constraints.Length > 0
+            ? string.Join(" ", decl.ClassAsTypeRef.Constraints.Select(static ct => ct.ToString()))
+            : string.Empty;
+        
+        writer.WriteLine(
+            $"{accessibility} {isPartial} {isSealed} {isStatic} class " +
+            $"{decl.FQNNoGlobal}{typeParams} " +
+            $"{constraints} {{"
+        );
+        
+        writer.Indent++;
+    }
 }
