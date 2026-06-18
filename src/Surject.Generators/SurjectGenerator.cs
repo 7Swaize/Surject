@@ -1,7 +1,9 @@
 using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
 using Surject.Generators.Discovery;
+using Surject.Generators.Emitters.InjectableTargets;
 using Surject.Generators.Models.Concepts;
+using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
 namespace Surject.Generators;
 
@@ -21,7 +23,11 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
             }
         );
         
-        // emit
+        context.RegisterSourceOutput(injectableTargets, (ctx, injectableTarget) => {
+            GeneratedSource source = InjectableTargetEmitter.Emit(injectableTarget);
+            
+            ctx.AddSource($"{source.name}", source.sourceText);
+        });
 
         IncrementalValuesProvider<ContainerModel> containers = context.SyntaxProvider.ForAttributeWithMetadataName(
             fullyQualifiedMetadataName: typeof(ScopeAttribute).FullName!,
