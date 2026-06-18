@@ -123,7 +123,7 @@ internal sealed class TypeReferenceModelFactory {
     // TODO: Check this. Because we are not using 'SymbolEqualityComparer.Default' we could be getting duplicate creations.
     private readonly ConditionalWeakTable<ITypeSymbol, ITypeReferenceModel> _cache = new();
 
-    internal ITypeReferenceModel CreateOrGetTypeReferenceModel(ITypeSymbol typeSymbol) {
+    internal ITypeReferenceModel CreateOrGetTypeReferenceModel(ITypeSymbol? typeSymbol) {
         if (_cache.TryGetValue(typeSymbol, out var cached)) {
             return cached;
         }

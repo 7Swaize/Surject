@@ -32,8 +32,10 @@ internal sealed record ContainerModel {
             .ToImmutableArray()!;
 
         Decl = new ClassDeclModel((INamedTypeSymbol)context.TargetSymbol, utils);
+        ParentOverride = ContainerParser.TryGetParentScopeOverride(in context, utils);
     }
     
     internal ClassDeclModel Decl { get; init; }
+    internal ITypeReferenceModel? ParentOverride { get; init; }
     internal EquatableArray<RegistrationModel> Bindings { get; init; }
 }
