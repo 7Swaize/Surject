@@ -9,6 +9,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Surject.Shared\Surject.Shared.csproj" />
         <ProjectReference Include="..\Surject.Abstractions\Surject.Abstractions.csproj" />
+        <ProjectReference Include="..\Surject.Unity\Surject.Unity.csproj" />
     </ItemGroup>
 
 </Project>
