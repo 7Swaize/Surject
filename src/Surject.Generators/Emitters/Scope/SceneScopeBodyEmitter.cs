@@ -25,6 +25,7 @@ internal readonly struct SceneScopeBodyEmitter {
     }
 
     private void EmitAwakeMethod(IndentedTextWriter writer) {
+        EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         writer.WriteLine($"private void Awake() {{");
         writer.Indent++;
         
@@ -68,6 +69,7 @@ internal readonly struct SceneScopeBodyEmitter {
     }
 
     private void EmitOnDestroyAsyncMethod(IndentedTextWriter writer) {
+        EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         writer.WriteLine($"private async global::UnityEngine.Awaitable OnDestroyAsync() {{");
         writer.Indent++;
         

@@ -28,6 +28,7 @@ internal readonly struct GameObjectScopeBodyEmitter {
     }
 
     private void EmitAwakeMethod(IndentedTextWriter writer) {
+        EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         writer.WriteLine($"private void Awake() {{");
         writer.Indent++;
         
@@ -75,6 +76,7 @@ internal readonly struct GameObjectScopeBodyEmitter {
             ? _model.ParentOverride.FQNConstructedArgBased
             : $"global::{typeof(ScopeContext).FullName}";
         
+        EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         writer.WriteLine($"private global::{typeof(IResolver).FullName} __DiscoverParentResolver() {{");
         writer.Indent++;
         
@@ -87,6 +89,7 @@ internal readonly struct GameObjectScopeBodyEmitter {
     }
     
     private void EmitOnDestroyAsyncMethod(IndentedTextWriter writer) {
+        EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         writer.WriteLine($"private async global::UnityEngine.Awaitable OnDestroyAsync() {{");
         writer.Indent++;
         

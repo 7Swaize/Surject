@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace Surject.Unity;
 
 public static class SurjectExtensions {
+    [Preserve]
     public static List<TTarget> PreformTraversalWithBoundary<TTarget, TBoundary>(GameObject self, Func<GameObject, TTarget[]> selector) 
         where TTarget : class
         where TBoundary : Component

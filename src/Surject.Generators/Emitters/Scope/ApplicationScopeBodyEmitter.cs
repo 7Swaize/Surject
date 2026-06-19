@@ -23,6 +23,7 @@ internal readonly struct ApplicationScopeBodyEmitter {
     }
 
     private void EmitAwakeMethod(IndentedTextWriter writer) {
+        EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         writer.WriteLine($"private void Awake() {{");
         writer.Indent++;
         
@@ -37,6 +38,7 @@ internal readonly struct ApplicationScopeBodyEmitter {
     }
 
     private void EmitAsyncAwakeMethod(IndentedTextWriter writer) {
+        EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         writer.WriteLine($"private async global::UnityEngine.Awaitable AwakeAsync() {{");
         writer.Indent++;
         
@@ -53,6 +55,7 @@ internal readonly struct ApplicationScopeBodyEmitter {
     }
 
     private void EmitOnDestroyAsyncMethod(IndentedTextWriter writer) {
+        EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         writer.WriteLine($"private async global::UnityEngine.Awaitable OnDestroyAsync() {{");
         writer.Indent++;
         
