@@ -94,7 +94,7 @@ internal readonly record struct ModifierCommandModel {
             ModifierKind.UnderObjectOfType => visitor.VisitUnderObjectOfType(this),
             ModifierKind.WithGameObjectName => visitor.VisitWithGameObjectName(this),
             ModifierKind.DoNotDestroy => visitor.VisitDoNotDestroy(this),
-            _ => ThrowHelper.ThrowUnhandledBranch<TResult>(Kind),
+            _ => ThrowHelpers.ThrowUnhandledBranch<TResult>(Kind),
         };
     }
 }

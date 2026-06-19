@@ -122,7 +122,7 @@ internal static class InjectableTargetParser {
                     );
                 }).ToImmutableArray().AsEquatableArray()
             },
-            _ => ThrowHelper.ThrowUnhandledBranch<InjectableMemberModel>(targetSymbol.Kind)
+            _ => ThrowHelpers.ThrowUnhandledBranch<InjectableMemberModel>(targetSymbol.Kind)
         };
     }
 

@@ -83,7 +83,7 @@ internal readonly record struct EntryCommandModel {
             EntryKind.AddNewComponent => visitor.VisitAddNewComponent(this),
             EntryKind.AddFromPrefab => visitor.VisitAddFromPrefab(this),
             EntryKind.Decorate => visitor.VisitDecorate(this),
-            _ => ThrowHelper.ThrowUnhandledBranch<TResult>(Kind)
+            _ => ThrowHelpers.ThrowUnhandledBranch<TResult>(Kind)
         };
     }
 }
