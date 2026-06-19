@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
 using Surject.Generators.Discovery;
 using Surject.Generators.Emitters.InjectableTargets;
+using Surject.Generators.Emitters.Scope;
 using Surject.Generators.Models.Concepts;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
@@ -37,7 +38,14 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
                 return new ContainerModel(in context, utils);
             }
         );
-        
+
+        context.RegisterSourceOutput(containers, (ctx, container) => {
+            GeneratedSource source = ScopeEmitter.Emit(container);
+
+            ctx.AddSource($"{source.name}", source.sourceText);
+        });
+
+
         // Ideally, we will emit EVERYTHING that can be constructed via an individual `ContainerModel` first.
         // Then, we will merge with `InjectableTargetModel` for emitting Container Resolver. This has to be done.
         // But, with this we get the most benefit from the incremental nature.
