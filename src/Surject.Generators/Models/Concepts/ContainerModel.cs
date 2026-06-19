@@ -32,10 +32,19 @@ internal sealed record ContainerModel {
             .ToImmutableArray()!;
 
         Decl = new ClassDeclModel((INamedTypeSymbol)context.TargetSymbol, utils);
-        ParentOverride = ContainerParser.TryGetParentScopeOverride(in context, utils);
+        ParentOverride = ContainerParser.GetParentScopeOverride(in context, utils);
+        ScopeLevel = ContainerParser.GetScopeLevelKind(in context);
     }
     
     internal ClassDeclModel Decl { get; init; }
     internal ITypeReferenceModel? ParentOverride { get; init; }
+    internal ScopeLevelKind ScopeLevel { get; init; }
+    
     internal EquatableArray<RegistrationModel> Bindings { get; init; }
+}
+
+internal enum ScopeLevelKind : byte {
+    Application = 0,
+    Scene = 1,
+    GameObject = 2,
 }

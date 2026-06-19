@@ -4,7 +4,7 @@ using Surject.Abstractions.Registrations;
 
 namespace Surject.Sandbox;
 
-[Scope]
+[Scope(ScopeLevel.Application)]
 internal sealed partial class Scope1 : ScopeContext {
     public override void Configure(IServiceRegistry registry) {
         registry.Add<Foo>(Lifetime.Singleton)

@@ -48,7 +48,11 @@ internal static class EmitHelpers {
         writer.WriteLine("[global::UnityEngine.Scripting.Preserve]");
     }
 
-    internal static void EmitClassDeclarationFromModel(ClassDeclModel decl, IndentedTextWriter writer) {
+    internal static void EmitClassDeclarationFromModel(
+        ClassDeclModel decl,
+        IndentedTextWriter writer,
+        string[]? inheritance = null)
+    {
         string accessibility = decl.AccessModifier.AsDeclString();
         string isPartial = decl.IsPartial ? "partial " : string.Empty;
         string isSealed = decl.IsSealed ? "sealed " : string.Empty;
@@ -62,9 +66,14 @@ internal static class EmitHelpers {
             ? string.Join(" ", decl.ClassAsTypeRef.Constraints.Select(static ct => ct.ToString()))
             : string.Empty;
         
+        string inheritFrom = inheritance != null
+            ? string.Join(", ", inheritance)
+            : string.Empty;
+        
         writer.WriteLine(
             $"{accessibility} {isPartial} {isSealed} {isStatic} class " +
             $"{decl.FQNNoGlobal}{typeParams} " +
+            $"{(!string.IsNullOrEmpty(inheritFrom) ? $": {inheritFrom} " : "")}" +
             $"{constraints} {{"
         );
         

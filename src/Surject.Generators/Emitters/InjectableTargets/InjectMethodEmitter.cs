@@ -29,7 +29,7 @@ internal readonly struct InjectMethodEmitter {
                     ResolveStandard(in member, writer);
                     break;
                 default:
-                    ThrowHelper.ThrowUnhandledBranch(member.Site);
+                    ThrowHelpers.ThrowUnhandledBranch(member.Site);
                     break;
             }
         }
