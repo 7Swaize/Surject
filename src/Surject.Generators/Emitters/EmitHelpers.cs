@@ -48,6 +48,13 @@ internal static class EmitHelpers {
         writer.WriteLine("[global::UnityEngine.Scripting.Preserve]");
     }
 
+    internal static void EmitDefaultExecutionOrderAttribute(string value, IndentedTextWriter writer) {
+        writer.WriteLine($"[global::UnityEngine.DefaultExecutionOrder(");
+        writer.Indent++;
+        writer.WriteLine($"{value})]");
+        writer.Indent--;
+    }
+
     internal static void EmitClassDeclarationFromModel(
         ClassDeclModel decl,
         IndentedTextWriter writer,

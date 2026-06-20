@@ -34,7 +34,7 @@ internal readonly struct SceneScopeBodyEmitter {
         writer.WriteLine($"var parent = global::{typeof(SurjectRuntime).FullName}.GetRootResolver();");
         writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {containerTypeName}();");
         writer.WriteLine(
-            $"global::{typeof(SurjectRuntime).FullName}.RegisterResolver<{_model.Decl.ClassAsTypeRef.FQNConstructedArgBased}>({EmitConstants.KResolverPropertyName});"
+            $"global::{typeof(SurjectRuntime).FullName}.RegisterSceneResolver(gameObject.scene);"
         );
         writer.WriteLine();
 
@@ -73,7 +73,9 @@ internal readonly struct SceneScopeBodyEmitter {
         writer.WriteLine($"private async global::UnityEngine.Awaitable OnDestroyAsync() {{");
         writer.Indent++;
         
-        writer.WriteLine($"global::{typeof(SurjectRuntime).FullName}.UnregisterResolver<{_model.Decl.ClassAsTypeRef.FQNConstructedArgBased}>()");
+        writer.WriteLine(
+            $"global::{typeof(SurjectRuntime).FullName}.UnregisterSceneResolver(gameObject.scene));"
+        );
         writer.WriteLine($"if (__container is global::System.IAsyncDisposable ad) await ad.DisposeAsync();");
         writer.WriteLine($"else __container?.Dispose();");
         

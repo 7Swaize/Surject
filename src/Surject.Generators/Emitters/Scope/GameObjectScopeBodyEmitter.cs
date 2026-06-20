@@ -36,9 +36,6 @@ internal readonly struct GameObjectScopeBodyEmitter {
         
         writer.WriteLine($"var parent = __DiscoverParentResolver();");
         writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {containerTypeName}();");
-        writer.WriteLine(
-            $"global::{typeof(SurjectRuntime).FullName}.RegisterResolver<{_model.Decl.ClassAsTypeRef.FQNConstructedArgBased}>({EmitConstants.KResolverPropertyName});"
-        );
         writer.WriteLine();
 
         writer.WriteMultiline(
@@ -85,7 +82,7 @@ internal readonly struct GameObjectScopeBodyEmitter {
         writer.WriteLine("if (component != null) return component;");
         writer.WriteLine();
         writer.WriteLine($"var resolver = global::{typeof(SurjectRuntime).FullName}.GetSceneResolver(gameObject.scene);");
-        writer.WriteLine($"return resolver != null ? resolver : global::{typeof(SurjectRuntime).FullName}.GetRootResolver();");
+        writer.WriteLine($"return resolver != null ? resolver : global::{typeof(SurjectRuntime).FullName}.RootResolver;");
     }
     
     private void EmitOnDestroyAsyncMethod(IndentedTextWriter writer) {
@@ -93,7 +90,6 @@ internal readonly struct GameObjectScopeBodyEmitter {
         writer.WriteLine($"private async global::UnityEngine.Awaitable OnDestroyAsync() {{");
         writer.Indent++;
         
-        writer.WriteLine($"global::{typeof(SurjectRuntime).FullName}.UnregisterResolver<{_model.Decl.ClassAsTypeRef.FQNConstructedArgBased}>();");
         writer.WriteLine($"if (__container is global::System.IAsyncDisposable ad) await ad.DisposeAsync();");
         writer.WriteLine($"else __container?.Dispose();");
         

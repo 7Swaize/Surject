@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Text;
 using Surject.Abstractions.Resolutions;
 using Surject.Generators.Models.Concepts;
 using Surject.Shared.Helpers;
+using Surject.Unity;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
 namespace Surject.Generators.Emitters.Scope;
@@ -21,6 +22,7 @@ internal static class ScopeEmitter {
             writer.Indent++;
         }
         
+        EmitExecutionOrderAttribute(model, writer);
         EmitHelpers.EmitGeneratedClassAttributes(writer);
         EmitHelpers.EmitClassDeclarationFromModel(model.Decl, writer);
         
@@ -63,5 +65,31 @@ internal static class ScopeEmitter {
             $"public global::{typeof(IResolver).FullName} {EmitConstants.KResolverPropertyName}" +
             $" => {EmitConstants.KContainerFieldName}.{EmitConstants.KResolverPropertyName};"
         );
+    }
+
+    private static void EmitExecutionOrderAttribute(ContainerModel model, IndentedTextWriter writer) {
+        switch (model.ScopeLevel) {
+            case ScopeLevelKind.Application:
+                EmitHelpers.EmitDefaultExecutionOrderAttribute(
+                    $"global::{typeof(SurjectExecutionOrder).FullName}.{nameof(SurjectExecutionOrder.KApplicationRoot)}",
+                    writer
+                );
+                break;
+            case ScopeLevelKind.Scene:
+                EmitHelpers.EmitDefaultExecutionOrderAttribute(
+                    $"global::{typeof(SurjectExecutionOrder).FullName}.{nameof(SurjectExecutionOrder.KSceneScope)}",
+                    writer
+                );
+                break;
+            case ScopeLevelKind.GameObject:
+                EmitHelpers.EmitDefaultExecutionOrderAttribute(
+                    $"global::{typeof(SurjectExecutionOrder).FullName}.{nameof(SurjectExecutionOrder.KGOScope)}",
+                    writer
+                );
+                break;
+            default:
+                ThrowHelpers.ThrowUnhandledBranch(model.ScopeLevel);
+                break;
+        }
     }
 }
