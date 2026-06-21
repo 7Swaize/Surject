@@ -59,9 +59,7 @@ internal static class ScopeEmitter {
     }
     
     private static void EmitMembers(ContainerModel model, IndentedTextWriter writer) {
-        string containerTypeName = $"Container_{model.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}";
-        
-        writer.WriteLine($"private {containerTypeName} {EmitConstants.KContainerFieldName};");
+        writer.WriteLine($"private {EmitConstants.BuildContainerTypeName(model)} {EmitConstants.KContainerFieldName};");
         writer.WriteLine(
             $"{FQN(typeof(IResolver))} {EmitConstants.KResolverPropertyName}" +
             $" => {EmitConstants.KContainerFieldName}.{EmitConstants.KResolverPropertyName};"

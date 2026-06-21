@@ -12,7 +12,7 @@ namespace Surject.Generators;
 internal sealed class SurjectGenerator : IIncrementalGenerator {
     public void Initialize(IncrementalGeneratorInitializationContext context) {
 #if DEBUG
-        System.Diagnostics.Debugger.Launch();
+        // System.Diagnostics.Debugger.Launch();
 #endif
         
         IncrementalValuesProvider<InjectableTargetModel> injectableTargets = context.SyntaxProvider.ForAttributeWithMetadataName(

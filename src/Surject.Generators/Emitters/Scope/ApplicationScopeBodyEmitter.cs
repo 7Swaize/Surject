@@ -27,10 +27,8 @@ internal readonly struct ApplicationScopeBodyEmitter {
         writer.WriteLine($"private void Awake() {{");
         writer.Indent++;
         
-        string containerTypeName = $"Container_{_model.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}";
-        
         writer.WriteLine($"DontDestroyOnLoad(gameObject);");
-        writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {containerTypeName}();");
+        writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {EmitConstants.BuildContainerTypeName(_model)}();");
         writer.WriteLine($"{TypeNames.FQN(typeof(SurjectRuntime))}.RegisterRootResolver({EmitConstants.KResolverPropertyName});");
         
         writer.Indent--;
@@ -42,11 +40,10 @@ internal readonly struct ApplicationScopeBodyEmitter {
         writer.WriteLine($"private async global::UnityEngine.Awaitable AwakeAsync() {{");
         writer.Indent++;
         
-        string containerTypeName = $"Container_{_model.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}";
         
         writer.WriteLine($"DontDestroyOnLoad(gameObject);");
         writer.WriteLine(
-            $"{EmitConstants.KContainerFieldName} = await {containerTypeName}.BuildAsync(destroyCancellationToken)"
+            $"{EmitConstants.KContainerFieldName} = await {EmitConstants.BuildContainerTypeName(_model)}.BuildAsync(destroyCancellationToken)"
         );
         writer.WriteLine($"{TypeNames.FQN(typeof(SurjectRuntime))}.RegisterRootResolver({EmitConstants.KResolverPropertyName});");
         

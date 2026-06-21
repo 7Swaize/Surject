@@ -30,10 +30,8 @@ internal readonly struct SceneScopeBodyEmitter {
         writer.WriteLine($"private void Awake() {{");
         writer.Indent++;
         
-        string containerTypeName = $"Container_{_model.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}";
-        
         writer.WriteLine($"var parent = {FQN(typeof(SurjectRuntime))}.GetRootResolver();");
-        writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {containerTypeName}();");
+        writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {EmitConstants.BuildContainerTypeName(_model)}();");
         writer.WriteLine(
             $"{FQN(typeof(SurjectRuntime))}.RegisterSceneResolver(gameObject.scene);"
         );

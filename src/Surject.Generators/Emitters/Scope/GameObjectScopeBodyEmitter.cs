@@ -33,10 +33,9 @@ internal readonly struct GameObjectScopeBodyEmitter {
         writer.WriteLine($"private void Awake() {{");
         writer.Indent++;
         
-        string containerTypeName = $"Container_{_model.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}";
         
         writer.WriteLine($"var parent = __DiscoverParentResolver();");
-        writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {containerTypeName}();");
+        writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {EmitConstants.BuildContainerTypeName(_model)}();");
         writer.WriteLine();
 
         writer.WriteMultiline(

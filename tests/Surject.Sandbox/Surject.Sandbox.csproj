@@ -4,7 +4,6 @@
         <ProjectReference Include="..\..\src\Surject.Unity\Surject.Unity.csproj" OutputItemType="Analyzer" />
         <ProjectReference Include="..\..\src\Surject.Abstractions\Surject.Abstractions.csproj" OutputItemType="Analyzer" />
         <ProjectReference Include="..\..\src\Surject.Shared\Surject.Shared.csproj" OutputItemType="Analyzer"/>
-        <ProjectReference Include="..\..\src\Surject.Generators\Surject.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
 </Project>
