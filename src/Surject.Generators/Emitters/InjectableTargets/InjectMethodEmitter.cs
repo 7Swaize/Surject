@@ -1,5 +1,6 @@
 using System.CodeDom.Compiler;
 using System.Text;
+using Surject.Abstractions.Resolutions;
 using Surject.Generators.Models.Collections;
 using Surject.Generators.Models.Concepts;
 using Surject.Shared.Helpers;
@@ -17,7 +18,7 @@ internal readonly struct InjectMethodEmitter {
         EmitHelpers.EmitPreserveAttribute(writer);
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         
-        writer.WriteLine($"public void __Surject_Inject(global::Surject.Abstractions.Resolutions.IResolver __resolver) {{");
+        writer.WriteLine($"public void __Surject_Inject(global::{typeof(IResolver).FullName} __resolver) {{");
         writer.Indent++;
 
         foreach (InjectableMemberModel member in _model.MembersToInject) {
@@ -40,10 +41,10 @@ internal readonly struct InjectMethodEmitter {
 
     private static void ResolveStandard(in InjectableMemberModel member, IndentedTextWriter writer) {
         string resolveMethName = BuildResolveMethodName(member.Mode);
-        string id = member.Id ?? "";
+        string resolveContext = BuildResolveContext(member);
         
         writer.WriteLine(
-            $"this.{member.Name} = __resolver.{resolveMethName}<{member.TypeToRequest}>({id});"
+            $"this.{member.Name} = __resolver.{resolveMethName}<{member.TypeToRequest}>({resolveContext});"
         );
         
     }
@@ -58,10 +59,10 @@ internal readonly struct InjectMethodEmitter {
             InjectableMemberModel parameter = parameters[i];
             
             string resolveMethName = BuildResolveMethodName(parameter.Mode);
-            string id = parameter.Id ?? "";
+            string resolveContext = BuildResolveContext(member);
             string suffix = (i == parameters.Length - 1) ? "" : ",";
             
-            writer.WriteLine($"__resolver.{resolveMethName}<{parameters[i].TypeToRequest}>({id}){suffix}");
+            writer.WriteLine($"__resolver.{resolveMethName}<{parameters[i].TypeToRequest}>({resolveContext}){suffix}");
         }
         
         writer.Indent--;
@@ -71,13 +72,38 @@ internal readonly struct InjectMethodEmitter {
     private static string BuildResolveMethodName(InjectionMode mode) {
         StringBuilder sb = new StringBuilder("Resolve");
         
+        // Naming of methods follows a distinct order. Therefore, this pattern works.
+        // Any invalid permutation is caught via compile time analysis 
         if ((mode & InjectionMode.Optional) != 0) sb.Append("Optional");
-        if ((mode & InjectionMode.Primary) != 0) sb.Append("Primary");
         if ((mode & InjectionMode.All) != 0) sb.Append("All");
-        if ((mode & InjectionMode.Keyed) != 0) sb.Append("Keyed");
         if ((mode & InjectionMode.Lazy) != 0) sb.Append("Lazy");
         if ((mode & InjectionMode.Async) != 0) sb.Append("Async");
         
         return sb.ToString();
+    }
+
+    private static string BuildResolveContext(in InjectableMemberModel member) {
+        static void AppendFlag(ref string? flags, ResolveFlags flag) {
+            string value = $"{typeof(ResolveFlags).FullName}.{flag}";
+            flags = flags is null ? value : $"{flags} | {value}";
+        }
+        
+        string? key = member.Id;
+        string? flags = null;
+        
+        if ((member.Mode & InjectionMode.Primary) != 0) {
+            AppendFlag(ref flags, ResolveFlags.Primary);
+        }
+
+        if ((member.Mode & InjectionMode.Keyed) != 0) {
+            AppendFlag(ref flags, ResolveFlags.Keyed);
+        }
+
+        return (flags, key) switch {
+            (null, null) => $"new {typeof(ResolveContext).FullName}()",
+            (_, null) => $"new {typeof(ResolveContext).FullName}({flags})",
+            (null, _) => $"new {typeof(ResolveContext).FullName}(key: \"{key}\")",
+            _ => $"new {typeof(ResolveContext).FullName}({flags}, \"{key}\")",
+        };
     }
 }
