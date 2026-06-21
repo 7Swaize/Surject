@@ -50,16 +50,16 @@ public readonly struct EquatableDictionary<TKey, TValue> :
     }
     
     public override int GetHashCode() {
-        HashCode hash = new HashCode();
+        int hashCode = 0;
 
         foreach (KeyValuePair<TKey, TValue> kvp in Dictionary) {
             int keyHash = _keyComparer.GetHashCode(kvp.Key);
             int valueHash = kvp.Value is null ? 0 : _valueComparer.GetHashCode(kvp.Value);
-
-            hash.Add(HashCode.Combine(keyHash, valueHash));
+            
+            hashCode ^= HashCode.Combine(keyHash, valueHash);
         }
 
-        return hash.ToHashCode();
+        return hashCode;
     }
 
     public TValue this[TKey key] {
@@ -115,4 +115,23 @@ public readonly struct EquatableDictionary<TKey, TValue> :
     
     public static bool operator !=(EquatableDictionary<TKey, TValue> left, EquatableDictionary<TKey, TValue> right) =>
         !left.Equals(right);
+}
+
+
+public static class EquatableDictionaryExtensions {
+    extension<TKey, TValue>(Dictionary<TKey, TValue> dictionary)
+        where TKey : IEquatable<TKey>
+        where TValue : IEquatable<TValue>
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public EquatableDictionary<TKey, TValue> ToEquatableDictionary(
+            IEqualityComparer<TKey>? keyComparer = null,
+            IEqualityComparer<TValue>? valueComparer = null
+        ) =>
+            new(
+                new Dictionary<TKey, TValue>(dictionary),
+                keyComparer ?? EqualityComparer<TKey>.Default,
+                valueComparer ?? EqualityComparer<TValue>.Default
+            );
+    }
 }

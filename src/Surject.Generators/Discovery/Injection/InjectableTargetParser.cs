@@ -38,7 +38,7 @@ internal static class InjectableTargetParser {
         }
 
         foreach (ISymbol member in target.GetMembers()) {
-            if (GetMode(member, modeMap) is var mode && mode != InjectionMode.None) {
+            if (GetMode(member, modeMap) is var mode && mode == InjectionMode.None) {
                 continue;
             }
             

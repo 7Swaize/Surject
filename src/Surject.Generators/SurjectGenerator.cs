@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
 using Surject.Generators.Discovery;
@@ -30,6 +31,7 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
             // ctx.AddSource($"{source.name}", source.sourceText);
             ctx.AddSource($"{source.name}", $"/*\n {source.sourceText} \n*/");
         });
+        
 
         IncrementalValuesProvider<ContainerModel> containers = context.SyntaxProvider.ForAttributeWithMetadataName(
             fullyQualifiedMetadataName: typeof(ScopeAttribute).FullName!,
@@ -46,15 +48,17 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
             // ctx.AddSource($"{source.name}", source.sourceText);
             ctx.AddSource($"{source.name}", $"/*\n {source.sourceText} \n*/");
         });
-
-
-        // Ideally, we will emit EVERYTHING that can be constructed via an individual `ContainerModel` first.
-        // Then, we will merge with `InjectableTargetModel` for emitting Container Resolver. This has to be done.
-        // But, with this we get the most benefit from the incremental nature.
-        // Mapping here will be 1 Container : N InjectableTargets
         
-        // Or we can just combine, and then extract everything we need into a model in order to build the resolver.
-        // Then register source output
+
+        IncrementalValuesProvider<(ContainerModel Left, InjectionLinkage Right)> fullLinkage = containers.Combine(
+            injectableTargets.Collect().Select(
+                static (collection, _) => new InjectionLinkage(collection)
+            )
+        );
+        
+        context.RegisterSourceOutput(fullLinkage, (ctx, source) => {
+            // TODO
+        });
     }
 }
 
