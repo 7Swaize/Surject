@@ -12,6 +12,7 @@ internal sealed partial class Scope1 : ScopeContext {
 
         registry.Add<Foo>(Lifetime.Singleton).To<IFoo>().AsPrimary().AsCollection().DoNotDispose();
     }
+    
 }
 
 internal interface IFoo { }

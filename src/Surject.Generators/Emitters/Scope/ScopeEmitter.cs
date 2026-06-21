@@ -6,6 +6,7 @@ using Surject.Abstractions.Resolutions;
 using Surject.Generators.Models.Concepts;
 using Surject.Shared.Helpers;
 using Surject.Unity;
+using static Surject.Generators.Emitters.TypeNames;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
 namespace Surject.Generators.Emitters.Scope;
@@ -62,7 +63,7 @@ internal static class ScopeEmitter {
         
         writer.WriteLine($"private {containerTypeName} {EmitConstants.KContainerFieldName};");
         writer.WriteLine(
-            $"public global::{typeof(IResolver).FullName} {EmitConstants.KResolverPropertyName}" +
+            $"{FQN(typeof(IResolver))} {EmitConstants.KResolverPropertyName}" +
             $" => {EmitConstants.KContainerFieldName}.{EmitConstants.KResolverPropertyName};"
         );
     }
@@ -71,19 +72,19 @@ internal static class ScopeEmitter {
         switch (model.ScopeLevel) {
             case ScopeLevelKind.Application:
                 EmitHelpers.EmitDefaultExecutionOrderAttribute(
-                    $"global::{typeof(SurjectExecutionOrder).FullName}.{nameof(SurjectExecutionOrder.KApplicationRoot)}",
+                    $"{FQN(typeof(SurjectExecutionOrder))}.{nameof(SurjectExecutionOrder.KApplicationRoot)}",
                     writer
                 );
                 break;
             case ScopeLevelKind.Scene:
                 EmitHelpers.EmitDefaultExecutionOrderAttribute(
-                    $"global::{typeof(SurjectExecutionOrder).FullName}.{nameof(SurjectExecutionOrder.KSceneScope)}",
+                    $"{FQN(typeof(SurjectExecutionOrder))}.{nameof(SurjectExecutionOrder.KSceneScope)}",
                     writer
                 );
                 break;
             case ScopeLevelKind.GameObject:
                 EmitHelpers.EmitDefaultExecutionOrderAttribute(
-                    $"global::{typeof(SurjectExecutionOrder).FullName}.{nameof(SurjectExecutionOrder.KGOScope)}",
+                    $"{FQN(typeof(SurjectExecutionOrder))}.{nameof(SurjectExecutionOrder.KGOScope)}",
                     writer
                 );
                 break;

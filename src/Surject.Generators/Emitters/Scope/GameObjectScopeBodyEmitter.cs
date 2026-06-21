@@ -4,6 +4,7 @@ using Surject.Abstractions.Registrations;
 using Surject.Abstractions.Resolutions;
 using Surject.Generators.Models.Concepts;
 using Surject.Unity;
+using static Surject.Generators.Emitters.TypeNames;
 
 namespace Surject.Generators.Emitters.Scope;
 
@@ -41,11 +42,11 @@ internal readonly struct GameObjectScopeBodyEmitter {
         writer.WriteMultiline(
             $$"""
             var targets =
-                global::{{typeof(SurjectExtensions).FullName}}
-                    .PreformTraversalWithBoundary<global::{{typeof(IInjectable).FullName}}, global::{{typeof(ScopeContext).FullName}}>(
+                {{FQN(typeof(SurjectExtensions))}}
+                    .PreformTraversalWithBoundary<{{FQN(typeof(IInjectable))}}, {{FQN(typeof(ScopeContext))}}>();
                         this.gameObject,
                         static (global::UnityEngine.GameObject go) =>
-                            global::UnityEngine.Object.FindObjectsByType<global::{{typeof(IInjectable).FullName}}>(
+                            global::UnityEngine.Object.FindObjectsByType<{{FQN(typeof(IInjectable))}}>(
                                 global::UnityEngine.FindObjectsSortMode.None
                             )
                     );
@@ -55,7 +56,7 @@ internal readonly struct GameObjectScopeBodyEmitter {
         writer.WriteLine();
         writer.WriteLine($"foreach (var mb in targets) {{");
         writer.Indent++;
-        writer.WriteLine($"global::{typeof(SurjectRuntime).FullName}.InjectMonoBehaviour(mb, __container.Resolver);");
+        writer.WriteLine($"{FQN(typeof(SurjectRuntime))}.InjectMonoBehaviour(mb, __container.Resolver);");
         writer.Indent--;
         writer.WriteLine("}");
         
@@ -71,18 +72,18 @@ internal readonly struct GameObjectScopeBodyEmitter {
     private void EmitDiscoverParentResolver(IndentedTextWriter writer) {
         string component = _model.ParentOverride is not null
             ? _model.ParentOverride.FQNConstructedArgBased
-            : $"global::{typeof(ScopeContext).FullName}";
+            : $"{FQN(typeof(ScopeContext))}";
         
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
-        writer.WriteLine($"private global::{typeof(IResolver).FullName} __DiscoverParentResolver() {{");
+        writer.WriteLine($"private {FQN(typeof(IResolver))} __DiscoverParentResolver() {{");
         writer.Indent++;
         
         // Start search one level higher to not include 'this'
         writer.WriteLine($"var component = transform.parent.GetComponentInParent<{component}>();");
         writer.WriteLine("if (component != null) return component;");
         writer.WriteLine();
-        writer.WriteLine($"var resolver = global::{typeof(SurjectRuntime).FullName}.GetSceneResolver(gameObject.scene);");
-        writer.WriteLine($"return resolver != null ? resolver : global::{typeof(SurjectRuntime).FullName}.RootResolver;");
+        writer.WriteLine($"var resolver = {FQN(typeof(SurjectRuntime))}.GetSceneResolver(gameObject.scene);");
+        writer.WriteLine($"return resolver != null ? resolver : {FQN(typeof(SurjectRuntime))}.RootResolver;");
     }
     
     private void EmitOnDestroyAsyncMethod(IndentedTextWriter writer) {

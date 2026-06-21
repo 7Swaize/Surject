@@ -3,6 +3,7 @@ using Surject.Abstractions.Lifecycle;
 using Surject.Abstractions.Registrations;
 using Surject.Generators.Models.Concepts;
 using Surject.Unity;
+using static Surject.Generators.Emitters.TypeNames;
 
 namespace Surject.Generators.Emitters.Scope;
 
@@ -31,21 +32,21 @@ internal readonly struct SceneScopeBodyEmitter {
         
         string containerTypeName = $"Container_{_model.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}";
         
-        writer.WriteLine($"var parent = global::{typeof(SurjectRuntime).FullName}.GetRootResolver();");
+        writer.WriteLine($"var parent = {FQN(typeof(SurjectRuntime))}.GetRootResolver();");
         writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {containerTypeName}();");
         writer.WriteLine(
-            $"global::{typeof(SurjectRuntime).FullName}.RegisterSceneResolver(gameObject.scene);"
+            $"{FQN(typeof(SurjectRuntime))}.RegisterSceneResolver(gameObject.scene);"
         );
         writer.WriteLine();
 
         writer.WriteMultiline(
             $$"""
             var targets =
-                global::{{typeof(SurjectExtensions).FullName}}
-                    .PreformTraversalWithBoundary<global::{{typeof(IInjectable).FullName}}, global::{{typeof(ScopeContext).FullName}}>(
+                {{FQN(typeof(SurjectExtensions))}}
+                    .PreformTraversalWithBoundary<{{FQN(typeof(IInjectable))}}, {{FQN(typeof(ScopeContext))}}>(
                         this.gameObject,
                         static (global::UnityEngine.GameObject go) =>
-                            global::UnityEngine.Object.FindObjectsByType<global::{{typeof(IInjectable).FullName}}>(
+                            global::UnityEngine.Object.FindObjectsByType<{{FQN(typeof(IInjectable))}}>(
                                 global::UnityEngine.FindObjectsSortMode.None
                             )
                     );
@@ -55,7 +56,7 @@ internal readonly struct SceneScopeBodyEmitter {
         writer.WriteLine();
         writer.WriteLine($"foreach (var mb in targets) {{");
         writer.Indent++;
-        writer.WriteLine($"global::{typeof(SurjectRuntime).FullName}.InjectMonoBehaviour(mb, __container.Resolver);");
+        writer.WriteLine($"{FQN(typeof(SurjectRuntime))}.InjectMonoBehaviour(mb, __container.Resolver);");
         writer.Indent--;
         writer.WriteLine("}");
         
@@ -74,7 +75,7 @@ internal readonly struct SceneScopeBodyEmitter {
         writer.Indent++;
         
         writer.WriteLine(
-            $"global::{typeof(SurjectRuntime).FullName}.UnregisterSceneResolver(gameObject.scene));"
+            $"{FQN(typeof(SurjectRuntime))}.UnregisterSceneResolver(gameObject.scene));"
         );
         writer.WriteLine($"if (__container is global::System.IAsyncDisposable ad) await ad.DisposeAsync();");
         writer.WriteLine($"else __container?.Dispose();");

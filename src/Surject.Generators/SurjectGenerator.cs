@@ -27,7 +27,8 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
         context.RegisterSourceOutput(injectableTargets, (ctx, injectableTarget) => {
             GeneratedSource source = InjectableTargetEmitter.Emit(injectableTarget);
             
-            ctx.AddSource($"{source.name}", source.sourceText);
+            // ctx.AddSource($"{source.name}", source.sourceText);
+            ctx.AddSource($"{source.name}", $"/*\n {source.sourceText} \n*/");
         });
 
         IncrementalValuesProvider<ContainerModel> containers = context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -42,7 +43,8 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
         context.RegisterSourceOutput(containers, (ctx, container) => {
             GeneratedSource source = ScopeEmitter.Emit(container);
 
-            ctx.AddSource($"{source.name}", source.sourceText);
+            // ctx.AddSource($"{source.name}", source.sourceText);
+            ctx.AddSource($"{source.name}", $"/*\n {source.sourceText} \n*/");
         });
 
 

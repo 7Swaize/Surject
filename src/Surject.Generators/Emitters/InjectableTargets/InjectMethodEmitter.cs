@@ -4,6 +4,7 @@ using Surject.Abstractions.Resolutions;
 using Surject.Generators.Models.Collections;
 using Surject.Generators.Models.Concepts;
 using Surject.Shared.Helpers;
+using static Surject.Generators.Emitters.TypeNames;
 
 namespace Surject.Generators.Emitters.InjectableTargets;
 
@@ -84,7 +85,7 @@ internal readonly struct InjectMethodEmitter {
 
     private static string BuildResolveContext(in InjectableMemberModel member) {
         static void AppendFlag(ref string? flags, ResolveFlags flag) {
-            string value = $"{typeof(ResolveFlags).FullName}.{flag}";
+            string value = $"{FQN(typeof(ResolveFlags))}.{flag}";
             flags = flags is null ? value : $"{flags} | {value}";
         }
         
@@ -100,10 +101,10 @@ internal readonly struct InjectMethodEmitter {
         }
 
         return (flags, key) switch {
-            (null, null) => $"new {typeof(ResolveContext).FullName}()",
-            (_, null) => $"new {typeof(ResolveContext).FullName}({flags})",
-            (null, _) => $"new {typeof(ResolveContext).FullName}(key: \"{key}\")",
-            _ => $"new {typeof(ResolveContext).FullName}({flags}, \"{key}\")",
+            (null, null) => $"new {FQN(typeof(ResolveFlags))}()",
+            (_, null) => $"new {FQN(typeof(ResolveFlags))}({flags})",
+            (null, _) => $"new {FQN(typeof(ResolveFlags))}(key: \"{key}\")",
+            _ => $"new {FQN(typeof(ResolveFlags))}({flags}, \"{key}\")",
         };
     }
 }

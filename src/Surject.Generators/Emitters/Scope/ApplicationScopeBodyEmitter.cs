@@ -31,7 +31,7 @@ internal readonly struct ApplicationScopeBodyEmitter {
         
         writer.WriteLine($"DontDestroyOnLoad(gameObject);");
         writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {containerTypeName}();");
-        writer.WriteLine($"global::{typeof(SurjectRuntime).FullName}.RegisterRootResolver({EmitConstants.KResolverPropertyName});");
+        writer.WriteLine($"{TypeNames.FQN(typeof(SurjectRuntime))}.RegisterRootResolver({EmitConstants.KResolverPropertyName});");
         
         writer.Indent--;
         writer.WriteLine("}");
@@ -48,7 +48,7 @@ internal readonly struct ApplicationScopeBodyEmitter {
         writer.WriteLine(
             $"{EmitConstants.KContainerFieldName} = await {containerTypeName}.BuildAsync(destroyCancellationToken)"
         );
-        writer.WriteLine($"global::{typeof(SurjectRuntime).FullName}.RegisterRootResolver({EmitConstants.KResolverPropertyName});");
+        writer.WriteLine($"{TypeNames.FQN(typeof(SurjectRuntime))}.RegisterRootResolver({EmitConstants.KResolverPropertyName});");
         
         writer.Indent--;
         writer.WriteLine("}");
@@ -59,7 +59,7 @@ internal readonly struct ApplicationScopeBodyEmitter {
         writer.WriteLine($"private async global::UnityEngine.Awaitable OnDestroyAsync() {{");
         writer.Indent++;
         
-        writer.WriteLine($"global::{typeof(SurjectRuntime).FullName}.UnregisterRootResolver();");
+        writer.WriteLine($"{TypeNames.FQN(typeof(SurjectRuntime))}.UnregisterRootResolver();");
         writer.WriteLine($"if (__container is global::System.IAsyncDisposable ad) await ad.DisposeAsync();");
         writer.WriteLine("else __container?.Dispose();");
         
