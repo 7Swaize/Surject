@@ -59,7 +59,7 @@ internal readonly struct InjectMethodEmitter {
             InjectableMemberModel parameter = parameters[i];
             
             string resolveMethName = BuildResolveMethodName(parameter.Mode);
-            string resolveContext = BuildResolveContext(member);
+            string resolveContext = BuildResolveContext(parameter);
             string suffix = (i == parameters.Length - 1) ? "" : ",";
             
             writer.WriteLine($"__resolver.{resolveMethName}<{parameters[i].TypeToRequest}>({resolveContext}){suffix}");

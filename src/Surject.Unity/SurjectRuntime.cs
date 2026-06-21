@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using Surject.Abstractions.Lifecycle;
 using Surject.Abstractions.Resolutions;
 using Surject.Unity.RuntimeExceptions;
 using UnityEngine.SceneManagement;
@@ -41,4 +42,10 @@ public static class SurjectRuntime {
         _sceneResolvers.Clear();
     }
 #endif
+    
+    // TODO
+    // inline?
+    public static void InjectMonoBehaviour(IInjectable target, IResolver resolver) {
+        target.__Surject_Inject(resolver);
+    }
 }
