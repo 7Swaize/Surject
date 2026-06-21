@@ -50,6 +50,9 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
         // Then, we will merge with `InjectableTargetModel` for emitting Container Resolver. This has to be done.
         // But, with this we get the most benefit from the incremental nature.
         // Mapping here will be 1 Container : N InjectableTargets
+        
+        // Or we can just combine, and then extract everything we need into a model in order to build the resolver.
+        // Then register source output
     }
 }
 
