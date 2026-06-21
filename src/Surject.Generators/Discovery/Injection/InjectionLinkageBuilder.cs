@@ -13,12 +13,12 @@ internal static class InjectionLinkageBuilder {
         Dictionary<ITypeReferenceModel, List<InjectableMemberModel>> map = [];
 
         foreach (InjectableTargetModel target in targets) {
-            foreach (InjectableMemberModel member in target.MembersToInject) {
+            foreach (ref readonly InjectableMemberModel member in target.MembersToInject) {
                 ReadOnlySpan<InjectableMemberModel> members = member.Site == InjectionSiteKind.Method
                     ? member.Parameters!.Value.AsSpan()
                     : [member];
                 
-                foreach (InjectableMemberModel current in members) {
+                foreach (ref readonly InjectableMemberModel current in members) {
                     ITypeReferenceModel key = current.TypeToRequest!.UnboundGenericTypeRef!;
 
                     if (!map.TryGetValue(key, out List<InjectableMemberModel>? list)) {

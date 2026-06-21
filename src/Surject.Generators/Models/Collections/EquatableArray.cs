@@ -140,8 +140,8 @@ namespace Surject.Generators.Models.Collections {
         /// Gets an <see cref="ImmutableArray{T}.Enumerator"/> value to traverse items in the current array.
         /// </summary>
         /// <returns>An <see cref="ImmutableArray{T}.Enumerator"/> value to traverse items in the current array.</returns>
-        public ImmutableArray<T>.Enumerator GetEnumerator() {
-            return AsImmutableArray().GetEnumerator();
+        public ReadOnlySpan<T>.Enumerator GetEnumerator() {
+            return AsSpan().GetEnumerator();
         }
 
         /// <sinheritdoc/>

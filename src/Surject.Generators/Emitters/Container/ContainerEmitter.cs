@@ -2,7 +2,9 @@ using System.CodeDom.Compiler;
 using System.IO;
 using System.Text;
 using Microsoft.CodeAnalysis.Text;
+using Surject.Abstractions.Resolutions;
 using Surject.Generators.Models.Concepts;
+using static Surject.Generators.Emitters.TypeNames;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
 
@@ -20,8 +22,10 @@ internal static class ContainerEmitter {
             writer.WriteLine($"namespace {container.Decl.ClassAsTypeRef.Namespace} {{");
             writer.Indent++;
         }
-        
-        // TODO
+
+        EmitHelpers.EmitGeneratedClassAttributes(writer);
+        writer.WriteLine($"internal sealed class {EmitConstants.BuildContainerTypeName(container)} : {FQN(typeof(IContainer))} {{");
+        writer.Indent++;
         
         // closes class
         writer.Indent--;
@@ -36,3 +40,18 @@ internal static class ContainerEmitter {
         return ($"{container.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}.g.cs", text);
     }
 }
+
+internal readonly struct ContainerFieldEmitter {
+    private readonly ContainerModel _container;
+
+    internal ContainerFieldEmitter(ContainerModel container) {
+        _container = container;
+    }
+
+    internal void Emit(IndentedTextWriter writer) {
+    }
+}
+
+
+
+internal readonly struct ContainerDisposalEmitter { }
