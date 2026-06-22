@@ -4,7 +4,8 @@ namespace Surject.Generators.Discovery.ServiceRegistration;
 
 internal interface IModifierCommandVisitor<out TResult> {
     public TResult VisitTo(in ModifierCommandModel cmd);
-    public TResult VisitToImplementedInterfaces(in ModifierCommandModel cmd);
+    public TResult ToImmediateImplementedInterfaces(in ModifierCommandModel cmd);
+    public TResult VisitToAllImplementedInterfaces(in ModifierCommandModel cmd);
     public TResult VisitWithId(in ModifierCommandModel cmd);
     public TResult VisitPooled(in ModifierCommandModel cmd);
     public TResult VisitEager(in ModifierCommandModel cmd);

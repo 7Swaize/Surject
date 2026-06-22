@@ -6,7 +6,8 @@ namespace Surject.Abstractions.Registrations;
 
 public interface IBindingBuilder<in T> {
     public IBindingBuilder<T> To<TContract>() where TContract : class;
-    public IBindingBuilder<T> ToImplementedInterfaces();
+    public IBindingBuilder<T> ToImmediateImplementedInterfaces();
+    public IBindingBuilder<T> ToAllImplementedInterfaces();
     public IBindingBuilder<T> WithId(string id);
     
     public IBindingBuilder<T> Pooled(int initialSize = 1);

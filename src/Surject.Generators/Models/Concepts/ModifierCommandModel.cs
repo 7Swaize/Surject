@@ -15,8 +15,11 @@ internal readonly record struct ModifierCommandModel {
     internal static ModifierCommandModel To(ITypeReferenceModel contract) =>
         new() { Kind = ModifierKind.To, TypeArg = contract };
     
-    internal static ModifierCommandModel ToImplementedInterfaces() =>
-        new() { Kind = ModifierKind.ToImplementedInterfaces };
+    internal static ModifierCommandModel ToImmediateImplementedInterfaces() =>
+        new() { Kind = ModifierKind.ToImmediateImplementedInterfaces };
+    
+    internal static ModifierCommandModel ToAllImplementedInterfaces() =>
+        new() { Kind = ModifierKind.ToAllImplementedInterfaces };
     
     internal static ModifierCommandModel WithId(string id) =>
         new() { Kind = ModifierKind.WithId, StringArg = id };
@@ -75,7 +78,8 @@ internal readonly record struct ModifierCommandModel {
     internal TResult Accept<TVisitor, TResult>(ref TVisitor visitor) where TVisitor : struct, IModifierCommandVisitor<TResult> {
         return Kind switch {
             ModifierKind.To => visitor.VisitTo(this),
-            ModifierKind.ToImplementedInterfaces => visitor.VisitToImplementedInterfaces(this),
+            ModifierKind.ToImmediateImplementedInterfaces => visitor.ToImmediateImplementedInterfaces(this),
+            ModifierKind.ToAllImplementedInterfaces => visitor.VisitToAllImplementedInterfaces(this),
             ModifierKind.WithId => visitor.VisitWithId(this),
             ModifierKind.Pooled => visitor.VisitPooled(this),
             ModifierKind.Eager => visitor.VisitEager(this),
@@ -101,7 +105,8 @@ internal readonly record struct ModifierCommandModel {
 
 internal enum ModifierKind : byte {
     To,
-    ToImplementedInterfaces,
+    ToImmediateImplementedInterfaces,
+    ToAllImplementedInterfaces,
     WithId,
     
     Pooled,

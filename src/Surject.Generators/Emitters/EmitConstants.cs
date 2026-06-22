@@ -24,55 +24,55 @@ internal static class EmitConstants {
     // Field caches
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string BuildSingletonField(ITypeReferenceModel t, string? key = null)
+    internal static string BuildSingletonField(ITypeReferenceModel t, string? key = null)
         => key is null ? $"__s_{t.FlattenedNameNonArityBased}" : $"__s_{t.FlattenedNameNonArityBased}_{key}";
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string BuildMultiBindMemberField(ITypeReferenceModel t, int index, string? key = null)
+    internal static string BuildMultiBindMemberField(ITypeReferenceModel t, int index, string? key = null)
         => key is null ? $"__mb_{t.FlattenedNameNonArityBased}_{index}" : $"__mb_{t.FlattenedNameNonArityBased}_{key}_{index}";
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string BuildMultiBindArrayField(ITypeReferenceModel t, string? key = null) 
+    internal static string BuildMultiBindArrayField(ITypeReferenceModel t, string? key = null) 
         => key is null ? $"__mbarr_{t.FlattenedNameNonArityBased}" : $"__mbarr_{t.FlattenedNameNonArityBased}_{key}";
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string BuildLazyField(ITypeReferenceModel t, string? key = null)
+    internal static string BuildLazyField(ITypeReferenceModel t, string? key = null)
         => key is null ? $"__lazy_{t.FlattenedNameNonArityBased}" : $"__lazy_{t.FlattenedNameNonArityBased}_{key}";
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string BuildAsyncTaskField(ITypeReferenceModel t, string? key = null)
+    internal static string BuildAsyncTaskField(ITypeReferenceModel t, string? key = null)
         => key is null ? $"__async_{t.FlattenedNameNonArityBased}_task" : $"__async_{t.FlattenedNameNonArityBased}_{key}_task";
     
     // Methods
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ResolveMethod(ITypeReferenceModel t, string? key = null)
+    internal static string ResolveMethod(ITypeReferenceModel t, string? key = null)
         => key is null ? $"Resolve_{t.FlattenedNameNonArityBased}" : $"Resolve_{t.FlattenedNameNonArityBased}_{key}";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ResolveMemberMethod(ITypeReferenceModel t, int index, string? key = null)
+    internal static string ResolveMemberMethod(ITypeReferenceModel t, int index, string? key = null)
         => key is null ? $"Resolve_{t.FlattenedNameNonArityBased}_Member{index}" : $"Resolve_{t.FlattenedNameNonArityBased}_{key}_Member{index}";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ResolvePrimaryMethod(ITypeReferenceModel t, string? key = null)
+    internal static string ResolvePrimaryMethod(ITypeReferenceModel t, string? key = null)
         => key is null ? $"Resolve_{t.FlattenedNameNonArityBased}_Primary" : $"Resolve_{t.FlattenedNameNonArityBased}_{key}_Primary";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ResolveAllMethod(ITypeReferenceModel t, string? key = null)
+    internal static string ResolveAllMethod(ITypeReferenceModel t, string? key = null)
         => key is null ? $"Resolve_{t.FlattenedNameNonArityBased}_All" : $"Resolve_{t.FlattenedNameNonArityBased}_{key}_All";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ResolveLazyMethod(ITypeReferenceModel t, string? key = null)
+    internal static string ResolveLazyMethod(ITypeReferenceModel t, string? key = null)
         => key is null ? $"Resolve_{t.FlattenedNameNonArityBased}_Lazy" : $"Resolve_{t.FlattenedNameNonArityBased}_{key}_Lazy";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ResolveAsyncMethod(ITypeReferenceModel t, string? key = null)
+    internal static string ResolveAsyncMethod(ITypeReferenceModel t, string? key = null)
         => key is null ? $"ResolveAsync_{t.FlattenedNameNonArityBased}" : $"ResolveAsync_{t.FlattenedNameNonArityBased}_{key}";
     
     
     // IResolver
 
-    public static (string method, string ctxExpr) BuildResolverCall(InjectableMemberModel member) {
+    internal static (string method, string ctxExpr) BuildResolverCall(InjectableMemberModel member) {
         static void AppendFlag(ref string? flags, ResolveFlags flag) {
             string value = $"{FQN(typeof(ResolveFlags))}.{flag}";
             flags = flags is null ? value : $"{flags} | {value}";

@@ -2,6 +2,7 @@ namespace Surject.Abstractions.Registrations;
 
 public interface IComponentBindingBuilder<in T> {
     public IComponentBindingBuilder<T> To<TContract>() where TContract : class;
+    public IComponentBindingBuilder<T> ToImmediateImplementedInterfaces();
     public IComponentBindingBuilder<T> ToImplementedInterfaces();
     public IComponentBindingBuilder<T> WithId(string id);
     

@@ -154,12 +154,15 @@ internal static class BindingRegistrationParser {
         }
 
         return method.Name switch {
+            // Many of these have the same name, so we can get away with just checking one interface
             nameof(IBindingBuilder<>.To)
                 => ModifierCommandModel.To(
                     ExtractNthTypeArg(method, 0, utils) ?? ExtractNthArgTypeOf(syntax, 0, utils, semanticModel)
                 ),
-            nameof(IBindingBuilder<>.ToImplementedInterfaces)
-                => ModifierCommandModel.ToImplementedInterfaces(),
+            nameof(IBindingBuilder<>.ToImmediateImplementedInterfaces)
+                => ModifierCommandModel.ToImmediateImplementedInterfaces(),
+            nameof(IBindingBuilder<>.ToAllImplementedInterfaces)
+                => ModifierCommandModel.ToAllImplementedInterfaces(),
             nameof(IBindingBuilder<>.WithId) 
                 => ModifierCommandModel.WithId(ExtractNthStringArg(syntax, 0, semanticModel)),
             nameof(IBindingBuilder<>.Pooled) 
@@ -192,6 +195,7 @@ internal static class BindingRegistrationParser {
                 => ModifierCommandModel.DoNotDispose(),
             nameof(IBindingBuilder<>.TrackDisposable) 
                 => ModifierCommandModel.TrackDisposable(),
+            
             
             // Unity component specific
             nameof(IComponentInstantiationBindingBuilder<>.UnderTransform) 

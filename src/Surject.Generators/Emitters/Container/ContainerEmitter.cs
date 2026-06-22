@@ -27,6 +27,8 @@ internal static class ContainerEmitter {
         writer.WriteLine($"internal sealed class {BuildContainerTypeName(container)} : {FQN(typeof(IContainer))} {{");
         writer.Indent++;
         
+        new ContainerFieldEmitter(container).Emit(writer); 
+        
         // closes class
         writer.Indent--;
         writer.WriteLine("}");
@@ -50,6 +52,7 @@ internal readonly struct ContainerFieldEmitter {
 
     internal void Emit(IndentedTextWriter writer) {
         foreach (RegistrationModel binding in _container.Bindings) {
+            
         }
     }
 }

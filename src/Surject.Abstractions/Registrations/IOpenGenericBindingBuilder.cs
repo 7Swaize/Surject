@@ -4,6 +4,7 @@ namespace Surject.Abstractions.Registrations;
 
 public interface IOpenGenericBindingBuilder {
     public IOpenGenericBindingBuilder To(Type openContractType);
+    public IOpenGenericBindingBuilder ToImmediateImplementedInterfaces();
     public IOpenGenericBindingBuilder ToImplementedInterfaces();
     public IOpenGenericBindingBuilder WithId(string id);
     
