@@ -7,7 +7,7 @@ namespace Surject.Generators.Models.Concepts;
 internal readonly record struct InjectableMemberModel {
     internal string Name { get; init; }
     
-    internal InjectionMode Mode { get; init; }
+    internal InjectionDeferralKind Deferral { get; init; }
     internal InjectionSiteKind Site { get; init; }
     internal MethodModel? MethodRef { get; init; }
     internal ITypeReferenceModel? TypeToRequest { get; init; }
@@ -17,7 +17,7 @@ internal readonly record struct InjectableMemberModel {
 }
 
 [Flags]
-internal enum InjectionMode : byte {
+internal enum InjectionDeferralKind : byte {
     None = 0,
     Standard = 1 << 0,
     Optional = 1 << 1,

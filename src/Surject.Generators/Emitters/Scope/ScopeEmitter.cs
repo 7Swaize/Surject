@@ -6,7 +6,7 @@ using Surject.Abstractions.Resolutions;
 using Surject.Generators.Models.Concepts;
 using Surject.Shared.Helpers;
 using Surject.Unity;
-using static Surject.Generators.Emitters.TypeNames;
+using static Surject.Generators.Emitters.EmitConstants;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
 namespace Surject.Generators.Emitters.Scope;
@@ -59,10 +59,10 @@ internal static class ScopeEmitter {
     }
     
     private static void EmitMembers(ContainerModel model, IndentedTextWriter writer) {
-        writer.WriteLine($"private {EmitConstants.BuildContainerTypeName(model)} {EmitConstants.KContainerFieldName};");
+        writer.WriteLine($"private {BuildContainerTypeName(model)} {KContainerFieldName};");
         writer.WriteLine(
-            $"{FQN(typeof(IResolver))} {EmitConstants.KResolverPropertyName}" +
-            $" => {EmitConstants.KContainerFieldName}.{EmitConstants.KResolverPropertyName};"
+            $"{FQN(typeof(IResolver))} {KResolverPropertyName}" +
+            $" => {KContainerFieldName}.{KResolverPropertyName};"
         );
     }
 

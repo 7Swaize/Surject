@@ -3,7 +3,7 @@ using Surject.Abstractions.Lifecycle;
 using Surject.Abstractions.Registrations;
 using Surject.Generators.Models.Concepts;
 using Surject.Unity;
-using static Surject.Generators.Emitters.TypeNames;
+using static Surject.Generators.Emitters.EmitConstants;
 
 namespace Surject.Generators.Emitters.Scope;
 
@@ -31,7 +31,7 @@ internal readonly struct SceneScopeBodyEmitter {
         writer.Indent++;
         
         writer.WriteLine($"var parent = {FQN(typeof(SurjectRuntime))}.GetRootResolver();");
-        writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {EmitConstants.BuildContainerTypeName(_model)}();");
+        writer.WriteLine($"{KContainerFieldName} = new {BuildContainerTypeName(_model)}();");
         writer.WriteLine(
             $"{FQN(typeof(SurjectRuntime))}.RegisterSceneResolver(gameObject.scene);"
         );

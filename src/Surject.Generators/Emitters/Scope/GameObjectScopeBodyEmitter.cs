@@ -4,7 +4,7 @@ using Surject.Abstractions.Registrations;
 using Surject.Abstractions.Resolutions;
 using Surject.Generators.Models.Concepts;
 using Surject.Unity;
-using static Surject.Generators.Emitters.TypeNames;
+using static Surject.Generators.Emitters.EmitConstants;
 
 namespace Surject.Generators.Emitters.Scope;
 
@@ -35,7 +35,7 @@ internal readonly struct GameObjectScopeBodyEmitter {
         
         
         writer.WriteLine($"var parent = __DiscoverParentResolver();");
-        writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {EmitConstants.BuildContainerTypeName(_model)}();");
+        writer.WriteLine($"{KContainerFieldName} = new {BuildContainerTypeName(_model)}();");
         writer.WriteLine();
 
         writer.WriteMultiline(

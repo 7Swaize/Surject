@@ -1,6 +1,7 @@
 using System.CodeDom.Compiler;
 using Surject.Generators.Models.Concepts;
 using Surject.Unity;
+using static Surject.Generators.Emitters.EmitConstants;
 
 namespace Surject.Generators.Emitters.Scope;
 
@@ -28,8 +29,8 @@ internal readonly struct ApplicationScopeBodyEmitter {
         writer.Indent++;
         
         writer.WriteLine($"DontDestroyOnLoad(gameObject);");
-        writer.WriteLine($"{EmitConstants.KContainerFieldName} = new {EmitConstants.BuildContainerTypeName(_model)}();");
-        writer.WriteLine($"{TypeNames.FQN(typeof(SurjectRuntime))}.RegisterRootResolver({EmitConstants.KResolverPropertyName});");
+        writer.WriteLine($"{KContainerFieldName} = new {BuildContainerTypeName(_model)}();");
+        writer.WriteLine($"{FQN(typeof(SurjectRuntime))}.RegisterRootResolver({KResolverPropertyName});");
         
         writer.Indent--;
         writer.WriteLine("}");
@@ -43,9 +44,9 @@ internal readonly struct ApplicationScopeBodyEmitter {
         
         writer.WriteLine($"DontDestroyOnLoad(gameObject);");
         writer.WriteLine(
-            $"{EmitConstants.KContainerFieldName} = await {EmitConstants.BuildContainerTypeName(_model)}.BuildAsync(destroyCancellationToken)"
+            $"{KContainerFieldName} = await {BuildContainerTypeName(_model)}.BuildAsync(destroyCancellationToken)"
         );
-        writer.WriteLine($"{TypeNames.FQN(typeof(SurjectRuntime))}.RegisterRootResolver({EmitConstants.KResolverPropertyName});");
+        writer.WriteLine($"{FQN(typeof(SurjectRuntime))}.RegisterRootResolver({KResolverPropertyName});");
         
         writer.Indent--;
         writer.WriteLine("}");
@@ -56,7 +57,7 @@ internal readonly struct ApplicationScopeBodyEmitter {
         writer.WriteLine($"private async global::UnityEngine.Awaitable OnDestroyAsync() {{");
         writer.Indent++;
         
-        writer.WriteLine($"{TypeNames.FQN(typeof(SurjectRuntime))}.UnregisterRootResolver();");
+        writer.WriteLine($"{FQN(typeof(SurjectRuntime))}.UnregisterRootResolver();");
         writer.WriteLine($"if (__container is global::System.IAsyncDisposable ad) await ad.DisposeAsync();");
         writer.WriteLine("else __container?.Dispose();");
         

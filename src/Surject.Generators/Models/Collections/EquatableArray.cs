@@ -40,7 +40,7 @@ namespace Surject.Generators.Models.Collections {
         /// </summary>
         /// <param name="array">The input <see cref="ImmutableArray{T}"/> to wrap.</param>
         public EquatableArray(ImmutableArray<T> array) {
-            this._array = Unsafe.As<ImmutableArray<T>, T[]?>(ref array);
+            _array = Unsafe.As<ImmutableArray<T>, T[]?>(ref array);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Surject.Generators.Models.Collections {
 
         /// <sinheritdoc/>
         public override int GetHashCode() {
-            if (this._array is not T[] array) return 0;
+            if (_array is not T[] array) return 0;
 
             int hashCode = 0;
 

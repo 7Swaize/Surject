@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.CodeAnalysis.Text;
 using Surject.Abstractions.Resolutions;
 using Surject.Generators.Models.Concepts;
-using static Surject.Generators.Emitters.TypeNames;
+using static Surject.Generators.Emitters.EmitConstants;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
 
@@ -24,7 +24,7 @@ internal static class ContainerEmitter {
         }
 
         EmitHelpers.EmitGeneratedClassAttributes(writer);
-        writer.WriteLine($"internal sealed class {EmitConstants.BuildContainerTypeName(container)} : {FQN(typeof(IContainer))} {{");
+        writer.WriteLine($"internal sealed class {BuildContainerTypeName(container)} : {FQN(typeof(IContainer))} {{");
         writer.Indent++;
         
         // closes class
@@ -49,6 +49,7 @@ internal readonly struct ContainerFieldEmitter {
     }
 
     internal void Emit(IndentedTextWriter writer) {
+        
     }
 }
 

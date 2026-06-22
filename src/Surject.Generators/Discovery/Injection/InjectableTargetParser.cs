@@ -12,12 +12,12 @@ using Surject.Shared.Helpers;
 namespace Surject.Generators.Discovery.Injection;
 
 internal static class InjectableTargetParser {
-    private static readonly (Type AttributeType, InjectionMode Mode)[] InjectionAttributes = [
-        (typeof(InjectAttribute), InjectionMode.Standard),
-        (typeof(InjectOptionalAttribute), InjectionMode.Optional),
-        (typeof(InjectLazyAttribute), InjectionMode.Lazy),
-        (typeof(InjectPrimaryAttribute), InjectionMode.Primary),
-        (typeof(InjectAsyncAttribute), InjectionMode.Async)
+    private static readonly (Type AttributeType, InjectionDeferralKind Deferral)[] InjectionAttributes = [
+        (typeof(InjectAttribute), InjectionDeferralKind.Standard),
+        (typeof(InjectOptionalAttribute), InjectionDeferralKind.Optional),
+        (typeof(InjectLazyAttribute), InjectionDeferralKind.Lazy),
+        (typeof(InjectPrimaryAttribute), InjectionDeferralKind.Primary),
+        (typeof(InjectAsyncAttribute), InjectionDeferralKind.Async)
         
     ];
 
@@ -27,33 +27,33 @@ internal static class InjectableTargetParser {
         DiscoveryUtils utils)
     {
         ImmutableArray<InjectableMemberModel>.Builder builder = ImmutableArray.CreateBuilder<InjectableMemberModel>();
-        Dictionary<INamedTypeSymbol, InjectionMode> modeMap = new(SymbolEqualityComparer.Default);
+        Dictionary<INamedTypeSymbol, InjectionDeferralKind> deferralMap = new(SymbolEqualityComparer.Default);
 
         foreach (var attr in InjectionAttributes) {
             INamedTypeSymbol? symbol = compilation.GetTypeByMetadataName(attr.AttributeType.FullName!);
             
             if (symbol is not null) {
-                modeMap[symbol] = attr.Mode;
+                deferralMap[symbol] = attr.Deferral;
             }
         }
 
         foreach (ISymbol member in target.GetMembers()) {
-            if (GetMode(member, modeMap) is var mode && mode == InjectionMode.None) {
+            if (GetDeferral(member, deferralMap) is var deferral && deferral == InjectionDeferralKind.None) {
                 continue;
             }
             
-            builder.Add(Parse(member, mode, compilation, utils, modeMap));
+            builder.Add(Parse(member, deferral, compilation, utils, deferralMap));
         }
         
         return builder.ToImmutable().AsEquatableArray();
     }
 
-    private static InjectionMode GetMode(ISymbol symbol, Dictionary<INamedTypeSymbol, InjectionMode> modeMap) {
-        InjectionMode res = InjectionMode.None;
+    private static InjectionDeferralKind GetDeferral(ISymbol symbol, Dictionary<INamedTypeSymbol, InjectionDeferralKind> deferralMap) {
+        InjectionDeferralKind res = InjectionDeferralKind.None;
         
         foreach (AttributeData attr in symbol.GetAttributes()) {
-            if (attr.AttributeClass is not null && modeMap.TryGetValue(attr.AttributeClass, out InjectionMode mode)) {
-                res |= mode;
+            if (attr.AttributeClass is not null && deferralMap.TryGetValue(attr.AttributeClass, out InjectionDeferralKind deferral)) {
+                res |= deferral;
             }
         }
 
@@ -65,7 +65,7 @@ internal static class InjectableTargetParser {
         };
 
         if (fieldType is IArrayTypeSymbol) {
-            res |= InjectionMode.All;
+            res |= InjectionDeferralKind.All;
         }
 
         return res;
@@ -73,52 +73,52 @@ internal static class InjectableTargetParser {
     
     private static InjectableMemberModel Parse(
         ISymbol targetSymbol,
-        InjectionMode mode,
+        InjectionDeferralKind deferralKind,
         Compilation compilation,
         DiscoveryUtils utils,
-        Dictionary<INamedTypeSymbol, InjectionMode> modeMap)
+        Dictionary<INamedTypeSymbol, InjectionDeferralKind> deferralMap)
     {
         string? id = CheckId(targetSymbol, compilation);
-        InjectionMode effectiveMode = id is not null 
-            ? mode | InjectionMode.Keyed
-            : mode;
+        InjectionDeferralKind effectiveDeferralKind = id is not null 
+            ? deferralKind | InjectionDeferralKind.Keyed
+            : deferralKind;
         
         return targetSymbol switch {
             IFieldSymbol field => new InjectableMemberModel {
                 Name = field.Name,
-                Mode = effectiveMode,
+                Deferral = effectiveDeferralKind,
                 Site = InjectionSiteKind.Field,
-                TypeToRequest = GetTypeToRequest(field.Type, mode, utils),
+                TypeToRequest = GetTypeToRequest(field.Type, deferralKind, utils),
                 Id = id
             },
             IPropertySymbol property => new InjectableMemberModel {
                 Name = property.Name,
-                Mode = effectiveMode,
+                Deferral = effectiveDeferralKind,
                 Site = InjectionSiteKind.Property,
-                TypeToRequest = GetTypeToRequest(property.Type, mode, utils),
+                TypeToRequest = GetTypeToRequest(property.Type, deferralKind, utils),
                 Id = id
             },
             IParameterSymbol param => new InjectableMemberModel {
                 Name = param.Name,
-                Mode = effectiveMode,
+                Deferral = effectiveDeferralKind,
                 Site = InjectionSiteKind.Parameter,
-                TypeToRequest = GetTypeToRequest(param.Type, mode, utils),
+                TypeToRequest = GetTypeToRequest(param.Type, deferralKind, utils),
                 Id = id
             },
             IMethodSymbol method => new InjectableMemberModel {
                 Name = method.Name,
-                Mode = effectiveMode,
+                Deferral = effectiveDeferralKind,
                 Site = InjectionSiteKind.Method,
                 MethodRef = new MethodModel(method, utils),
                 Id = id,
                 Parameters = method.Parameters.Select(param => {
-                    InjectionMode parameterMode = GetMode(param, modeMap);
+                    InjectionDeferralKind parameterDeferralKind = GetDeferral(param, deferralMap);
                     return Parse(
                         param,
-                        parameterMode == InjectionMode.None ? InjectionMode.Standard : parameterMode,
+                        parameterDeferralKind == InjectionDeferralKind.None ? InjectionDeferralKind.Standard : parameterDeferralKind,
                         compilation,
                         utils,
-                        modeMap
+                        deferralMap
                     );
                 }).ToImmutableArray().AsEquatableArray()
             },
@@ -136,21 +136,21 @@ internal static class InjectableTargetParser {
         return data.ConstructorArguments[0].Value?.ToString();
     }
 
-    private static ITypeReferenceModel GetTypeToRequest(ITypeSymbol target, InjectionMode mode, DiscoveryUtils utils) {
-        return mode switch {
-            _ when (mode & (InjectionMode.Lazy | InjectionMode.Async)) == (InjectionMode.Lazy | InjectionMode.Async) =>
+    private static ITypeReferenceModel GetTypeToRequest(ITypeSymbol target, InjectionDeferralKind deferralKind, DiscoveryUtils utils) {
+        return deferralKind switch {
+            _ when (deferralKind & (InjectionDeferralKind.Lazy | InjectionDeferralKind.Async)) == (InjectionDeferralKind.Lazy | InjectionDeferralKind.Async) =>
                 utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
                     target.As<INamedTypeSymbol>().TypeArguments[0].As<IArrayTypeSymbol>().ElementType
                 ),
-            _ when (mode & InjectionMode.Lazy) != 0 =>
+            _ when (deferralKind & InjectionDeferralKind.Lazy) != 0 =>
                 utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
                     target.As<INamedTypeSymbol>().TypeArguments[0]
                 ),
-            _ when (mode & InjectionMode.Async) != 0 =>
+            _ when (deferralKind & InjectionDeferralKind.Async) != 0 =>
                 utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
                     target.As<INamedTypeSymbol>().TypeArguments[0]
                 ),
-            _ when (mode & InjectionMode.All) != 0 =>
+            _ when (deferralKind & InjectionDeferralKind.All) != 0 =>
                 utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
                     target.As<IArrayTypeSymbol>().ElementType
                 ),
