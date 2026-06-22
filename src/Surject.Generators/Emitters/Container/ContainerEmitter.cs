@@ -49,7 +49,8 @@ internal readonly struct ContainerFieldEmitter {
     }
 
     internal void Emit(IndentedTextWriter writer) {
-        
+        foreach (RegistrationModel binding in _container.Bindings) {
+        }
     }
 }
 
