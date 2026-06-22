@@ -43,20 +43,4 @@ internal static class ContainerEmitter {
     }
 }
 
-internal readonly struct ContainerFieldEmitter {
-    private readonly ContainerModel _container;
-
-    internal ContainerFieldEmitter(ContainerModel container) {
-        _container = container;
-    }
-
-    internal void Emit(IndentedTextWriter writer) {
-        foreach (RegistrationModel binding in _container.Bindings) {
-            
-        }
-    }
-}
-
-
-
 internal readonly struct ContainerDisposalEmitter { }

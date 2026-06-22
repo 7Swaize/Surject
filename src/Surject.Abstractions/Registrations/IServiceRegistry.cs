@@ -13,7 +13,8 @@ public interface IServiceRegistry {
     public IBindingBuilder<TImpl> AddFactory<TImpl>(
         Lifetime lifetime,
         [RequireStaticDelegate(IsError = true)] Func<IResolver, TImpl> factory
-    ) where TImpl : class;
+    )
+        where TImpl : class;
     
     public IOpenGenericBindingBuilder AddOpenGeneric(Lifetime lifetime, Type openImplType);
 

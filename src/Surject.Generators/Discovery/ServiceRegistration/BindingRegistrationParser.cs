@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Surject.Abstractions.Attributes;
 using Surject.Abstractions.Registrations;
+using Surject.Generators.Models.Collections;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
@@ -304,5 +305,28 @@ internal static class BindingRegistrationParser {
         AnonymousExprFQNRewriter rewriter = new AnonymousExprFQNRewriter(semanticModel);
         AnonymousFunctionExpressionSyntax rewritten = (AnonymousFunctionExpressionSyntax)rewriter.Visit(expr);
         return rewritten.ToFullString();
+    }
+
+    internal static CacheBuilderFlags GetCacheBuilderFlags(
+        in EntryCommandModel entry,
+        EquatableArray<ModifierCommandModel> modifiers)
+    {
+        CacheBuilderFlags result = CacheBuilderFlags.None;
+
+        if (entry.Kind == EntryKind.AddAsyncFactory) {
+            result |= CacheBuilderFlags.Async;
+        }
+
+        foreach (ref readonly ModifierCommandModel modifier in modifiers) {
+            result |= modifier.Kind switch {
+                ModifierKind.Lazy => CacheBuilderFlags.Lazy,
+                ModifierKind.AsCollection => CacheBuilderFlags.MultiBind,
+                ModifierKind.AsPrimary => CacheBuilderFlags.Primary,
+                ModifierKind.WithId => CacheBuilderFlags.Keyed,
+                _ => CacheBuilderFlags.None
+            };
+        }
+        
+        return result;
     }
 }
