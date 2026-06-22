@@ -25,7 +25,8 @@ internal interface ITypeReferenceModel : IEquatable<ITypeReferenceModel> {
     SpecialType SpecialType { get; init; }
     
     ITypeReferenceModel? BaseType { get; init; }
-    EquatableArray<ITypeReferenceModel> Interfaces { get; init; }
+    EquatableArray<ITypeReferenceModel> ImmediateInterfaces { get; init; }
+    EquatableArray<ITypeReferenceModel> AllInterfaces { get; init; }
     
     ITypeSymbol UnderlyingTypeSymbol { get; }
 }

@@ -47,8 +47,12 @@ internal sealed class TypeReferenceModelFactory {
                 BaseType = namedTypeSymbol.BaseType != null
                     ? factory.CreateOrGetTypeReferenceModel(namedTypeSymbol.BaseType)
                     : null;
-                Interfaces = [
-                    .. namedTypeSymbol.Interfaces.Select(interfaceSymbol =>
+                ImmediateInterfaces = [
+                    .. namedTypeSymbol.Interfaces.Select(interfaceSymbol => 
+                        factory.CreateOrGetTypeReferenceModel(interfaceSymbol))
+                ];
+                AllInterfaces = [
+                    .. namedTypeSymbol.AllInterfaces.Select(interfaceSymbol =>
                         factory.CreateOrGetTypeReferenceModel(interfaceSymbol))
                 ];
             }
@@ -114,7 +118,8 @@ internal sealed class TypeReferenceModelFactory {
         public SpecialType SpecialType { get; init; }
 
         public ITypeReferenceModel? BaseType { get; init; }
-        public EquatableArray<ITypeReferenceModel> Interfaces { get; init; }
+        public EquatableArray<ITypeReferenceModel> ImmediateInterfaces { get; init; }
+        public EquatableArray<ITypeReferenceModel> AllInterfaces { get; init; }
         
         private readonly WeakReference<ITypeSymbol> _underlyingTypeSymbol;
         public ITypeSymbol UnderlyingTypeSymbol => _underlyingTypeSymbol.GetTargetOrThrow();
