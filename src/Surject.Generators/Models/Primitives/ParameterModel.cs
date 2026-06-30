@@ -1,15 +1,15 @@
 using Microsoft.CodeAnalysis;
-using Surject.Generators.Discovery;
+using Surject.Generators.Models.Factories;
 
 namespace Surject.Generators.Models.Primitives;
 
 internal sealed record ParameterModel {
-    internal ParameterModel(IParameterSymbol parameterSymbol, DiscoveryUtils uGrouping) {
+    internal ParameterModel(IParameterSymbol parameterSymbol, TypeReferenceModelFactory typeRefFactory) {
         Name = parameterSymbol.Name;
         HasExplicitDefaultValue = parameterSymbol.HasExplicitDefaultValue;
         RefKind = parameterSymbol.RefKind;
 
-        Type = uGrouping.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(parameterSymbol.Type);
+        Type = typeRefFactory.CreateOrGetTypeReferenceModel(parameterSymbol.Type);
     }
 
     internal string Name { get; init; }

@@ -1,5 +1,5 @@
 using Microsoft.CodeAnalysis;
-using Surject.Generators.Discovery;
+using Surject.Generators.Models.Factories;
 using Surject.Generators.Models.Primitives;
 
 namespace Surject.Generators.Models.Concepts;
@@ -15,8 +15,8 @@ internal abstract record ServiceCreationModel {
 }
 
 internal sealed record ConstructorCreationModel : ServiceCreationModel {
-    internal ConstructorCreationModel(IMethodSymbol methodSymbol, DiscoveryUtils uGrouping) {
-        Constructor = new ConstructorModel(methodSymbol, uGrouping);
+    internal ConstructorCreationModel(IMethodSymbol methodSymbol, TypeReferenceModelFactory typeRefFactory) {
+        Constructor = new ConstructorModel(methodSymbol, typeRefFactory);
     }
 
     internal override ServiceCreationModelType CreationType => ServiceCreationModelType.Constructor;
@@ -24,8 +24,8 @@ internal sealed record ConstructorCreationModel : ServiceCreationModel {
 }
 
 internal sealed record FactoryMethodCreationModel : ServiceCreationModel {
-    internal FactoryMethodCreationModel(IMethodSymbol methodSymbol, DiscoveryUtils uGrouping) {
-        Method = new MethodModel(methodSymbol, uGrouping);
+    internal FactoryMethodCreationModel(IMethodSymbol methodSymbol, TypeReferenceModelFactory typeRefFactory) {
+        Method = new MethodModel(methodSymbol, typeRefFactory);
     }
 
     internal override ServiceCreationModelType CreationType => ServiceCreationModelType.FactoryMethod;

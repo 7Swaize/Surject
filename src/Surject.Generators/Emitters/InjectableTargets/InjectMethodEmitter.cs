@@ -1,5 +1,4 @@
 using System.CodeDom.Compiler;
-using System.Text;
 using Surject.Abstractions.Resolutions;
 using Surject.Generators.Models.Collections;
 using Surject.Generators.Models.Concepts;

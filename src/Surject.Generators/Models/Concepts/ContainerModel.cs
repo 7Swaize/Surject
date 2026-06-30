@@ -4,16 +4,18 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Surject.Abstractions.Registrations;
-using Surject.Generators.Discovery;
 using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Models.Collections;
+using Surject.Generators.Models.Factories;
 using Surject.Generators.Models.Primitives;
 
 namespace Surject.Generators.Models.Concepts;
 
 internal sealed record ContainerModel {
-    internal ContainerModel(in GeneratorAttributeSyntaxContext context, DiscoveryUtils utils) {
+    internal ContainerModel(in GeneratorAttributeSyntaxContext context) {
+        TypeReferenceModelFactory typeRefFactory = TypeReferenceModelFactory.GetFactory(context.SemanticModel.Compilation);
         SemanticModel semanticModel = context.SemanticModel;
+        
         IMethodSymbol registrationMethod = context.TargetSymbol
             .As<INamedTypeSymbol>()
             .GetMembers()
@@ -27,12 +29,12 @@ internal sealed record ContainerModel {
             .Where(inv => !inv.IsPartOfLargerChain());
         
         Bindings = invocations
-            .Select(inv => BindingRegistrationParser.Parse(inv, utils, semanticModel))
+            .Select(inv => BindingRegistrationParser.Parse(inv, typeRefFactory, semanticModel))
             .Where(b => b != null)
             .ToImmutableArray()!;
 
-        Decl = new ClassDeclModel((INamedTypeSymbol)context.TargetSymbol, utils);
-        ParentOverride = ContainerParser.GetParentScopeOverride(in context, utils);
+        Decl = new ClassDeclModel((INamedTypeSymbol)context.TargetSymbol, typeRefFactory);
+        ParentOverride = ContainerParser.GetParentScopeOverride(in context, typeRefFactory);
         ScopeLevel = ContainerParser.GetScopeLevelKind(in context);
     }
     

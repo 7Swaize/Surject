@@ -1,11 +1,11 @@
 using Microsoft.CodeAnalysis;
-using Surject.Generators.Discovery;
+using Surject.Generators.Models.Factories;
 
 namespace Surject.Generators.Models.Primitives;
 
 internal record ClassDeclModel {
-    internal ClassDeclModel(INamedTypeSymbol symbol, DiscoveryUtils uGrouping) {
-        ClassAsTypeRef = uGrouping.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(symbol);
+    internal ClassDeclModel(INamedTypeSymbol symbol, TypeReferenceModelFactory typeRefFactory) {
+        ClassAsTypeRef = typeRefFactory.CreateOrGetTypeReferenceModel(symbol);
         AccessModifier = symbol.DeclaredAccessibility;
         IsPartial = symbol.IsPartialDeclaration();
         IsStatic = symbol.IsStatic;

@@ -9,22 +9,27 @@ using Surject.Abstractions.Attributes;
 using Surject.Abstractions.Registrations;
 using Surject.Generators.Models.Collections;
 using Surject.Generators.Models.Concepts;
+using Surject.Generators.Models.Factories;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
 
 namespace Surject.Generators.Discovery.ServiceRegistration;
 
 internal static class BindingRegistrationParser {
-    internal static RegistrationModel? Parse(InvocationExpressionSyntax rootInvocation, DiscoveryUtils utils, SemanticModel semanticModel) {
+    internal static RegistrationModel? Parse(
+        InvocationExpressionSyntax rootInvocation,
+        TypeReferenceModelFactory typeRefFactory,
+        SemanticModel semanticModel)
+    {
         if (!TryExtractChain(rootInvocation, out var outermost, out Span<InvocationExpressionSyntax> modSyntax)) {
             return null;
         }
 
-        if (!TryParseEntry(outermost, utils, semanticModel, out EntryCommandModel entry)) {
+        if (!TryParseEntry(outermost, typeRefFactory, semanticModel, out EntryCommandModel entry)) {
             return null;
         }
         
-        ImmutableArray<ModifierCommandModel> modifiers = ParseModifiers(modSyntax, utils, semanticModel);
+        ImmutableArray<ModifierCommandModel> modifiers = ParseModifiers(modSyntax, typeRefFactory, semanticModel);
         
         RegistrationNormalizer normalizer = new RegistrationNormalizer(modifiers);
         return entry.Accept<RegistrationNormalizer, RegistrationModel>(ref normalizer);
@@ -59,7 +64,7 @@ internal static class BindingRegistrationParser {
 
     private static bool TryParseEntry(
         InvocationExpressionSyntax syntax,
-        DiscoveryUtils utils,
+        TypeReferenceModelFactory typeRefFactory,
         SemanticModel semanticModel,
         out EntryCommandModel entry) 
     {
@@ -71,7 +76,7 @@ internal static class BindingRegistrationParser {
         }
         
         LifetimeKind lifetime = ExtractLifetime(syntax, semanticModel);
-        ITypeReferenceModel? implType = ExtractNthTypeArg(method, 0, utils);
+        ITypeReferenceModel? implType = ExtractNthTypeArg(method, 0, typeRefFactory);
 
         entry = method.Name switch {
             nameof(IServiceRegistry.Add) 
@@ -79,7 +84,7 @@ internal static class BindingRegistrationParser {
             nameof(IServiceRegistry.AddFactory)
                 => EntryCommandModel.AddFactory(implType!, lifetime, RewriteAnonymousExpr(1)),
             nameof(IServiceRegistry.AddOpenGeneric)
-                => EntryCommandModel.AddOpenGeneric(CreateServiceModel(ExtractNthArgTypeOf(syntax, 0, utils, semanticModel)), lifetime),
+                => EntryCommandModel.AddOpenGeneric(CreateServiceModel(ExtractNthArgTypeOf(syntax, 0, typeRefFactory, semanticModel)), lifetime),
             nameof(IServiceRegistry.AddToCollection)
                 => EntryCommandModel.AddToCollection(CreateServiceModel(implType!), lifetime, ExtractNthIntArg(syntax, 1, semanticModel)),
             nameof(IServiceRegistry.AddPrimaryToCollection) 
@@ -107,7 +112,7 @@ internal static class BindingRegistrationParser {
             nameof(IServiceRegistry.Decorate)
                 => EntryCommandModel.Decorate(
                     contract: implType!,
-                    decorator: ExtractNthTypeArg(method, 1, utils)!
+                    decorator: ExtractNthTypeArg(method, 1, typeRefFactory)!
                 ),
             _ => ThrowHelpers.ThrowUnhandledBranch<EntryCommandModel>(method.Name)
         };
@@ -123,7 +128,7 @@ internal static class BindingRegistrationParser {
             TypeRef = typeRef,
             CreationModel = ExtractServiceCreationModel(
                 (INamedTypeSymbol)typeRef.UnderlyingTypeSymbol,
-                utils,
+                typeRefFactory,
                 semanticModel
             )
         };
@@ -131,7 +136,7 @@ internal static class BindingRegistrationParser {
 
     private static ImmutableArray<ModifierCommandModel> ParseModifiers(
         Span<InvocationExpressionSyntax> modSyntax,
-        DiscoveryUtils utils,
+        TypeReferenceModelFactory typeRefFactory,
         SemanticModel semanticModel) 
     {
         if (modSyntax.IsEmpty) return ImmutableArray<ModifierCommandModel>.Empty;
@@ -139,7 +144,7 @@ internal static class BindingRegistrationParser {
         ImmutableArray<ModifierCommandModel>.Builder builder = 
             ImmutableArray.CreateBuilder<ModifierCommandModel>(modSyntax.Length);
         foreach (InvocationExpressionSyntax syntax in modSyntax) {
-            builder.Add(ParseModifier(syntax, utils, semanticModel));
+            builder.Add(ParseModifier(syntax, typeRefFactory, semanticModel));
         }
 
         return builder.MoveToImmutable();
@@ -147,7 +152,7 @@ internal static class BindingRegistrationParser {
 
     private static ModifierCommandModel ParseModifier(
         InvocationExpressionSyntax syntax,
-        DiscoveryUtils utils,
+        TypeReferenceModelFactory typeRefFactory,
         SemanticModel semanticModel)
     {
         if (semanticModel.GetSymbolInfo(syntax).Symbol is not IMethodSymbol method) {
@@ -158,7 +163,7 @@ internal static class BindingRegistrationParser {
             // Many of these have the same name, so we can get away with just checking one interface
             nameof(IBindingBuilder<>.To)
                 => ModifierCommandModel.To(
-                    ExtractNthTypeArg(method, 0, utils) ?? ExtractNthArgTypeOf(syntax, 0, utils, semanticModel)
+                    ExtractNthTypeArg(method, 0, typeRefFactory) ?? ExtractNthArgTypeOf(syntax, 0, typeRefFactory, semanticModel)
                 ),
             nameof(IBindingBuilder<>.ToImmediateImplementedInterfaces)
                 => ModifierCommandModel.ToImmediateImplementedInterfaces(),
@@ -179,11 +184,11 @@ internal static class BindingRegistrationParser {
             nameof(IBindingBuilder<>.WithArgument) 
                 => ModifierCommandModel.WithArgument(
                     ExtractNthStringArg(syntax, 0, semanticModel),
-                    ExtractNthTypeArg(method, 0, utils)!,
+                    ExtractNthTypeArg(method, 0, typeRefFactory)!,
                     ExtractNthArgAsString(syntax, 1)
                 ),
             nameof(IBindingBuilder<>.WhenInjectedInto)
-                => ModifierCommandModel.WhenInjectedInto(ExtractNthTypeArg(method, 0, utils)!),
+                => ModifierCommandModel.WhenInjectedInto(ExtractNthTypeArg(method, 0, typeRefFactory)!),
             nameof(IBindingBuilder<>.When) 
                 => ModifierCommandModel.When(RewriteAnonymousExpr(1)),
             nameof(IBindingBuilder<>.OverrideExisting) 
@@ -202,7 +207,7 @@ internal static class BindingRegistrationParser {
             nameof(IComponentInstantiationBindingBuilder<>.UnderTransform) 
                 => ModifierCommandModel.UnderTransform(ExtractNthArgAsString(syntax, 0)),
             nameof(IComponentInstantiationBindingBuilder<>.UnderObjectOfType) 
-                => ModifierCommandModel.UnderObjectOfType(ExtractNthTypeArg(method, 0, utils)!),
+                => ModifierCommandModel.UnderObjectOfType(ExtractNthTypeArg(method, 0, typeRefFactory)!),
             nameof(IComponentInstantiationBindingBuilder<>.WithGameObjectName)
                 => ModifierCommandModel.WithGameObjectName(ExtractNthStringArg(syntax, 0, semanticModel)),
             nameof(IComponentInstantiationBindingBuilder<>.DoNotDestroy) 
@@ -234,9 +239,9 @@ internal static class BindingRegistrationParser {
             : default; // We don't necessarily care about failure
     }
 
-    private static ITypeReferenceModel? ExtractNthTypeArg(IMethodSymbol method, int index, DiscoveryUtils utils) {
+    private static ITypeReferenceModel? ExtractNthTypeArg(IMethodSymbol method, int index, TypeReferenceModelFactory typeRefFactory) {
         return method.TypeArguments.Length > index
-            ? utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(method.TypeArguments[index])
+            ? typeRefFactory.CreateOrGetTypeReferenceModel(method.TypeArguments[index])
             : null;
     }
 
@@ -247,11 +252,11 @@ internal static class BindingRegistrationParser {
     private static ITypeReferenceModel ExtractNthArgTypeOf(
         InvocationExpressionSyntax syntax,
         int index,
-        DiscoveryUtils utils,
+        TypeReferenceModelFactory typeRefFactory,
         SemanticModel semanticModel)
     {
         TypeOfExpressionSyntax @typeof = (TypeOfExpressionSyntax)syntax.ArgumentList.Arguments[index].Expression;
-        return utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
+        return typeRefFactory.CreateOrGetTypeReferenceModel(
             (ITypeSymbol)semanticModel.GetSymbolInfo(@typeof.Type).Symbol!
         );
     }
@@ -280,7 +285,7 @@ internal static class BindingRegistrationParser {
 
     private static ServiceCreationModel ExtractServiceCreationModel(
         INamedTypeSymbol serviceDef,
-        DiscoveryUtils utils,
+        TypeReferenceModelFactory typeRefFactory,
         SemanticModel semanticModel)
     {
         INamedTypeSymbol? targetAttr =
@@ -292,8 +297,8 @@ internal static class BindingRegistrationParser {
             }
             
             return method.MethodKind switch {
-                MethodKind.Constructor => new ConstructorCreationModel(method, utils),
-                MethodKind.Ordinary => new FactoryMethodCreationModel(method, utils),
+                MethodKind.Constructor => new ConstructorCreationModel(method, typeRefFactory),
+                MethodKind.Ordinary => new FactoryMethodCreationModel(method, typeRefFactory),
                 _ => ThrowHelpers.ThrowUnhandledBranch<ServiceCreationModel>(method.MethodKind)
             };
         }

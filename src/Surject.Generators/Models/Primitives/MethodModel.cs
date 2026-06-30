@@ -1,28 +1,28 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Surject.Generators.Discovery;
 using Surject.Generators.Models.Collections;
+using Surject.Generators.Models.Factories;
 
 namespace Surject.Generators.Models.Primitives;
 
 internal record MethodModel {
-    internal MethodModel(IMethodSymbol methodSymbol, DiscoveryUtils uGrouping) {
-        ContainingType = uGrouping.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(methodSymbol.ContainingType);
+    internal MethodModel(IMethodSymbol methodSymbol, TypeReferenceModelFactory typeRefFactory) {
+        ContainingType = typeRefFactory.CreateOrGetTypeReferenceModel(methodSymbol.ContainingType);
         NameWithGenericParams = methodSymbol.NameWithGenericParameters;
         NameWithoutGenerics = methodSymbol.NameWithoutGenericParameters;
 
         TypeParameters = [
             .. methodSymbol.TypeParameters.Select(typeParam =>
-                uGrouping.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(typeParam))
+                typeRefFactory.CreateOrGetTypeReferenceModel(typeParam))
         ];
         Parameters = [
             .. methodSymbol.Parameters.Select(parameterSymbol =>
-                new ParameterModel(parameterSymbol, uGrouping))
+                new ParameterModel(parameterSymbol, typeRefFactory))
         ];
 
         IsReturnTypeOfVoid = methodSymbol.ReturnType.SpecialType == SpecialType.System_Void;
         if (!IsReturnTypeOfVoid) {
-            ReturnType = uGrouping.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(methodSymbol.ReturnType);
+            ReturnType = typeRefFactory.CreateOrGetTypeReferenceModel(methodSymbol.ReturnType);
         }
     }
     

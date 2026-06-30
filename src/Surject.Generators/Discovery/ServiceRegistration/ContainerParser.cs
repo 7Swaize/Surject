@@ -1,13 +1,17 @@
 using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
 using Surject.Generators.Models.Concepts;
+using Surject.Generators.Models.Factories;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
 
 namespace Surject.Generators.Discovery.ServiceRegistration;
 
 internal static class ContainerParser {
-    internal static ITypeReferenceModel? GetParentScopeOverride(in GeneratorAttributeSyntaxContext context, DiscoveryUtils utils) {
+    internal static ITypeReferenceModel? GetParentScopeOverride(
+        in GeneratorAttributeSyntaxContext context,
+        TypeReferenceModelFactory typeRefFactory)
+    {
         INamedTypeSymbol? target =
             context.SemanticModel.Compilation.GetTypeByMetadataName(typeof(ScopeAttribute).FullName!);
 
@@ -17,7 +21,7 @@ internal static class ContainerParser {
             }
 
             if (attr.ConstructorArguments.Length > 1) {
-                return utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
+                return typeRefFactory.CreateOrGetTypeReferenceModel(
                     (ITypeSymbol)attr.ConstructorArguments[1].Value!
                 );
             } 

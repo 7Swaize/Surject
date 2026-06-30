@@ -1,15 +1,15 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Surject.Generators.Discovery;
 using Surject.Generators.Models.Collections;
+using Surject.Generators.Models.Factories;
 
 namespace Surject.Generators.Models.Primitives;
 
 internal sealed record ConstructorModel {
-    internal ConstructorModel(IMethodSymbol methodSymbol, DiscoveryUtils uGrouping) {
+    internal ConstructorModel(IMethodSymbol methodSymbol, TypeReferenceModelFactory typeRefFactory) {
         Parameters = [
             .. methodSymbol.Parameters.Select(parameterSymbol =>
-                new ParameterModel(parameterSymbol, uGrouping))
+                new ParameterModel(parameterSymbol, typeRefFactory))
         ];
     }
 

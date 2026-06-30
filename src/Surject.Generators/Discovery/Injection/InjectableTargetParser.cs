@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
 using Surject.Generators.Models.Collections;
 using Surject.Generators.Models.Concepts;
+using Surject.Generators.Models.Factories;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
 
@@ -24,7 +25,7 @@ internal static class InjectableTargetParser {
     internal static EquatableArray<InjectableMemberModel> GetMembersToInject(
         INamedTypeSymbol target,
         Compilation compilation,
-        DiscoveryUtils utils)
+        TypeReferenceModelFactory typeRefFactory)
     {
         ImmutableArray<InjectableMemberModel>.Builder builder = ImmutableArray.CreateBuilder<InjectableMemberModel>();
         Dictionary<INamedTypeSymbol, InjectionDeferralKind> deferralMap = new(SymbolEqualityComparer.Default);
@@ -42,7 +43,7 @@ internal static class InjectableTargetParser {
                 continue;
             }
             
-            builder.Add(Parse(member, deferral, compilation, utils, deferralMap));
+            builder.Add(Parse(member, deferral, compilation, typeRefFactory, deferralMap));
         }
         
         return builder.ToImmutable().AsEquatableArray();
@@ -75,7 +76,7 @@ internal static class InjectableTargetParser {
         ISymbol targetSymbol,
         InjectionDeferralKind deferralKind,
         Compilation compilation,
-        DiscoveryUtils utils,
+        TypeReferenceModelFactory typeRefFactory,
         Dictionary<INamedTypeSymbol, InjectionDeferralKind> deferralMap)
     {
         string? id = CheckId(targetSymbol, compilation);
@@ -88,28 +89,28 @@ internal static class InjectableTargetParser {
                 Name = field.Name,
                 Deferral = effectiveDeferralKind,
                 Site = InjectionSiteKind.Field,
-                TypeToRequest = GetTypeToRequest(field.Type, deferralKind, utils),
+                TypeToRequest = GetTypeToRequest(field.Type, deferralKind, typeRefFactory),
                 Id = id
             },
             IPropertySymbol property => new InjectableMemberModel {
                 Name = property.Name,
                 Deferral = effectiveDeferralKind,
                 Site = InjectionSiteKind.Property,
-                TypeToRequest = GetTypeToRequest(property.Type, deferralKind, utils),
+                TypeToRequest = GetTypeToRequest(property.Type, deferralKind, typeRefFactory),
                 Id = id
             },
             IParameterSymbol param => new InjectableMemberModel {
                 Name = param.Name,
                 Deferral = effectiveDeferralKind,
                 Site = InjectionSiteKind.Parameter,
-                TypeToRequest = GetTypeToRequest(param.Type, deferralKind, utils),
+                TypeToRequest = GetTypeToRequest(param.Type, deferralKind, typeRefFactory),
                 Id = id
             },
             IMethodSymbol method => new InjectableMemberModel {
                 Name = method.Name,
                 Deferral = effectiveDeferralKind,
                 Site = InjectionSiteKind.Method,
-                MethodRef = new MethodModel(method, utils),
+                MethodRef = new MethodModel(method, typeRefFactory),
                 Id = id,
                 Parameters = method.Parameters.Select(param => {
                     InjectionDeferralKind parameterDeferralKind = GetDeferral(param, deferralMap);
@@ -117,7 +118,7 @@ internal static class InjectableTargetParser {
                         param,
                         parameterDeferralKind == InjectionDeferralKind.None ? InjectionDeferralKind.Standard : parameterDeferralKind,
                         compilation,
-                        utils,
+                        typeRefFactory,
                         deferralMap
                     );
                 }).ToImmutableArray().AsEquatableArray()
@@ -136,25 +137,29 @@ internal static class InjectableTargetParser {
         return data.ConstructorArguments[0].Value?.ToString();
     }
 
-    private static ITypeReferenceModel GetTypeToRequest(ITypeSymbol target, InjectionDeferralKind deferralKind, DiscoveryUtils utils) {
+    private static ITypeReferenceModel GetTypeToRequest(
+        ITypeSymbol target,
+        InjectionDeferralKind deferralKind,
+        TypeReferenceModelFactory typeRefFactory)
+    {
         return deferralKind switch {
             _ when (deferralKind & (InjectionDeferralKind.Lazy | InjectionDeferralKind.Async)) == (InjectionDeferralKind.Lazy | InjectionDeferralKind.Async) =>
-                utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
+                typeRefFactory.CreateOrGetTypeReferenceModel(
                     target.As<INamedTypeSymbol>().TypeArguments[0].As<IArrayTypeSymbol>().ElementType
                 ),
             _ when (deferralKind & InjectionDeferralKind.Lazy) != 0 =>
-                utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
+                typeRefFactory.CreateOrGetTypeReferenceModel(
                     target.As<INamedTypeSymbol>().TypeArguments[0]
                 ),
             _ when (deferralKind & InjectionDeferralKind.Async) != 0 =>
-                utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
+                typeRefFactory.CreateOrGetTypeReferenceModel(
                     target.As<INamedTypeSymbol>().TypeArguments[0]
                 ),
             _ when (deferralKind & InjectionDeferralKind.All) != 0 =>
-                utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(
+                typeRefFactory.CreateOrGetTypeReferenceModel(
                     target.As<IArrayTypeSymbol>().ElementType
                 ),
-            _ => utils.TypeReferenceModelFactory.CreateOrGetTypeReferenceModel(target)
+            _ => typeRefFactory.CreateOrGetTypeReferenceModel(target)
         };
     }
 }
