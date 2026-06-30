@@ -33,12 +33,12 @@ internal sealed record ContainerModel {
             .Where(b => b != null)
             .ToImmutableArray()!;
 
-        Decl = new ClassDeclModel((INamedTypeSymbol)context.TargetSymbol, typeRefFactory);
+        Decl = new TypeDeclModel((INamedTypeSymbol)context.TargetSymbol, typeRefFactory);
         ParentOverride = ContainerParser.GetParentScopeOverride(in context, typeRefFactory);
         ScopeLevel = ContainerParser.GetScopeLevelKind(in context);
     }
     
-    internal ClassDeclModel Decl { get; init; }
+    internal TypeDeclModel Decl { get; init; }
     internal ITypeReferenceModel? ParentOverride { get; init; }
     internal ScopeLevelKind ScopeLevel { get; init; }
 

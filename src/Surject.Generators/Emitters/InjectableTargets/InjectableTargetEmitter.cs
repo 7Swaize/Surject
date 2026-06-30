@@ -19,8 +19,8 @@ internal static class InjectableTargetEmitter {
         
         EmitHelpers.EmitGeneratedFileHeader(writer);
         
-        if (model.Decl.ClassAsTypeRef.Namespace is not null) {
-            writer.WriteLine($"namespace {model.Decl.ClassAsTypeRef.Namespace} {{");
+        if (model.Decl.AsTypeRef.Namespace is not null) {
+            writer.WriteLine($"namespace {model.Decl.AsTypeRef.Namespace} {{");
             writer.Indent++;
         }
         
@@ -32,12 +32,12 @@ internal static class InjectableTargetEmitter {
         writer.Indent--;
         writer.WriteLine("}");
         
-        if (model.Decl.ClassAsTypeRef.Namespace is not null) {
+        if (model.Decl.AsTypeRef.Namespace is not null) {
             writer.Indent--;
             writer.WriteLine("}");
         }
         
         SourceText text = SourceText.From(sr.ToString(), Encoding.UTF8);
-        return ($"{model.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}.g.cs", text);
+        return ($"{model.Decl.AsTypeRef.FlattenedNameNonArityBased}.g.cs", text);
     }
 }

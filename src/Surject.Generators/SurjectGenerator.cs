@@ -13,9 +13,7 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
         IncrementalValuesProvider<InjectableTargetModel> injectableTargets = context.SyntaxProvider.ForAttributeWithMetadataName(
             fullyQualifiedMetadataName: typeof(InjectableAttribute).FullName!,
             predicate: static (_, _) => true,
-            transform: static (context, _) => {
-                return new InjectableTargetModel(in context);
-            }
+            transform: static (context, _) => new InjectableTargetModel(in context)
         );
         
         context.RegisterSourceOutput(injectableTargets, (ctx, injectableTarget) => {
@@ -29,9 +27,7 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
         IncrementalValuesProvider<ContainerModel> containers = context.SyntaxProvider.ForAttributeWithMetadataName(
             fullyQualifiedMetadataName: typeof(ScopeAttribute).FullName!,
             predicate: static (_, _) => true,
-            transform: static (context, _) => {
-                return new ContainerModel(in context);
-            }
+            transform: static (context, _) => new ContainerModel(in context)
         );
 
         context.RegisterSourceOutput(containers, (ctx, container) => {

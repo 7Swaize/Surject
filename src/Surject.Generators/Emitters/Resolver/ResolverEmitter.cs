@@ -16,8 +16,8 @@ internal static class ResolverEmitter {
         EmitHelpers.EmitGeneratedFileHeader(writer);
         
         // We will keep it in the same namespace
-        if (model.Decl.ClassAsTypeRef.Namespace is not null) {
-            writer.WriteLine($"namespace {model.Decl.ClassAsTypeRef.Namespace} {{");
+        if (model.Decl.AsTypeRef.Namespace is not null) {
+            writer.WriteLine($"namespace {model.Decl.AsTypeRef.Namespace} {{");
             writer.Indent++;
         }
         
@@ -29,13 +29,13 @@ internal static class ResolverEmitter {
         writer.Indent--;
         writer.WriteLine("}");
         
-        if (model.Decl.ClassAsTypeRef.Namespace is not null) {
+        if (model.Decl.AsTypeRef.Namespace is not null) {
             writer.Indent--;
             writer.WriteLine("}");
         }
         
 
         SourceText text = SourceText.From(sr.ToString(), Encoding.UTF8);
-        return ($"{model.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}_Resolver.g.cs", text);
+        return ($"{model.Decl.AsTypeRef.FlattenedNameNonArityBased}_Resolver.g.cs", text);
     }
 }

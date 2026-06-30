@@ -15,11 +15,11 @@ internal static class EmitConstants {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static string BuildContainerTypeName(ContainerModel container)
-        => $"Container_{container.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}";
+        => $"Container_{container.Decl.AsTypeRef.FlattenedNameNonArityBased}";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static string BuildResolverTypeName(ContainerModel container)
-        => $"Resolver_{container.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}";
+        => $"Resolver_{container.Decl.AsTypeRef.FlattenedNameNonArityBased}";
     
     // Field caches
 

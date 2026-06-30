@@ -18,8 +18,8 @@ internal static class ContainerEmitter {
         EmitHelpers.EmitGeneratedFileHeader(writer);
         
         // In same namespace for now
-        if (container.Decl.ClassAsTypeRef.Namespace is not null) {
-            writer.WriteLine($"namespace {container.Decl.ClassAsTypeRef.Namespace} {{");
+        if (container.Decl.AsTypeRef.Namespace is not null) {
+            writer.WriteLine($"namespace {container.Decl.AsTypeRef.Namespace} {{");
             writer.Indent++;
         }
 
@@ -33,13 +33,13 @@ internal static class ContainerEmitter {
         writer.Indent--;
         writer.WriteLine("}");
         
-        if (container.Decl.ClassAsTypeRef.Namespace is not null) {
+        if (container.Decl.AsTypeRef.Namespace is not null) {
             writer.Indent--;
             writer.WriteLine("}");
         }
         
         SourceText text = SourceText.From(sr.ToString(), Encoding.UTF8);
-        return ($"{container.Decl.ClassAsTypeRef.FlattenedNameNonArityBased}.g.cs", text);
+        return ($"{container.Decl.AsTypeRef.FlattenedNameNonArityBased}.g.cs", text);
     }
 }
 

@@ -10,12 +10,12 @@ internal sealed record InjectableTargetModel {
     internal InjectableTargetModel(in GeneratorAttributeSyntaxContext context) {
         TypeReferenceModelFactory typeRefFactory = TypeReferenceModelFactory.GetFactory(context.SemanticModel.Compilation);
         
-        Decl = new ClassDeclModel((INamedTypeSymbol)context.TargetSymbol, typeRefFactory);
+        Decl = new TypeDeclModel((INamedTypeSymbol)context.TargetSymbol, typeRefFactory);
         MembersToInject = InjectableTargetParser.GetMembersToInject(
             (INamedTypeSymbol)context.TargetSymbol, context.SemanticModel.Compilation, typeRefFactory
         );
     }
     
-    internal ClassDeclModel Decl { get; init; }
+    internal TypeDeclModel Decl { get; init; }
     internal EquatableArray<InjectableMemberModel> MembersToInject { get; init; }
 }

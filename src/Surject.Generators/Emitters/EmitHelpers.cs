@@ -1,6 +1,8 @@
 using System.CodeDom.Compiler;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Surject.Generators.Models.Primitives;
+using Surject.Shared.Helpers;
 
 namespace Surject.Generators.Emitters;
 
@@ -56,21 +58,31 @@ internal static class EmitHelpers {
     }
 
     internal static void EmitClassDeclarationFromModel(
-        ClassDeclModel decl,
+        TypeDeclModel decl,
         IndentedTextWriter writer,
         string[]? inheritance = null)
     {
+        ITypeReferenceModel typeRef = decl.AsTypeRef;
+        
         string accessibility = decl.AccessModifier.AsDeclString();
         string isPartial = decl.IsPartial ? "partial " : string.Empty;
-        string isSealed = decl.IsSealed ? "sealed " : string.Empty;
+        string isSealed = decl.IsSealed && typeRef.TypeKind is not TypeKind.Struct ? "sealed " : string.Empty;
         string isStatic = decl.IsStatic ? "static " : string.Empty;
         
-        string typeParams = decl.ClassAsTypeRef.TypeParameters.Length > 0
-            ? "<" + string.Join(", ", decl.ClassAsTypeRef.TypeParameters.Select(static tp => tp.FQNGenericBased)) + ">"
+        string typeKeyword = typeRef.TypeKind switch {
+            TypeKind.Interface => "interface",
+            TypeKind.Struct => typeRef.IsRecord ? "record struct" : "struct",
+            TypeKind.Enum => "enum",
+            TypeKind.Class => typeRef.IsRecord ? "record" : "class",
+            _ => ThrowHelpers.ThrowUnhandledBranch<string>(typeRef.TypeKind)
+        };
+        
+        string typeParams = decl.AsTypeRef.TypeParameters.Length > 0
+            ? "<" + string.Join(", ", decl.AsTypeRef.TypeParameters.Select(static tp => tp.FQNGenericBased)) + ">"
             : string.Empty;
 
-        string constraints = decl.ClassAsTypeRef.Constraints.Length > 0
-            ? string.Join(" ", decl.ClassAsTypeRef.Constraints.Select(static ct => ct.ToString()))
+        string constraints = decl.AsTypeRef.Constraints.Length > 0
+            ? string.Join(" ", decl.AsTypeRef.Constraints.Select(static ct => ct.ToString()))
             : string.Empty;
         
         string inheritFrom = inheritance != null
@@ -78,8 +90,8 @@ internal static class EmitHelpers {
             : string.Empty;
         
         writer.WriteLine(
-            $"{accessibility} {isPartial} {isSealed} {isStatic} class " +
-            $"{decl.FQNNoGlobal}{typeParams} " +
+            $"{accessibility} {isPartial} {isSealed} {isStatic} {typeKeyword} " +
+            $"{decl.TypeNameNoArityNoFQN}{typeParams} " +
             $"{(!string.IsNullOrEmpty(inheritFrom) ? $": {inheritFrom} " : "")}" +
             $"{constraints} {{"
         );
