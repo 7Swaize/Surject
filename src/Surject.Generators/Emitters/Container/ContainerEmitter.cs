@@ -27,7 +27,7 @@ internal static class ContainerEmitter {
         writer.WriteLine($"internal sealed class {BuildContainerTypeName(container)} : {FQN(typeof(IContainer))} {{");
         writer.Indent++;
         
-        new ContainerFieldEmitter(container).Emit(writer); 
+        new ContainerFieldEmitter(container, linkage).Emit(writer); 
         
         // closes class
         writer.Indent--;

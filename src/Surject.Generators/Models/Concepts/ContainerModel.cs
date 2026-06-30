@@ -39,7 +39,7 @@ internal sealed record ContainerModel {
     internal ClassDeclModel Decl { get; init; }
     internal ITypeReferenceModel? ParentOverride { get; init; }
     internal ScopeLevelKind ScopeLevel { get; init; }
-    
+
     internal EquatableArray<RegistrationModel> Bindings { get; init; }
 }
 

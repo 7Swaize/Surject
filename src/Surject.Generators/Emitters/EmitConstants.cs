@@ -26,6 +26,12 @@ internal static class EmitConstants {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static string BuildSingletonField(ITypeReferenceModel t, string? key = null)
         => key is null ? $"__s_{t.FlattenedNameNonArityBased}" : $"__s_{t.FlattenedNameNonArityBased}_{key}";
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static string BuildMultiBindPrimaryField(ITypeReferenceModel t, int index, string? key = null)
+        => key is null
+            ? $"__mb_{t.FlattenedNameNonArityBased}_{index}_primary"
+            : $"__mb_{t.FlattenedNameNonArityBased}_{key}_{index}_primary";
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static string BuildMultiBindMemberField(ITypeReferenceModel t, int index, string? key = null)

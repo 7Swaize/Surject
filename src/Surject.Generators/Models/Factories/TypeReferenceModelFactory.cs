@@ -26,7 +26,7 @@ internal sealed class TypeReferenceModelFactory {
                 IsOpenGeneric = namedTypeSymbol.IsOpenGeneric();
                 Constraints = namedTypeSymbol.GetTypeParamConstraints();
 
-                if (IsGeneric && !IsBasedOnTypeParameter) {
+                if (IsGeneric && !IsBasedOnTypeParameter && !namedTypeSymbol.IsUnboundGenericType) {
                     UnboundGenericTypeRef = factory.CreateOrGetTypeReferenceModel(namedTypeSymbol.ConstructUnboundGenericType());
                     // TODO: Capture alloc
                     TypeArguments = [
