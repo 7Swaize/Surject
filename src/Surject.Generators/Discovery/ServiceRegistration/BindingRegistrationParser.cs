@@ -82,7 +82,13 @@ internal static class BindingRegistrationParser {
             nameof(IServiceRegistry.Add) 
                 => EntryCommandModel.Add(CreateServiceModel(implType!), lifetime),
             nameof(IServiceRegistry.AddFactory)
-                => EntryCommandModel.AddFactory(implType!, lifetime, RewriteAnonymousExpr(1)),
+                => EntryCommandModel.AddFactory(
+                    implType!,
+                    lifetime,
+                    IsAnonymousExprOtherwiseMethodGroup(syntax, 1)
+                        ? RewriteAnonymousExpr(1)
+                        : syntax.GetText().ToString()
+                ),
             nameof(IServiceRegistry.AddOpenGeneric)
                 => EntryCommandModel.AddOpenGeneric(CreateServiceModel(ExtractNthArgTypeOf(syntax, 0, typeRefFactory, semanticModel)), lifetime),
             nameof(IServiceRegistry.AddToCollection)
@@ -90,7 +96,13 @@ internal static class BindingRegistrationParser {
             nameof(IServiceRegistry.AddPrimaryToCollection) 
                 => EntryCommandModel.AddPrimaryToCollection(CreateServiceModel(implType!), lifetime, ExtractNthIntArg(syntax, 1, semanticModel)),
             nameof(IServiceRegistry.AddAsyncFactory)
-                => EntryCommandModel.AddAsyncFactory(implType!, lifetime, RewriteAnonymousExpr(1)),
+                => EntryCommandModel.AddAsyncFactory(
+                    implType!,
+                    lifetime,
+                    IsAnonymousExprOtherwiseMethodGroup(syntax, 1)
+                        ? RewriteAnonymousExpr(1)
+                        : syntax.GetText().ToString()
+                ),
             nameof(IServiceRegistry.AddFromHierarchy)
                 => EntryCommandModel.AddFromHierarchy(CreateServiceModel(implType!), lifetime),
             nameof(IServiceRegistry.AddAllFromHierarchy)
@@ -178,7 +190,11 @@ internal static class BindingRegistrationParser {
             nameof(IBindingBuilder<>.Lazy) 
                 => ModifierCommandModel.Lazy(),
             nameof(IBindingBuilder<>.FromFactory) 
-                => ModifierCommandModel.FromFactory(RewriteAnonymousExpr(1)),
+                => ModifierCommandModel.FromFactory(
+                    IsAnonymousExprOtherwiseMethodGroup(syntax, 1)
+                        ? RewriteAnonymousExpr(1)
+                        : syntax.GetText().ToString()
+                ),
             nameof(IBindingBuilder<>.FromInjectFactory) 
                 => ModifierCommandModel.FromInjectFactory(),
             nameof(IBindingBuilder<>.WithArgument) 
@@ -190,7 +206,11 @@ internal static class BindingRegistrationParser {
             nameof(IBindingBuilder<>.WhenInjectedInto)
                 => ModifierCommandModel.WhenInjectedInto(ExtractNthTypeArg(method, 0, typeRefFactory)!),
             nameof(IBindingBuilder<>.When) 
-                => ModifierCommandModel.When(RewriteAnonymousExpr(1)),
+                => ModifierCommandModel.When(
+                    IsAnonymousExprOtherwiseMethodGroup(syntax, 1)
+                        ? RewriteAnonymousExpr(1)
+                        : syntax.GetText().ToString()
+                ),
             nameof(IBindingBuilder<>.OverrideExisting) 
                 => ModifierCommandModel.OverrideExisting(),
             nameof(IBindingBuilder<>.AsCollection) 
@@ -304,6 +324,10 @@ internal static class BindingRegistrationParser {
         }
         
         return new MonoBehaviourCreationModel();
+    }
+
+    private static bool IsAnonymousExprOtherwiseMethodGroup(InvocationExpressionSyntax syntax, int index) {
+        return syntax.ArgumentList.Arguments[index].Expression is AnonymousFunctionExpressionSyntax;
     }
 
     private static string InvokeAnonymousExprFQNRewriter(AnonymousFunctionExpressionSyntax expr, SemanticModel semanticModel) {

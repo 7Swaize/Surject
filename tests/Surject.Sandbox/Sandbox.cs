@@ -1,3 +1,4 @@
+using System;
 using Surject.Abstractions.Attributes;
 using Surject.Abstractions.Modifiers;
 using Surject.Abstractions.Registrations;
@@ -12,7 +13,6 @@ internal sealed partial class Scope1 : ScopeContext {
 
         registry.Add<Foo>(Lifetime.Singleton).To<IFoo>().AsPrimary().AsCollection().DoNotDispose();
     }
-    
 }
 
 internal interface IFoo { }
@@ -23,6 +23,4 @@ internal interface IGeneric<T1> { }
 
 internal partial class Generic<T1, T2, T3> : IGeneric<T1> { }
 
-internal partial class Generic<T1, T2, T3> {
-    
-}
+internal partial class Generic<T1, T2, T3> { }
