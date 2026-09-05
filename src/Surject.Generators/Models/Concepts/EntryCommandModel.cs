@@ -11,13 +11,13 @@ internal readonly record struct EntryCommandModel {
     internal LifetimeKind Lifetime { get; init; }
     internal ITypeReferenceModel AuxType1 { get; init; }
     internal ITypeReferenceModel AuxType2 { get; init; }
-
+    
     internal string FuncExpr { get; init; }
     internal string PrefabArg { get; init; }
-
+    
     internal int OrderHint { get; init; }
-
-    internal static EntryCommandModel Add(ServiceModel service, LifetimeKind lifetime) =>
+    
+    internal static EntryCommandModel Add(in ServiceModel service, LifetimeKind lifetime) =>
         new() { Kind = EntryKind.Add, Service = service, Lifetime = lifetime };
 
     internal static EntryCommandModel AddFactory(ITypeReferenceModel impl, LifetimeKind lifetime, string func) =>
@@ -62,9 +62,6 @@ internal readonly record struct EntryCommandModel {
     internal static EntryCommandModel AddFromPrefab(ServiceModel service, LifetimeKind lifetime, string prefabArg) =>
         new() { Kind = EntryKind.AddFromPrefab, Service = service, Lifetime = lifetime, PrefabArg = prefabArg };
 
-    internal static EntryCommandModel Decorate(ITypeReferenceModel contract, ITypeReferenceModel decorator) =>
-        new() { Kind = EntryKind.Decorate, AuxType1 = decorator, AuxType2 = contract };
-
     internal TResult Accept<TVisitor, TResult>(ref TVisitor visitor) where TVisitor : struct, IEntryCommandVisitor<TResult> {
         return Kind switch {
             EntryKind.Add => visitor.VisitAdd(this),
@@ -82,7 +79,6 @@ internal readonly record struct EntryCommandModel {
             EntryKind.AddAllFromParent => visitor.VisitAddAllFromParent(this),
             EntryKind.AddNewComponent => visitor.VisitAddNewComponent(this),
             EntryKind.AddFromPrefab => visitor.VisitAddFromPrefab(this),
-            EntryKind.Decorate => visitor.VisitDecorate(this),
             _ => ThrowHelpers.ThrowUnhandledBranch<TResult>(Kind)
         };
     }
@@ -106,12 +102,10 @@ internal enum EntryKind : byte {
     AddAllFromParent,
     
     AddNewComponent,
-    AddFromPrefab,
-    
-    Decorate,
+    AddFromPrefab
 }
 
 internal enum LifetimeKind : byte {
-    Singleton = 0,
-    Transient = 1
+    Transient = 0,
+    Singleton = 1
 }

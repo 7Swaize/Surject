@@ -12,7 +12,7 @@ internal sealed class TypeReferenceModelFactory {
     private sealed record TypeReferenceModel : ITypeReferenceModel {
         internal TypeReferenceModel(ITypeSymbol symbol, TypeReferenceModelFactory factory) {
             factory._cache.Add(symbol, this);
-
+            
             FQNGenericOmitted = symbol.GetFQNWithGenericsOmitted();
             FQNGenericBased = symbol.GetGenericDefinitionFQN();
             FQNArityBased = symbol.GetGenericArityFQN();
@@ -21,25 +21,26 @@ internal sealed class TypeReferenceModelFactory {
             Namespace = symbol.ContainingNamespace?.IsGlobalNamespace == false
                 ? symbol.ContainingNamespace.ToDisplayString()
                 : null;
-
+            
             IsBasedOnTypeParameter = symbol.TypeKind == TypeKind.TypeParameter;
 
-            if (symbol is INamedTypeSymbol namedTypeSymbol) {
-                IsGeneric = namedTypeSymbol.IsGenericType;
-                IsOpenGeneric = namedTypeSymbol.IsOpenGeneric();
-                Constraints = namedTypeSymbol.GetTypeParamConstraints();
+            if (symbol is INamedTypeSymbol named) {
+                IsGeneric = named.IsGenericType;
+                IsOpenGeneric = named.IsOpenGeneric();
+                Constraints = named.GetTypeParamConstraints();
 
-                if (IsGeneric && !IsBasedOnTypeParameter && !namedTypeSymbol.IsUnboundGenericType) {
-                    UnboundGenericTypeRef =
-                        factory.CreateOrGetTypeReferenceModel(namedTypeSymbol.ConstructUnboundGenericType());
-                    // TODO: Capture alloc
+                if (IsGeneric && !IsBasedOnTypeParameter && !named.IsUnboundGenericType) {
+                    UnboundGenericTypeRef = 
+                        factory.CreateOrGetTypeReferenceModel(named.ConstructUnboundGenericType());
+
                     TypeArguments = [
-                        .. namedTypeSymbol.TypeArguments.Select(typeSymbol =>
+                        .. named.TypeArguments.Select(typeSymbol =>
                             factory.CreateOrGetTypeReferenceModel(typeSymbol))
                     ];
+
                     TypeParameters = [
-                        .. namedTypeSymbol.TypeParameters.Select(typeParameterSymbol =>
-                            factory.CreateOrGetTypeReferenceModel(typeParameterSymbol))
+                        .. named.TypeParameters.Select(typeSymbol =>
+                            factory.CreateOrGetTypeReferenceModel(typeSymbol))
                     ];
                 }
                 else {
@@ -48,19 +49,21 @@ internal sealed class TypeReferenceModelFactory {
                     UnboundGenericTypeRef = null;
                 }
                 
-                BaseType = namedTypeSymbol.BaseType != null
-                    ? factory.CreateOrGetTypeReferenceModel(namedTypeSymbol.BaseType)
+                BaseType = named.BaseType != null
+                    ? factory.CreateOrGetTypeReferenceModel(named.BaseType)
                     : null;
+
                 ImmediateInterfaces = [
-                    .. namedTypeSymbol.Interfaces.Select(interfaceSymbol =>
-                        factory.CreateOrGetTypeReferenceModel(interfaceSymbol))
+                    .. named.Interfaces.Select(@interface =>
+                        factory.CreateOrGetTypeReferenceModel(@interface))
                 ];
+
                 AllInterfaces = [
-                    .. namedTypeSymbol.AllInterfaces.Select(interfaceSymbol =>
-                        factory.CreateOrGetTypeReferenceModel(interfaceSymbol))
+                    .. named.AllInterfaces.Select(@interface =>
+                        factory.CreateOrGetTypeReferenceModel(@interface))
                 ];
             }
-
+            
             IsTrueValueType = symbol.IsValueType;
             IsRecord = symbol.IsRecord;
             TypeKind = symbol.TypeKind;
@@ -68,7 +71,7 @@ internal sealed class TypeReferenceModelFactory {
 
             _underlyingTypeSymbol = new WeakReference<ITypeSymbol>(symbol, false);
         }
-
+        
         // need custom hash impl so we don't get stack overflow with circular type defs. 
         public override int GetHashCode() {
             unchecked {
@@ -103,7 +106,7 @@ internal sealed class TypeReferenceModelFactory {
         // It is not needed anyway.
         // TODO: Look into this.
         public override string ToString() => "";
-
+        
         public string FQNGenericOmitted { get; init; }
         public string FQNGenericBased { get; init; }
         public string FQNArityBased { get; init; }

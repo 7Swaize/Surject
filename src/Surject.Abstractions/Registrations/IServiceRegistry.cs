@@ -15,9 +15,9 @@ public interface IServiceRegistry {
         [RequireStaticDelegate(IsError = true)] Func<IResolver, TImpl> factory
     )
         where TImpl : class;
-    
-    public IOpenGenericBindingBuilder AddOpenGeneric(Lifetime lifetime, Type openImplType);
 
+    public IOpenGenericBindingBuilder AddOpenGeneric(Lifetime lifetime, Type openImplType);
+    
     public IBindingBuilder<TImpl> AddToCollection<TImpl>(Lifetime lifetime, int order = 0) where TImpl : class;
     public IBindingBuilder<TImpl> AddPrimaryToCollection<TImpl>(Lifetime lifetime, int order = 0) where TImpl : class;
     
@@ -26,7 +26,7 @@ public interface IServiceRegistry {
         [RequireStaticDelegate(IsError = true)] Func<IResolver, CancellationToken, ValueTask<TImpl>> factory
     )
         where TImpl : class;
-
+    
     public IComponentBindingBuilder<TImpl> AddFromHierarchy<TImpl>(Lifetime lifetime) where TImpl : Component;
     public IComponentBindingBuilder<TImpl> AddAllFromHierarchy<TImpl>(Lifetime lifetime) where TImpl : Component;
     public IComponentBindingBuilder<TImpl> AddFromSibling<TImpl>(Lifetime lifetime) where TImpl : Component;
@@ -39,6 +39,4 @@ public interface IServiceRegistry {
         where TImpl : Component;
     public IComponentInstantiationBindingBuilder<TImpl> AddFromPrefab<TImpl>(Lifetime lifetime, GameObject prefab)
         where TImpl : Component;
-    
-    public void Decorate<TContract, TDecorator>() where TDecorator : class, TContract;
 }

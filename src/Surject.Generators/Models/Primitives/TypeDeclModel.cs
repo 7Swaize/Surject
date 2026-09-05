@@ -3,7 +3,7 @@ using Surject.Generators.Models.Factories;
 
 namespace Surject.Generators.Models.Primitives;
 
-internal record TypeDeclModel {
+internal sealed record TypeDeclModel {
     internal TypeDeclModel(INamedTypeSymbol symbol, TypeReferenceModelFactory typeRefFactory) {
         AsTypeRef = typeRefFactory.CreateOrGetTypeReferenceModel(symbol);
         AccessModifier = symbol.DeclaredAccessibility;
@@ -11,7 +11,7 @@ internal record TypeDeclModel {
         IsStatic = symbol.IsStatic;
         IsSealed = symbol.IsSealed;
         
-        TypeNameNoArityNoFQN = symbol.GetConstructedTypeFQN(false);
+        TypeNameNoArityNoFQN = symbol.Name;
     }
     
     internal ITypeReferenceModel AsTypeRef { get; init; }

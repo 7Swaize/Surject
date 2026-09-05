@@ -5,7 +5,7 @@ using Surject.Generators.Models.Factories;
 
 namespace Surject.Generators.Models.Primitives;
 
-internal record MethodModel {
+internal sealed record MethodModel {
     internal MethodModel(IMethodSymbol methodSymbol, TypeReferenceModelFactory typeRefFactory) {
         ContainingType = typeRefFactory.CreateOrGetTypeReferenceModel(methodSymbol.ContainingType);
         NameWithGenericParams = methodSymbol.NameWithGenericParameters;

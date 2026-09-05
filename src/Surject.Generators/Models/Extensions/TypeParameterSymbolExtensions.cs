@@ -6,7 +6,7 @@ using Surject.Generators.Models.Primitives;
 internal static class TypeParameterSymbolExtensions {
     extension(ITypeParameterSymbol self) {
         internal ConstraintsModel? GetTypeParamConstraints() {
-            List<string> constraints = new List<string>();
+            List<string> constraints = [];
         
             if (self.HasUnmanagedTypeConstraint) {
                 constraints.Add("unmanaged");

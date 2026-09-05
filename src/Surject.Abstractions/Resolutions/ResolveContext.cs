@@ -11,5 +11,5 @@ public readonly ref struct ResolveContext(ResolveFlags context = ResolveFlags.No
 public enum ResolveFlags : byte {
     None = 0,
     Primary = 1 << 0,
-    Keyed = 1 << 1
+    Keyed = 1 << 1,
 }

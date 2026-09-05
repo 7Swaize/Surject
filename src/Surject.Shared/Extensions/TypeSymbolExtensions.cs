@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
 public static class TypeSymbolExtensions {
-        private static readonly SymbolDisplayFormat GenericDefinitionFQNGlobal = new(
+    private static readonly SymbolDisplayFormat GenericDefinitionFQNGlobal = new(
         globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
         typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
         genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters
@@ -160,9 +159,6 @@ public static class TypeSymbolExtensions {
             Conversion conversion = compilation.ClassifyConversion(self, target);
             return conversion.IsImplicit && conversion.IsReference;
         }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T As<T>() where T : ITypeSymbol => (T)self;
         
         public ITypeSymbol SubstituteFrom(Dictionary<ITypeSymbol, ITypeSymbol> contextMap) {
             if (self is ITypeParameterSymbol tps) {

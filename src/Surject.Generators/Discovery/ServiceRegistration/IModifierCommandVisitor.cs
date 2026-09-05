@@ -7,14 +7,9 @@ internal interface IModifierCommandVisitor<out TResult> {
     public TResult ToImmediateImplementedInterfaces(in ModifierCommandModel cmd);
     public TResult VisitToAllImplementedInterfaces(in ModifierCommandModel cmd);
     public TResult VisitWithId(in ModifierCommandModel cmd);
-    public TResult VisitPooled(in ModifierCommandModel cmd);
     public TResult VisitEager(in ModifierCommandModel cmd);
     public TResult VisitLazy(in ModifierCommandModel cmd);
-    public TResult VisitFromFactory(in ModifierCommandModel cmd);
-    public TResult VisitFromInjectFactory(in ModifierCommandModel cmd);
     public TResult VisitWithArgument(in ModifierCommandModel cmd);
-    public TResult VisitWhenInjectedInto(in ModifierCommandModel cmd);
-    public TResult VisitWhen(in ModifierCommandModel cmd);
     public TResult VisitOverrideExisting(in ModifierCommandModel cmd);
     public TResult VisitAsCollection(in ModifierCommandModel cmd);
     public TResult VisitAsPrimary(in ModifierCommandModel cmd);
