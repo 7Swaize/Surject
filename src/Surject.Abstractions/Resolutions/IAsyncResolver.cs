@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Surject.Abstractions.Resolutions;
 
 public interface IAsyncResolver {
-    public ValueTask<T> ResolveAsync<T>(ResolveContext ctx, CancellationToken cts = default) where T : class;
-    public ValueTask<T?> ResolveOptionalAsync<T>(ResolveContext ctx, CancellationToken cts = default) where T : class;
-    public ValueTask<T[]> ResolveAllAsync<T>(ResolveContext ctx, CancellationToken cts = default) where T : class;
+    ValueTask<T> ResolveAsync<T>(ResolveContext ctx = default, CancellationToken ct = default) where T : class;
+    ValueTask<T?> ResolveOptionalAsync<T>(ResolveContext ctx = default, CancellationToken ct = default) where T : class;
+    ValueTask<T[]> ResolveAllAsync<T>(ResolveContext ctx = default, CancellationToken ct = default) where T : class;
 }

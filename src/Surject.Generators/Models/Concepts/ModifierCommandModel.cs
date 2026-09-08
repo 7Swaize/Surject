@@ -21,8 +21,8 @@ internal readonly record struct ModifierCommandModel {
     internal static ModifierCommandModel ToAllImplementedInterfaces() =>
         new() { Kind = ModifierKind.ToAllImplementedInterfaces };
     
-    internal static ModifierCommandModel WithId(string id) =>
-        new() { Kind = ModifierKind.WithId, StringArg1 = id };
+    internal static ModifierCommandModel WithId(ITypeReferenceModel idType, string idExpr) =>
+        new() { Kind = ModifierKind.WithId, TypeArg = idType, StringArg1 = idExpr };
     
     internal static ModifierCommandModel Eager() =>
         new() { Kind = ModifierKind.Eager };

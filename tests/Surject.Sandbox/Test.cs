@@ -1,6 +1,7 @@
 using Surject.Abstractions.Attributes;
 using Surject.Abstractions.Modifiers;
 using Surject.Abstractions.Registrations;
+using Surject.Abstractions.Resolutions;
 
 namespace Surject.Sandbox;
 
@@ -15,6 +16,14 @@ public class Test : ScopeContext {
             .AddOpenGeneric(Lifetime.Singleton, typeof(Generic<,>))
             .To(typeof(IGeneric<,>))
             .Nullable();
+
+        registry
+            .AddFactory(Lifetime.Singleton, static r => new Foo());
+    }
+
+    // rewritten to
+    private static Foo __Create_Foo(IResolver resolver) {
+        return new Foo();
     }
 }
 
