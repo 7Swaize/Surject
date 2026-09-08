@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using Surject.Generators.Models.Concepts;
 
@@ -32,10 +33,17 @@ internal readonly struct RegistrationNormalizer : IEntryCommandVisitor<Registrat
 
     public RegistrationModel VisitAddPrimaryToCollection(in EntryCommandModel cmd) {
         EntryCommandModel normalized = EntryCommandModel.Add(cmd.Service, cmd.Lifetime);
-        ImmutableArray<ModifierCommandModel> modifiers = _parsedModifiers
-            .Insert(0, ModifierCommandModel.AsCollection(cmd.OrderHint))
-            .Insert(0, ModifierCommandModel.AsPrimary());
-        return new RegistrationModel(in normalized, modifiers);
+        
+        // This allows us to avoid the secondary copy from two 'Insert' calls on an immutable collection.
+        ModifierCommandModel[] newBuffer = new ModifierCommandModel[_parsedModifiers.Length + 2];
+        ReadOnlySpan<ModifierCommandModel> oldBufferSpan = _parsedModifiers.AsArrayUnsafe().AsSpan();
+        Span<ModifierCommandModel> newBufferSpan = newBuffer.AsSpan(newBuffer.Length - oldBufferSpan.Length);
+        
+        oldBufferSpan.CopyTo(newBufferSpan);
+        newBuffer[1] = ModifierCommandModel.AsCollection(cmd.OrderHint);
+        newBuffer[0] = ModifierCommandModel.AsPrimary();
+
+        return new RegistrationModel(in normalized, newBuffer.AsImmutableArrayUnsafe());
     }
 
     private RegistrationModel Wrap(in EntryCommandModel cmd) {

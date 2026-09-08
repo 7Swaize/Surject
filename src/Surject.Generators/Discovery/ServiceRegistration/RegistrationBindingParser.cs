@@ -55,7 +55,7 @@ internal static class RegistrationBindingParser {
         }
 
         entry = chain[^1];
-        modifiers = NoAllocHelpers.AsSpan(chain)[..^1];
+        modifiers = chain.AsSpanUnsafe()[..^1];
         modifiers.Reverse();
         return true;
     }
