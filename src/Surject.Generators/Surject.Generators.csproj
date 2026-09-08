@@ -12,4 +12,8 @@
         <ProjectReference Include="..\Surject.Unity\Surject.Unity.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Emitters\" />
+    </ItemGroup>
+
 </Project>

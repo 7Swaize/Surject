@@ -9,7 +9,6 @@ using Surject.Abstractions.Registrations;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Factories;
 using Surject.Generators.Models.Primitives;
-using Surject.Shared.Extensions;
 using Surject.Shared.Helpers;
 
 namespace Surject.Generators.Discovery.ServiceRegistration;
