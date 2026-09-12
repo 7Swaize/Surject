@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using Surject.Generators.Models.Collections;
 using Surject.Generators.Models.Concepts;
 
 namespace Surject.Generators.Discovery.ServiceRegistration;
@@ -27,8 +28,11 @@ internal readonly struct RegistrationNormalizer : IEntryCommandVisitor<Registrat
 
     public RegistrationModel VisitAddToCollection(in EntryCommandModel cmd) {
         EntryCommandModel normalized = EntryCommandModel.Add(cmd.Service, cmd.Lifetime);
-        ImmutableArray<ModifierCommandModel> modifiers = _parsedModifiers.Insert(0, ModifierCommandModel.AsCollection(cmd.OrderHint));
-        return new RegistrationModel(in normalized, modifiers);
+        EquatableArray<ModifierCommandModel> modifiers = _parsedModifiers
+            .Insert(0, ModifierCommandModel.AsCollection(cmd.OrderHint))
+            .AsEquatableArray();
+        
+        return new RegistrationModel(in normalized, BuildModifiersDescriptor(modifiers), modifiers);
     }
 
     public RegistrationModel VisitAddPrimaryToCollection(in EntryCommandModel cmd) {
@@ -36,17 +40,35 @@ internal readonly struct RegistrationNormalizer : IEntryCommandVisitor<Registrat
         
         // This allows us to avoid the secondary copy from two 'Insert' calls on an immutable collection.
         ModifierCommandModel[] newBuffer = new ModifierCommandModel[_parsedModifiers.Length + 2];
-        ReadOnlySpan<ModifierCommandModel> oldBufferSpan = _parsedModifiers.AsArrayUnsafe().AsSpan();
+        ReadOnlySpan<ModifierCommandModel> oldBufferSpan = _parsedModifiers
+            .AsArrayUnsafe()
+            .AsSpan();
+        
         Span<ModifierCommandModel> newBufferSpan = newBuffer.AsSpan(newBuffer.Length - oldBufferSpan.Length);
         
         oldBufferSpan.CopyTo(newBufferSpan);
         newBuffer[1] = ModifierCommandModel.AsCollection(cmd.OrderHint);
         newBuffer[0] = ModifierCommandModel.AsPrimary();
 
-        return new RegistrationModel(in normalized, newBuffer.AsImmutableArrayUnsafe());
+        EquatableArray<ModifierCommandModel> modifiersFinal = newBuffer
+            .AsImmutableArrayUnsafe()
+            .AsEquatableArray();
+
+        return new RegistrationModel(in normalized, BuildModifiersDescriptor(modifiersFinal), modifiersFinal);
     }
 
     private RegistrationModel Wrap(in EntryCommandModel cmd) {
-        return new RegistrationModel(in cmd, _parsedModifiers);
+        EquatableArray<ModifierCommandModel> modifiers = _parsedModifiers.AsEquatableArray();
+        return new RegistrationModel(in cmd, BuildModifiersDescriptor(modifiers), modifiers);
+    }
+
+    private ModifierKind BuildModifiersDescriptor(EquatableArray<ModifierCommandModel> modifiersFinal) {
+        ModifierKind descriptor = ModifierKind.None;
+        
+        foreach (ref readonly ModifierCommandModel modifier in modifiersFinal) {
+            descriptor |= modifier.Kind;
+        }
+        
+        return descriptor;
     }
 }
