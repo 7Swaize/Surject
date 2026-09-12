@@ -128,7 +128,7 @@ internal static class RegistrationBindingParser {
                 => EntryCommandModel.AddFromPrefab(
                     CreateServiceModelAlias(implType!),
                     lifetime,
-                    Extract
+                    ExtractNthArgAsString(entrySyntax, 1)
                 ),
             _ => ThrowHelpers.ThrowUnhandledBranch<EntryCommandModel>(method.Name)
         };
@@ -180,7 +180,7 @@ internal static class RegistrationBindingParser {
             nameof(IBindingBuilder<>.WithId)
                 => ModifierCommandModel.WithId(
                     ExtractNthTypeArg(method, 0, typeRefFactory)!,
-                    Extract
+                    ExtractNthArgAsString(syntax, 0)
                 ),
             nameof(IBindingBuilder<>.Eager)
                 => ModifierCommandModel.Eager(),
@@ -190,7 +190,7 @@ internal static class RegistrationBindingParser {
                 => ModifierCommandModel.WithArgument(
                     ExtractNthCompileTimeConstantArg<string>(syntax, 0, semanticModel),
                     ExtractNthTypeArg(method, 0, typeRefFactory)!,
-                    Extract
+                    ExtractNthArgAsString(syntax, 1)
                 ),
             nameof(IBindingBuilder<>.OverrideExisting)
                 => ModifierCommandModel.OverrideExisting(),
@@ -205,9 +205,9 @@ internal static class RegistrationBindingParser {
             
             // Unity component specific
             nameof(IComponentInstantiationBindingBuilder<>.UnderTransform)
-                => ModifierCommandModel.UnderTransform(),
+                => ModifierCommandModel.UnderTransform(ExtractNthArgAsString(syntax, 0)),
             nameof(IComponentInstantiationBindingBuilder<>.UnderObjectOfType)
-                => ModifierCommandModel.UnderObjectOfType(),
+                => ModifierCommandModel.UnderObjectOfType(ExtractNthTypeArg(method, 0, typeRefFactory)!),
             nameof(IComponentInstantiationBindingBuilder<>.WithGameObjectName)
                 => ModifierCommandModel.WithGameObjectName(ExtractNthCompileTimeConstantArg<string>(syntax, 0, semanticModel)),
             nameof(IComponentInstantiationBindingBuilder<>.DoNotDestroy)
@@ -293,6 +293,10 @@ internal static class RegistrationBindingParser {
         return constant.HasValue
             ? (T)constant.Value!
             : ThrowHelpers.ThrowNonConstantExpressionException<T>();
+    }
+
+    private static string ExtractNthArgAsString(InvocationExpressionSyntax syntax, int index) {
+        return syntax.ArgumentList.Arguments[index].Expression.ToString();
     }
 
     private static RewrittenDelegateArgumentModel RewriteDelegateArgumentIntoModel(
