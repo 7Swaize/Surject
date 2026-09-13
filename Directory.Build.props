@@ -7,17 +7,16 @@
         <ImplicitUsings>disable</ImplicitUsings>
 
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <PreserveDependenciesForRuntime>true</PreserveDependenciesForRuntime>
     </PropertyGroup>
 
     <PropertyGroup>
         <PreserveDependenciesForRuntime Condition="'$(PreserveDependenciesForRuntime)' == ''">false</PreserveDependenciesForRuntime>
-        <_Unity3DSdkExcludeAssets Condition="'$(PreserveDependenciesForRuntime)' == 'true' And '$(Configuration)' == 'Debug'" />
-        <_Unity3DSdkExcludeAssets Condition="'$(_Unity3DSdkExcludeAssets)' == ''">runtime</_Unity3DSdkExcludeAssets>
+        <_Unity3DSdkExcludeAssets Condition="'$(PreserveDependenciesForRuntime)' == 'true' And '$(Configuration)' == 'Debug'"></_Unity3DSdkExcludeAssets>
+        <_Unity3DSdkExcludeAssets Condition="'$(_Unity3DSdkExcludeAssets)' == '' And '$(PreserveDependenciesForRuntime)' != 'true'">runtime</_Unity3DSdkExcludeAssets>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Unity3D.SDK" PrivateAssets="all" />
+        <PackageReference Include="Unity3D.SDK" PrivateAssets="all" Exclude="$(_Unity3DSdkExcludeAssets)"/>
         <PackageReference Include="JetBrains.Annotations" />
         <PackageReference Include="PolySharp">
             <PrivateAssets>all</PrivateAssets>

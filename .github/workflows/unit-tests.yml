@@ -26,7 +26,7 @@ jobs:
         run: dotnet restore
 
       - name: Build (Debug)
-        run: dotnet build --configuration Debug --no-restore
+        run: dotnet build --configuration Debug --no-restore --property:PreserveDependenciesForRuntime=true
 
       - name: Test (Debug)
-        run: dotnet test --configuration Debug --no-build
+        run: dotnet test --configuration Debug --no-build --property:PreserveDependenciesForRuntime=true
