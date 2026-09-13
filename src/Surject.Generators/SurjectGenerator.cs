@@ -22,8 +22,8 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
             context.SyntaxProvider.ForAttributeWithMetadataName(
                 fullyQualifiedMetadataName: typeof(InjectableAttribute).FullName!,
                 predicate: static (_, _) => true,
-                transform: static (context, cts) => {
-                    cts.ThrowIfCancellationRequested();
+                transform: static (context, ct) => {
+                    ct.ThrowIfCancellationRequested();
                     return new InjectableContainerModel(in context);
                 }
             )
@@ -39,8 +39,8 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
             context.SyntaxProvider.ForAttributeWithMetadataName(
                 fullyQualifiedMetadataName: typeof(ApplicationRootAttribute).FullName!,
                 predicate: static (_, _) => true,
-                transform: static (context, cts) => {
-                    cts.ThrowIfCancellationRequested();
+                transform: static (context, ct) => {
+                    ct.ThrowIfCancellationRequested();
                     return new ContainerModel(in context, isRoot: true);
                 }
             )
@@ -56,8 +56,8 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
             context.SyntaxProvider.ForAttributeWithMetadataName(
                 fullyQualifiedMetadataName: typeof(ScopeAttribute).FullName!,
                 predicate: static (_, _) => true,
-                transform: static (context, cts) => {
-                    cts.ThrowIfCancellationRequested();
+                transform: static (context, ct) => {
+                    ct.ThrowIfCancellationRequested();
                     return new ContainerModel(in context, isRoot: false);
                 }
             )
