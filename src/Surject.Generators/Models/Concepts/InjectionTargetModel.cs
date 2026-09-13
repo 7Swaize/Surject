@@ -11,6 +11,8 @@ internal readonly record struct InjectionTargetModel {
     internal InjectionDeferralKind InjectionDeferralKind { get; init; }
     internal ITypeReferenceModel? UnwrappedTypeToRequest { get; init; }
     internal MethodModel? MethodRef { get; init; }
+    
+    internal ITypeReferenceModel? IdType { get; init; }
     internal string? IdAsText { get; init; }
     
     internal EquatableArray<InjectionTargetModel>? Parameters { get; init; }

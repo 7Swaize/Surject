@@ -3,17 +3,12 @@
     <PropertyGroup>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <UseRoslynPackages>true</UseRoslynPackages>
-        <MergeAnalyzerDependencies>false</MergeAnalyzerDependencies>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Surject.Shared\Surject.Shared.csproj" />
         <ProjectReference Include="..\Surject.Abstractions\Surject.Abstractions.csproj" />
         <ProjectReference Include="..\Surject.Unity\Surject.Unity.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Emitters\" />
     </ItemGroup>
 
 </Project>

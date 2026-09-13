@@ -1,3 +1,4 @@
+using System;
 using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
@@ -83,26 +84,29 @@ internal readonly record struct ModifierCommandModel {
     }
 }
 
-internal enum ModifierKind : byte {
-    To,
-    ToImmediateImplementedInterfaces,
-    ToAllImplementedInterfaces,
-    WithId,
-    
-    Eager,
-    Lazy,
-    
-    WithArgument,
-    
-    OverrideExisting,
-    AsCollection,
-    AsPrimary,
-    
-    DoNotDispose,
-    TrackDisposable,
-    
-    UnderTransform,
-    UnderObjectOfType,
-    WithGameObjectName,
-    DoNotDestroy,
+[Flags]
+internal enum ModifierKind : uint {
+    None = 0,
+
+    To = 1u << 0,
+    ToImmediateImplementedInterfaces = 1u << 1,
+    ToAllImplementedInterfaces = 1u << 2,
+    WithId = 1u << 3,
+
+    Eager = 1u << 4,
+    Lazy = 1u << 5,
+
+    WithArgument = 1u << 6,
+
+    OverrideExisting = 1u << 7,
+    AsCollection = 1u << 8,
+    AsPrimary = 1u << 9,
+
+    DoNotDispose = 1u << 10,
+    TrackDisposable = 1u << 11,
+
+    UnderTransform = 1u << 12,
+    UnderObjectOfType = 1u << 13,
+    WithGameObjectName = 1u << 14,
+    DoNotDestroy = 1u << 15,
 }
