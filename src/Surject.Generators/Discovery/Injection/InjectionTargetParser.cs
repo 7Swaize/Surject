@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Surject.Abstractions.Attributes;
 using Surject.Generators.Models.Collections;
 using Surject.Generators.Models.Concepts;
@@ -134,7 +135,7 @@ internal static class InjectionTargetParser {
 
         return (
             typeRefFactory.CreateOrGetTypeReferenceModel(value.Type!),
-            value.Value?.ToString()
+            value.Value is string s ? SymbolDisplay.FormatLiteral(s, quote: true) : value.Value?.ToString()
         );
     }
     
@@ -153,7 +154,7 @@ internal static class InjectionTargetParser {
 
         if ((deferralKind & InjectionDeferralKind.All) == InjectionDeferralKind.All) {
             return typeRefFactory.CreateOrGetTypeReferenceModel(
-                target.As<INamedTypeSymbol>().TypeArguments[0].As<IArrayTypeSymbol>().ElementType
+                target.As<IArrayTypeSymbol>().ElementType
             );
         }
 

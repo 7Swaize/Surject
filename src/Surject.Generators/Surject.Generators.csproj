@@ -3,7 +3,6 @@
     <PropertyGroup>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <UseRoslynPackages>true</UseRoslynPackages>
-        <MergeAnalyzerDependencies>false</MergeAnalyzerDependencies>
     </PropertyGroup>
 
     <ItemGroup>

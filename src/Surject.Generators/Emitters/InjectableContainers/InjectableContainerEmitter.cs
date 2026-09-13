@@ -18,6 +18,7 @@ internal static class InjectableContainerEmitter {
         using IndentedTextWriter writer = new(sr);
         
         EmitHelpers.EmitGeneratedFileHeader(writer);
+        writer.WriteLine();
 
         if (model.Decl.AsTypeRef.Namespace is not null) {
             writer.WriteLine($"namespace {model.Decl.AsTypeRef.Namespace} {{");

@@ -27,6 +27,18 @@ public static class GeneratorTestsHelper {
         "CS0649" // Field never assigned to, and will always have its default value
     ];
 
+    public static string GetSourceFileFromGeneratorRunResult(GeneratorDriverRunResult driverResults, string fileNameHint) {
+        foreach (GeneratorRunResult result in driverResults.Results) {
+            foreach (GeneratedSourceResult file in result.GeneratedSources) {
+                if (file.HintName.Contains(fileNameHint)) {
+                    return file.SourceText.ToString();
+                }
+            }
+        }
+        
+        return string.Empty;
+    }
+
     public static GeneratorDriverRunResult RunGenerator<TGenerator>(
         [StringSyntax("c#-test")] string source,
         params ReadOnlySpan<string> skippedSteps)
@@ -43,7 +55,7 @@ public static class GeneratorTestsHelper {
             syntaxTrees: [syntaxTree],
             references: [
                 ..Utility.NetCoreAssemblies,
-                ..Utility.GetAdditionalReferences(),
+                ..Utility.GetAdditionalReferences()
             ],
             options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary)
         );

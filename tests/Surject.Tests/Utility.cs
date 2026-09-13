@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
 using Surject.Abstractions.Attributes;
+using UnityEngine;
 
 namespace Surject.Tests;
 
@@ -19,5 +20,6 @@ public static class Utility {
 
     public static MetadataReference[] GetAdditionalReferences() => [
         MetadataReference.CreateFromFile(typeof(InjectAttribute).Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(MonoBehaviour).Assembly.Location)
     ];
 }

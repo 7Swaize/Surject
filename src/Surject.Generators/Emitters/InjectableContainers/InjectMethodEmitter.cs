@@ -32,10 +32,13 @@ internal readonly struct InjectMethodEmitter : IChainedEmitter {
                     break;
             }
         }
+        
+        writer.Indent--;
+        writer.WriteLine("}");
     }
 
     private static void EmitStandardInit(in InjectionTargetModel target, IndentedTextWriter writer) {
-        writer.WriteLine($"this.{target.Name} = {BuildResolverCall(in target)};");
+        writer.WriteMultiline($"this.{target.Name} = {BuildResolverCall(in target)};");
     }
 
     private static void EmitMethodCall(in InjectionTargetModel target, IndentedTextWriter writer) {
@@ -50,7 +53,7 @@ internal readonly struct InjectMethodEmitter : IChainedEmitter {
             string resolverCall = BuildResolverCall(in parameter);
             string suffix = (i == parameters.Length - 1) ? "" : ",";
 
-            writer.WriteLine($"{resolverCall}{suffix}");
+            writer.WriteMultiline($"{resolverCall}{suffix}");
         }
         
         writer.Indent--;
@@ -58,7 +61,6 @@ internal readonly struct InjectMethodEmitter : IChainedEmitter {
     }
 
     private static string BuildResolverCall(in InjectionTargetModel target) {
-        (string keyTypeToPass, string contextConstruction) contextCreation = BuildResolveContextConstruction(in target);
         InjectionDeferralKind deferralKind = target.InjectionDeferralKind;
         string method;
 
@@ -76,26 +78,27 @@ internal readonly struct InjectMethodEmitter : IChainedEmitter {
         else if ((deferralKind & InjectionDeferralKind.Optional) == InjectionDeferralKind.Optional) {
             method = nameof(IResolver.ResolveOptional);
         }
+        else if ((deferralKind & InjectionDeferralKind.All) == InjectionDeferralKind.All) {
+            method = nameof(IResolver.ResolveAll);
+        } 
         else {
             method = nameof(IResolver.Resolve);
         }
         
         if ((deferralKind & InjectionDeferralKind.Keyed) == InjectionDeferralKind.Keyed) {
             return
-                $"resolver.{method}<{target.UnwrappedTypeToRequest!.FQNConstructedArgBased}, {target.IdType!.FQNConstructedArgBased}>("
-                + $"new global::Surject.Abstractions.Resolutions.ResolveContext<{target.IdType!.FQNConstructedArgBased}> {{ Key = {target.IdAsText} }})";
+                $$"""
+                  resolver.{{method}}<{{target.UnwrappedTypeToRequest!.FQNConstructedArgBased}}, {{target.IdType!.FQNConstructedArgBased}}>(
+                      new global::Surject.Abstractions.Resolutions.ResolveContext<{{target.IdType!.FQNConstructedArgBased}}> { Key = {{target.IdAsText}} }
+                  )
+                  """;
         }
-
+        
         return
-            $"resolver.{method}<{target.UnwrappedTypeToRequest!.FQNConstructedArgBased}, global::Surject.Abstractions.Resolutions::NoneKey>("
-            + $"new global::Surject.Abstractions.Resolutions.ResolveContext<global::Surject.Abstractions.Resolutions::NoneKey> {{ }})";
-    }
-
-    private static (string keyTypeToPass, string contextConstruction) BuildResolveContextConstruction(in InjectionTargetModel target) {
-        if (target.IdType is null) {
-            return ("global::Surject.Abstractions.Resolutions.NoneKey", string.Empty);
-        }
-
-        return (target.IdType.FQNConstructedArgBased!, target.IdAsText!);
+            $$"""
+              resolver.{{method}}<{{target.UnwrappedTypeToRequest!.FQNConstructedArgBased}}, global::Surject.Abstractions.Resolutions.NoneKey>(
+                  new global::Surject.Abstractions.Resolutions.ResolveContext<global::Surject.Abstractions.Resolutions.NoneKey> { }
+              )
+              """;
     }
 }

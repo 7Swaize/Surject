@@ -4,7 +4,6 @@
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
         <UseRoslynPackages>true</UseRoslynPackages>
-        <MergeAnalyzerDependencies>false</MergeAnalyzerDependencies>
     </PropertyGroup>
 
     <ItemGroup>
