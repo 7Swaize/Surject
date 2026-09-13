@@ -31,17 +31,18 @@ internal sealed record ContainerModel {
             .ToImmutableArray();
 
         Decl = new TypeDeclModel((INamedTypeSymbol)context.TargetSymbol, typeRefFactory);
-        ScopeLevelKind = ContainerParser.GetScopeLevelKind(in context);
+        (ParentDiscoveryKind, ProvidedParentScope) = ContainerParser.ExtractFromScopeAttribute(in context, typeRefFactory);
     }
     
     internal TypeDeclModel Decl { get; init; }
-    internal ScopeLevelKind ScopeLevelKind { get; init; }
+    internal ParentDiscoveryKind ParentDiscoveryKind { get; init; }
+    internal ITypeReferenceModel? ProvidedParentScope { get; init; }
 
     internal EquatableArray<RegistrationModel> Bindings { get; init; }
 }
 
-internal enum ScopeLevelKind : byte {
-    Application = 0,
-    Scene = 1,
-    GameObject = 2,
+internal enum ParentDiscoveryKind : byte {
+    Static = 0,
+    Hierarchy = 1,
+    Ambient = 2
 }

@@ -5,7 +5,6 @@ using Surject.Abstractions.Resolutions;
 
 namespace Surject.Sandbox;
 
-[Scope(ScopeLevel.Application)]
 public class Test : ScopeContext {
     public override void Configure(IServiceRegistry registry) {
         registry

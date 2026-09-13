@@ -1,18 +1,27 @@
 using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
 using Surject.Generators.Models.Concepts;
+using Surject.Generators.Models.Factories;
+using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
 
 namespace Surject.Generators.Discovery.ServiceRegistration;
 
 internal static class ContainerParser {
-    internal static ScopeLevelKind GetScopeLevelKind(in GeneratorAttributeSyntaxContext ctx) {
+    internal static (ParentDiscoveryKind, ITypeReferenceModel?) ExtractFromScopeAttribute(
+        in GeneratorAttributeSyntaxContext ctx,
+        TypeReferenceModelFactory typeRefFactory)
+    {
         INamedTypeSymbol? targetAttr =
             ctx.SemanticModel.Compilation.GetTypeByMetadataName(typeof(ScopeAttribute).FullName!);
 
         foreach (AttributeData attr in ctx.Attributes) {
             if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, targetAttr)) {
-                return (ScopeLevelKind)(byte)attr.ConstructorArguments[0].Value!;
+                ITypeReferenceModel? model = attr.ConstructorArguments.Length > 1
+                    ? typeRefFactory.CreateOrGetTypeReferenceModel((attr.ConstructorArguments[1].Value as ITypeSymbol)!)
+                    : null;
+
+                return ((ParentDiscoveryKind)(byte)attr.ConstructorArguments[0].Value!, model);
             }
         }
         
