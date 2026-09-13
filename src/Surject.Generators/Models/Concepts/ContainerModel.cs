@@ -11,7 +11,7 @@ using Surject.Generators.Models.Primitives;
 namespace Surject.Generators.Models.Concepts;
 
 internal sealed record ContainerModel {
-    internal ContainerModel(in GeneratorAttributeSyntaxContext context) {
+    internal ContainerModel(in GeneratorAttributeSyntaxContext context, bool isRoot) {
         TypeReferenceModelFactory typeRefFactory = TypeReferenceModelFactory.GetFactory(context.SemanticModel.Compilation);
         SemanticModel semanticModel = context.SemanticModel;
         
@@ -31,7 +31,10 @@ internal sealed record ContainerModel {
             .ToImmutableArray();
 
         Decl = new TypeDeclModel((INamedTypeSymbol)context.TargetSymbol, typeRefFactory);
-        (ParentDiscoveryKind, ProvidedParentScope) = ContainerParser.ExtractFromScopeAttribute(in context, typeRefFactory);
+
+        if (!isRoot) {
+            (ParentDiscoveryKind, ProvidedParentScope) = ContainerParser.ExtractFromScopeAttribute(in context, typeRefFactory);
+        }
     }
     
     internal TypeDeclModel Decl { get; init; }

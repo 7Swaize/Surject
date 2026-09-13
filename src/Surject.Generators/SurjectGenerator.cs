@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
 using Surject.Generators.Emitters.InjectableContainers;
@@ -12,6 +13,8 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal static class TrackingNames {
         internal const string InjectableContainers = nameof(InjectableContainers);
+        internal const string RootContainerParse = nameof(RootContainerParse);
+        internal const string SubContainersParse = nameof(SubContainersParse);
     }
     
     public void Initialize(IncrementalGeneratorInitializationContext context) {
@@ -31,5 +34,33 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
             
             ctx.AddSource(source.name, source.sourceText);
         });
+        
+        IncrementalValueProvider<ContainerModel?> rootContainer = 
+            context.SyntaxProvider.ForAttributeWithMetadataName(
+                fullyQualifiedMetadataName: typeof(ApplicationRootAttribute).FullName!,
+                predicate: static (_, _) => true,
+                transform: static (context, cts) => {
+                    cts.ThrowIfCancellationRequested();
+                    return new ContainerModel(in context, isRoot: true);
+                }
+            )
+            .Collect()
+            .Select(static (all, _) => all.FirstOrDefault())
+            .WithTrackingName(TrackingNames.RootContainerParse);
+
+        context.RegisterSourceOutput(rootContainer, static (ctx, value) => {
+            if (value is null) return;
+        });
+
+        IncrementalValuesProvider<ContainerModel> subContainers =
+            context.SyntaxProvider.ForAttributeWithMetadataName(
+                fullyQualifiedMetadataName: typeof(ScopeAttribute).FullName!,
+                predicate: static (_, _) => true,
+                transform: static (context, cts) => {
+                    cts.ThrowIfCancellationRequested();
+                    return new ContainerModel(in context, isRoot: false);
+                }
+            )
+            .WithTrackingName(TrackingNames.SubContainersParse);
     }
 }
