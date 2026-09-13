@@ -6,7 +6,7 @@ public interface IOpenGenericBindingBuilder {
     public IOpenGenericBindingBuilder To(Type openContractType);
     public IOpenGenericBindingBuilder ToImmediateImplementedInterfaces();
     public IOpenGenericBindingBuilder ToAllImplementedInterfaces();
-    public IOpenGenericBindingBuilder WithId<TId>(TId id) where TId : IEquatable<TId>;
+    public IOpenGenericBindingBuilder WithId<TId>(TId id);
 
     public IOpenGenericBindingBuilder Nullable();
     

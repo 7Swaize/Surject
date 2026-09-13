@@ -67,8 +67,8 @@ internal static class InjectionTargetParser {
         TypeReferenceModelFactory typeRefFactory,
         Dictionary<INamedTypeSymbol, InjectionDeferralKind> deferralMap) 
     {
-        string? idAsText = CheckId(targetSymbol, compilation);
-        InjectionDeferralKind effectiveDeferralKind = idAsText is not null
+        (ITypeReferenceModel? type, string? stringRepr) id = CheckId(targetSymbol, compilation, typeRefFactory);
+        InjectionDeferralKind effectiveDeferralKind = id.type is not null
             ? deferralKind | InjectionDeferralKind.Keyed
             : deferralKind;
         
@@ -78,27 +78,32 @@ internal static class InjectionTargetParser {
                 InjectionSiteKind = InjectionSiteKind.Field,
                 InjectionDeferralKind = effectiveDeferralKind,
                 UnwrappedTypeToRequest = GetTypeToRequest(field.Type, effectiveDeferralKind, typeRefFactory),
-                IdAsText = idAsText
+                IdType = id.type,
+                IdAsText = id.stringRepr
             },
             IPropertySymbol property => new InjectionTargetModel {
                 Name = property.Name,
                 InjectionSiteKind = InjectionSiteKind.Property,
                 InjectionDeferralKind = effectiveDeferralKind,
                 UnwrappedTypeToRequest = GetTypeToRequest(property.Type, effectiveDeferralKind, typeRefFactory),
-                IdAsText = idAsText
+                IdType = id.type,
+                IdAsText = id.stringRepr
             },
             IParameterSymbol param => new InjectionTargetModel {
                 Name = param.Name,
                 InjectionSiteKind = InjectionSiteKind.Parameter,
                 InjectionDeferralKind = effectiveDeferralKind,
                 UnwrappedTypeToRequest = GetTypeToRequest(param.Type, effectiveDeferralKind, typeRefFactory),
+                IdType = id.type,
+                IdAsText = id.stringRepr
             },
             IMethodSymbol method => new InjectionTargetModel {
                 Name = method.Name,
                 InjectionSiteKind = InjectionSiteKind.Method,
                 InjectionDeferralKind = effectiveDeferralKind,
                 MethodRef = new MethodModel(method, typeRefFactory),
-                IdAsText = idAsText,
+                IdType = id.type,
+                IdAsText = id.stringRepr,
                 Parameters = method.Parameters.Select(param => {
                     InjectionDeferralKind parameterDeferralKind = GetDeferral(param, deferralMap);
                     return Parse(
@@ -114,14 +119,23 @@ internal static class InjectionTargetParser {
         };
     }
     
-    private static string? CheckId(ISymbol symbol, Compilation compilation) {
+    private static (ITypeReferenceModel? type, string? stringRepr) CheckId(
+        ISymbol symbol,
+        Compilation compilation,
+        TypeReferenceModelFactory typeRefFactory)
+    {
         INamedTypeSymbol? attr = compilation.GetTypeByMetadataName(typeof(IdAttribute).FullName!);
         
         if (!symbol.ValidateAnnotatedWith(attr!, out AttributeData? data)) {
-            return null;
+            return (null, null);
         }
-        
-        return data.ConstructorArguments[0].Value?.ToString();
+
+        TypedConstant value = data.ConstructorArguments[0];
+
+        return (
+            typeRefFactory.CreateOrGetTypeReferenceModel(value.Type!),
+            value.Value?.ToString()
+        );
     }
     
     private static ITypeReferenceModel GetTypeToRequest(
@@ -145,5 +159,4 @@ internal static class InjectionTargetParser {
 
         return typeRefFactory.CreateOrGetTypeReferenceModel(target);
     }
-
 }
