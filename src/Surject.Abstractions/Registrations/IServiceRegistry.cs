@@ -39,4 +39,6 @@ public interface IServiceRegistry {
         where TImpl : Component;
     public IComponentInstantiationBindingBuilder<TImpl> AddFromPrefab<TImpl>(Lifetime lifetime, GameObject prefab)
         where TImpl : Component;
+
+    public void AddAmbient<T>() where T : notnull;
 }

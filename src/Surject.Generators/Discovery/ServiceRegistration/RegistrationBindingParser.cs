@@ -130,6 +130,8 @@ internal static class RegistrationBindingParser {
                     lifetime,
                     ExtractNthArgAsString(entrySyntax, 1)
                 ),
+            nameof(IServiceRegistry.AddAmbient)
+                => EntryCommandModel.AddAmbient(implType!),
             _ => ThrowHelpers.ThrowUnhandledBranch<EntryCommandModel>(method.Name)
         };
 

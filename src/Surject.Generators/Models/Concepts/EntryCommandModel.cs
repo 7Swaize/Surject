@@ -10,7 +10,6 @@ internal readonly record struct EntryCommandModel {
     
     internal LifetimeKind Lifetime { get; init; }
     internal ITypeReferenceModel AuxType1 { get; init; }
-    internal ITypeReferenceModel AuxType2 { get; init; }
 
     internal RewrittenDelegateArgumentModel RewrittenDelegateArgument { get; init; }
     
@@ -62,6 +61,9 @@ internal readonly record struct EntryCommandModel {
     internal static EntryCommandModel AddFromPrefab(in ServiceModel service, LifetimeKind lifetime, string prefabArg) =>
         new() { Kind = EntryKind.AddFromPrefab, Service = service, Lifetime = lifetime, PrefabArg = prefabArg };
 
+    internal static EntryCommandModel AddAmbient(ITypeReferenceModel ambientType) =>
+        new() { Kind = EntryKind.AddAmbient, AuxType1 = ambientType };
+
     internal TResult Accept<TVisitor, TResult>(ref TVisitor visitor) where TVisitor : struct, IEntryCommandVisitor<TResult> {
         return Kind switch {
             EntryKind.Add => visitor.VisitAdd(this),
@@ -79,6 +81,7 @@ internal readonly record struct EntryCommandModel {
             EntryKind.AddAllFromParent => visitor.VisitAddAllFromParent(this),
             EntryKind.AddNewComponent => visitor.VisitAddNewComponent(this),
             EntryKind.AddFromPrefab => visitor.VisitAddFromPrefab(this),
+            EntryKind.AddAmbient => visitor.AddAmbient(this),
             _ => ThrowHelpers.ThrowUnhandledBranch<TResult>(Kind)
         };
     }
@@ -102,7 +105,9 @@ internal enum EntryKind : byte {
     AddAllFromParent,
     
     AddNewComponent,
-    AddFromPrefab
+    AddFromPrefab,
+    
+    AddAmbient
 }
 
 internal enum LifetimeKind : byte {

@@ -18,4 +18,5 @@ internal interface IEntryCommandVisitor<out TResult> {
     public TResult VisitAddAllFromParent(in EntryCommandModel cmd);
     public TResult VisitAddNewComponent(in EntryCommandModel cmd);
     public TResult VisitAddFromPrefab(in EntryCommandModel cmd);
+    public TResult AddAmbient(in EntryCommandModel cmd);
 }
