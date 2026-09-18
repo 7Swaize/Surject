@@ -1,8 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net.Mime;
 using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
 using Surject.Generators.Emitters.InjectableContainers;
+using Surject.Generators.Emitters.ScopeContainers.Outer;
 using Surject.Generators.Models.Concepts;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
@@ -32,7 +34,6 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
         
         context.RegisterSourceOutput(injectableContainers, static (ctx, value) => {
             GeneratedSource source = InjectableContainerEmitter.Emit(value);
-            
             ctx.AddSource(source.name, source.sourceText);
         });
         
@@ -48,6 +49,15 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
             .Collect()
             .Select(static (all, _) => all.FirstOrDefault())
             .WithTrackingName(TrackingNames.ApplicationRootContainerParse);
+
+        context.RegisterSourceOutput(rootContainer, static (ctx, value) => {
+            if (value is null) {
+                return;
+            }
+
+            GeneratedSource source = ScopeOuterClassEmitter.Emit(value);
+            ctx.AddSource(source.name, source.sourceText);
+        });
         
         IncrementalValuesProvider<ContainerModel> sceneContainers =
             context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -59,6 +69,11 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
                 }
             )
             .WithTrackingName(TrackingNames.SceneRootContainerParse);
+        
+        context.RegisterSourceOutput(sceneContainers, static (ctx, value) => {
+            GeneratedSource source = ScopeOuterClassEmitter.Emit(value);
+            ctx.AddSource(source.name, source.sourceText);
+        });
 
         IncrementalValuesProvider<ContainerModel> subContainers =
             context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -70,5 +85,10 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
                 }
             )
             .WithTrackingName(TrackingNames.SubContainersParse);
+
+        context.RegisterSourceOutput(subContainers, static (ctx, value) => {
+            GeneratedSource source = ScopeOuterClassEmitter.Emit(value);
+            ctx.AddSource(source.name, source.sourceText);
+        });
     }
 }
