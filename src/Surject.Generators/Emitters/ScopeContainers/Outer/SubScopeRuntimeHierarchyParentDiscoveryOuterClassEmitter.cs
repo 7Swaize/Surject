@@ -104,7 +104,7 @@ internal readonly ref struct SubScopeRuntimeHierarchyParentDiscoveryOuterClassEm
     
     private void EmitOnDestroy(IndentedTextWriter writer) {
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
-        writer.WriteLine($"private async Awaitable OnDestroy() {{");
+        writer.WriteLine($"private async global::UnityEngine.Awaitable OnDestroy() {{");
         writer.Indent++;
         
         writer.WriteLine($"await this.__container.DisposeAsync();");

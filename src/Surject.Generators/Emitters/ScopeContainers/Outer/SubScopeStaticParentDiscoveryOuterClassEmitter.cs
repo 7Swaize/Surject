@@ -84,7 +84,7 @@ internal readonly ref struct SubScopeStaticParentDiscoveryOuterClassEmitter : IC
     
     private void EmitOnDestroy(IndentedTextWriter writer) {
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
-        writer.WriteLine($"private async Awaitable OnDestroy() {{");
+        writer.WriteLine($"private async global::UnityEngine.Awaitable OnDestroy() {{");
         writer.Indent++;
         
         ITypeReferenceModel modelType = _model.Decl.AsTypeRef;

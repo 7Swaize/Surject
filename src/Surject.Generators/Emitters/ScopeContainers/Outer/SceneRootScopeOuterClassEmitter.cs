@@ -62,7 +62,7 @@ internal readonly ref struct SceneRootScopeOuterClassEmitter : IChainedEmitter {
     }
 
     private static void EmitOnDestroy(IndentedTextWriter writer) {
-        writer.WriteLine($"private async Awaitable OnDestroy() {{");
+        writer.WriteLine($"private async global::UnityEngine.Awaitable OnDestroy() {{");
         writer.Indent++;
         
         writer.WriteLine($"global::{typeof(SurjectRuntime)}.{nameof(SurjectRuntime.Instance)}.{nameof(SurjectRuntime.UnregisterSceneResolver)}(");
