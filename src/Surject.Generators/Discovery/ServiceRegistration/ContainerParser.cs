@@ -13,7 +13,7 @@ internal static class ContainerParser {
         TypeReferenceModelFactory typeRefFactory)
     {
         INamedTypeSymbol? targetAttr =
-            ctx.SemanticModel.Compilation.GetTypeByMetadataName(typeof(ScopeAttribute).FullName!);
+            ctx.SemanticModel.Compilation.GetTypeByMetadataName(typeof(SubScopeAttribute).FullName!);
 
         foreach (AttributeData attr in ctx.Attributes) {
             if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, targetAttr)) {

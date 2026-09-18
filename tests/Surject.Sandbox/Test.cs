@@ -1,4 +1,3 @@
-using Surject.Abstractions.Attributes;
 using Surject.Abstractions.Modifiers;
 using Surject.Abstractions.Registrations;
 using Surject.Abstractions.Resolutions;

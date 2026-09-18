@@ -1,8 +1,10 @@
+using System;
 using System.CodeDom.Compiler;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
+using Surject.Unity;
 
 namespace Surject.Generators.Emitters;
 
@@ -32,6 +34,13 @@ internal static class EmitHelpers {
         writer.WriteLine($"[global::System.ComponentModel.EditorBrowsable(");
         writer.Indent++;
         writer.WriteLine($"global::System.ComponentModel.EditorBrowsableState.Never)]");
+        writer.Indent--;
+    }
+
+    internal static void EmitDefaultExecutionOrderAttribute<TEnum>(IndentedTextWriter writer, TEnum order) where TEnum : Enum {
+        writer.WriteLine("[global::UnityEngine.DefaultExecutionOrder(");
+        writer.Indent++;
+        writer.WriteLine($"global::{typeof(SurjectExecutionOrder)}.{order.ToString()})]");
         writer.Indent--;
     }
     

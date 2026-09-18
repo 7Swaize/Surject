@@ -13,7 +13,8 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal static class TrackingNames {
         internal const string InjectableContainers = nameof(InjectableContainers);
-        internal const string RootContainerParse = nameof(RootContainerParse);
+        internal const string ApplicationRootContainerParse = nameof(ApplicationRootContainerParse);
+        internal const string SceneRootContainerParse = nameof(SceneRootContainerParse);
         internal const string SubContainersParse = nameof(SubContainersParse);
     }
     
@@ -41,24 +42,31 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
                 predicate: static (_, _) => true,
                 transform: static (context, ct) => {
                     ct.ThrowIfCancellationRequested();
-                    return new ContainerModel(in context, isRoot: true);
+                    return new ContainerModel(in context, ContainerKind.ApplicationRoot);
                 }
             )
             .Collect()
             .Select(static (all, _) => all.FirstOrDefault())
-            .WithTrackingName(TrackingNames.RootContainerParse);
-
-        context.RegisterSourceOutput(rootContainer, static (ctx, value) => {
-            if (value is null) return;
-        });
-
-        IncrementalValuesProvider<ContainerModel> subContainers =
+            .WithTrackingName(TrackingNames.ApplicationRootContainerParse);
+        
+        IncrementalValuesProvider<ContainerModel> sceneContainers =
             context.SyntaxProvider.ForAttributeWithMetadataName(
-                fullyQualifiedMetadataName: typeof(ScopeAttribute).FullName!,
+                fullyQualifiedMetadataName: typeof(SceneRootAttribute).FullName!,
                 predicate: static (_, _) => true,
                 transform: static (context, ct) => {
                     ct.ThrowIfCancellationRequested();
-                    return new ContainerModel(in context, isRoot: false);
+                    return new ContainerModel(in context, ContainerKind.SceneRoot);
+                }
+            )
+            .WithTrackingName(TrackingNames.SceneRootContainerParse);
+
+        IncrementalValuesProvider<ContainerModel> subContainers =
+            context.SyntaxProvider.ForAttributeWithMetadataName(
+                fullyQualifiedMetadataName: typeof(SubScopeAttribute).FullName!,
+                predicate: static (_, _) => true,
+                transform: static (context, ct) => {
+                    ct.ThrowIfCancellationRequested();
+                    return new ContainerModel(in context, ContainerKind.SubScope);
                 }
             )
             .WithTrackingName(TrackingNames.SubContainersParse);

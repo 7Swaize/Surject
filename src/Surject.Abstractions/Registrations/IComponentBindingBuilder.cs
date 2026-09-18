@@ -1,5 +1,3 @@
-using System;
-
 namespace Surject.Abstractions.Registrations;
 
 public interface IComponentBindingBuilder<in T> {

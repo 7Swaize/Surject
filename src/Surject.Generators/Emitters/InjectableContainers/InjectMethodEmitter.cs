@@ -6,13 +6,11 @@ using Surject.Shared.Helpers;
 
 namespace Surject.Generators.Emitters.InjectableContainers;
 
-internal readonly struct InjectMethodEmitter : IChainedEmitter {
+internal readonly ref struct InjectMethodEmitter : IChainedEmitter {
     private readonly InjectableContainerModel _container;
 
-    internal InjectMethodEmitter(InjectableContainerModel container) {
-        _container = container;
-    }
-    
+    internal InjectMethodEmitter(InjectableContainerModel container) => _container = container;
+
     public void Emit(IndentedTextWriter writer) {
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         
