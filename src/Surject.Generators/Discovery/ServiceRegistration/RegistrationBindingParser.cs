@@ -205,6 +205,10 @@ internal static class RegistrationBindingParser {
             nameof(IBindingBuilder<>.TrackDisposable)
                 => ModifierCommandModel.TrackDisposable(),
             
+            // Open generic specific
+            nameof(IOpenGenericBindingBuilder.Nullable)
+                => ModifierCommandModel.Nullable(),
+            
             // Unity component specific
             nameof(IComponentInstantiationBindingBuilder<>.UnderTransform)
                 => ModifierCommandModel.UnderTransform(ExtractNthArgAsString(syntax, 0)),

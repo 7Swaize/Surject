@@ -43,7 +43,7 @@ internal static class EmitHelpers {
     internal static void EmitDefaultExecutionOrderAttribute<TEnum>(IndentedTextWriter writer, TEnum order) where TEnum : Enum {
         writer.WriteLine("[global::UnityEngine.DefaultExecutionOrder(");
         writer.Indent++;
-        writer.WriteLine($"global::{typeof(SurjectExecutionOrder)}.{order.ToString()})]");
+        writer.WriteLine($"(int)global::{typeof(TEnum)}.{order.ToString()})]");
         writer.Indent--;
     }
     

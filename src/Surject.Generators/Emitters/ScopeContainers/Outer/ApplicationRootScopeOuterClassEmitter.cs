@@ -30,11 +30,11 @@ internal readonly ref struct ApplicationRootScopeOuterClassEmitter : IChainedEmi
         ITypeReferenceModel modelType = _model.Decl.AsTypeRef; 
         
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
-        writer.WriteLine($"private {BuildContainerType(modelType)} __container");
+        writer.WriteLine($"private {BuildContainerType(modelType)} __container;");
         writer.WriteLine();
         
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
-        writer.WriteLine($"public {BuildResolverType(modelType)} Resolver => this.__container.Resolver");
+        writer.WriteLine($"public {BuildResolverType(modelType)} Resolver => this.__container.Resolver;");
         writer.WriteLine();
     } 
 
@@ -56,10 +56,10 @@ internal readonly ref struct ApplicationRootScopeOuterClassEmitter : IChainedEmi
 
     private void EmitOnDestroy(IndentedTextWriter writer) {
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
-        writer.WriteLine($"private async Awaitable OnDestroy() {{");
+        writer.WriteLine($"private async global::UnityEngine.Awaitable OnDestroy() {{");
         writer.Indent++;
         
-        writer.WriteLine($"global::{typeof(SurjectRuntime).FullName}.{nameof(SurjectRuntime.Instance)}.{nameof(SurjectRuntime.UnregisterRootResolver)}");
+        writer.WriteLine($"global::{typeof(SurjectRuntime).FullName}.{nameof(SurjectRuntime.Instance)}.{nameof(SurjectRuntime.UnregisterRootResolver)}();");
         writer.WriteLine($"await this.__container.DisposeAsync();");
         
         writer.Indent--;

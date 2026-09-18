@@ -33,11 +33,11 @@ internal readonly ref struct SubScopeStaticParentDiscoveryOuterClassEmitter : IC
         ITypeReferenceModel modelType = _model.Decl.AsTypeRef;
         
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
-        writer.WriteLine($"private {BuildContainerType(modelType)} __container");
+        writer.WriteLine($"private {BuildContainerType(modelType)} __container;");
         writer.WriteLine();
         
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
-        writer.WriteLine($"public {BuildResolverType(modelType)} Resolver => this.__container.Resolver");
+        writer.WriteLine($"public {BuildResolverType(modelType)} Resolver => this.__container.Resolver;");
         writer.WriteLine();
     }
 

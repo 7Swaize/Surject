@@ -31,6 +31,9 @@ internal readonly record struct ModifierCommandModel {
     internal static ModifierCommandModel Lazy() =>
         new() { Kind = ModifierKind.Lazy };
     
+    internal static ModifierCommandModel Nullable() =>
+        new() { Kind = ModifierKind.Nullable };
+    
     internal static ModifierCommandModel WithArgument(string paramName, ITypeReferenceModel argType, string valueExprText) =>
         new() { Kind = ModifierKind.WithArgument, StringArg1 = paramName, TypeArg = argType, StringArg2 = valueExprText };
         
@@ -95,18 +98,19 @@ internal enum ModifierKind : uint {
 
     Eager = 1u << 4,
     Lazy = 1u << 5,
+    Nullable = 1u << 6,
 
-    WithArgument = 1u << 6,
+    WithArgument = 1u << 7,
 
-    OverrideExisting = 1u << 7,
-    AsCollection = 1u << 8,
-    AsPrimary = 1u << 9,
+    OverrideExisting = 1u << 8,
+    AsCollection = 1u << 9,
+    AsPrimary = 1u << 10,
 
-    DoNotDispose = 1u << 10,
-    TrackDisposable = 1u << 11,
+    DoNotDispose = 1u << 11,
+    TrackDisposable = 1u << 12,
 
-    UnderTransform = 1u << 12,
-    UnderObjectOfType = 1u << 13,
-    WithGameObjectName = 1u << 14,
-    DoNotDestroy = 1u << 15,
+    UnderTransform = 1u << 13,
+    UnderObjectOfType = 1u << 14,
+    WithGameObjectName = 1u << 15,
+    DoNotDestroy = 1u << 16,
 }
