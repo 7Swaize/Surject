@@ -19,6 +19,8 @@ internal static class EmitHelpers {
         writer.WriteLine("//------------------------------------------------------------------------------");
         writer.WriteLine();
         
+        writer.WriteLine("#nullable enable");
+        
         // Field declared but never used
         writer.WriteLine($"#pragma warning disable 169");
     }

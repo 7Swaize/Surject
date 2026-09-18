@@ -1,9 +1,11 @@
+#nullable enable
+using Surject.Abstractions.Attributes;
 using Surject.Abstractions.Modifiers;
 using Surject.Abstractions.Registrations;
-using Surject.Abstractions.Resolutions;
 
-namespace Surject.Sandbox;
+namespace Tests;
 
+[ApplicationRoot]
 public class Test : ScopeContext {
     public override void Configure(IServiceRegistry registry) {
         registry
@@ -17,11 +19,6 @@ public class Test : ScopeContext {
 
         registry
             .AddFactory(Lifetime.Singleton, static r => new Foo());
-    }
-
-    // rewritten to
-    private static Foo __Create_Foo(IResolver resolver) {
-        return new Foo();
     }
 }
 

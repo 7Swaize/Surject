@@ -15,9 +15,12 @@ public static class ListExtensions {
 
     extension<T>(List<T>? self) {
         public Span<T> AsSpanUnsafe() {
-            return self is null
-                ? default
-                : Unsafe.As<ListPrivateFieldAccess<T>>(self)._items.AsSpan();
+            if (self is null) {
+                return default;
+            }
+
+            ListPrivateFieldAccess<T> accessor = Unsafe.As<ListPrivateFieldAccess<T>>(self);
+            return accessor._items.AsSpan(0, accessor._size);
         }
     }
 }

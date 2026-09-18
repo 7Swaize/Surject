@@ -55,7 +55,7 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
             }
 
             GeneratedSource source = ScopeOuterClassEmitter.Emit(value);
-            ctx.AddSource(source.name, source.sourceText);
+            ctx.AddSource(source.name, "/* \n source.sourceText \n */");
         });
         
         IncrementalValuesProvider<ContainerModel> sceneContainers =
