@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
 using Surject.Generators.Emitters.InjectableContainers;
-using Surject.Generators.Emitters.ScopeContainers.Outer;
+using Surject.Generators.Emitters.Scopes.Outer;
 using Surject.Generators.Models.Concepts;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 

@@ -4,7 +4,7 @@ using Surject.Generators.Models.Primitives;
 using Surject.Unity;
 using static Surject.Generators.Emitters.BuildHelpers;
 
-namespace Surject.Generators.Emitters.ScopeContainers.Outer;
+namespace Surject.Generators.Emitters.Scopes.Outer;
 
 internal readonly ref struct SceneRootScopeOuterClassEmitter : IChainedEmitter {
     private readonly ContainerModel _model;

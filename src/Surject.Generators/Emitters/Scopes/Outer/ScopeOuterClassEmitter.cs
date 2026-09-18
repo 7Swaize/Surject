@@ -6,7 +6,7 @@ using Surject.Generators.Models.Concepts;
 using Surject.Shared.Helpers;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
-namespace Surject.Generators.Emitters.ScopeContainers.Outer;
+namespace Surject.Generators.Emitters.Scopes.Outer;
 
 internal static class ScopeOuterClassEmitter {
     internal static GeneratedSource Emit(ContainerModel model) {
