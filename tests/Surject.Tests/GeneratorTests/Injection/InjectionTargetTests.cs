@@ -6,7 +6,7 @@ using VerifyTests;
 using Xunit;
 using static VerifyXunit.Verifier;
 
-namespace Surject.Tests.GeneratorTests;
+namespace Surject.Tests.GeneratorTests.Injection;
 
 public sealed class InjectionTargetTests {
     [Fact]

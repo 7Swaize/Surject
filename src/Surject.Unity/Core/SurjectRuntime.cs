@@ -36,7 +36,7 @@ public sealed class SurjectRuntime : Singleton<SurjectRuntime> {
 
     public void RegisterSceneResolver(Scene scene, IResolver resolver) => _sceneResolvers[scene] = resolver;
     public void UnregisterSceneResolver(Scene scene) => _sceneResolvers.Remove(scene);
-    public IResolver? GetSceneResolver(Scene scene) => _sceneResolvers.TryGetValue(scene, out var r) ? r : null;
+    public IResolver? GetSceneResolver(Scene scene) => _sceneResolvers.TryGetValue(scene, out IResolver r) ? r : null;
     
 #if UNITY_EDITOR
     [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
