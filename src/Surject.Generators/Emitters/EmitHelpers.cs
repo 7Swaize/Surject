@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Surject.Generators.Models.Primitives;
+using Surject.Shared.Extensions;
 using Surject.Shared.Helpers;
 using Surject.Unity;
 
@@ -75,12 +76,12 @@ internal static class EmitHelpers {
         string inheritFrom = inheritance is not null
             ? string.Join(", ", inheritance)
             : string.Empty;
+
+        string output = $"{accessibility} {isPartial} {isSealed} {isStatic} {typeKeyword} " +
+                        $"{decl.TypeNameNoArityNoFQN}{typeParams} " +
+                        $"{(!string.IsNullOrEmpty(inheritFrom) ? $": {inheritFrom} " : "")}" +
+                        $"{constraints} {{";
         
-        writer.WriteLine(
-            $"{accessibility} {isPartial} {isSealed} {isStatic} {typeKeyword} " +
-            $"{decl.TypeNameNoArityNoFQN}{typeParams} " +
-            $"{(!string.IsNullOrEmpty(inheritFrom) ? $": {inheritFrom} " : "")}" +
-            $"{constraints} {{"
-        );
+        writer.WriteLine(output.CollapseRedundantWhitespace());
     }
 }

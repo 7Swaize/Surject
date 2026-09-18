@@ -11,7 +11,8 @@
 namespace TestApp {
     [global::System.CodeDom.Compiler.GeneratedCode("SurjectGenerator", "1.0.0")]
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public partial    class Consumer : global::Surject.Abstractions.Lifecycle.IInjectable  {
+    public partial class Consumer : global::Surject.Abstractions.Lifecycle.IInjectable {
+        
         [global::System.ComponentModel.EditorBrowsable(
             global::System.ComponentModel.EditorBrowsableState.Never)]
         public void __Surject_Inject(global::Surject.Abstractions.Resolutions.IResolver resolver) {

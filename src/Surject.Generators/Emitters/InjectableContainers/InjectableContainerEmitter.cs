@@ -29,6 +29,7 @@ internal static class InjectableContainerEmitter {
         EmitHelpers.EmitExcludeFromCodeCoverageAttribute(writer);
         EmitHelpers.EmitTypeDeclarationFromModel(model.Decl, writer, KInheritanceToAddInDecl);
         writer.Indent++;
+        writer.WriteLine();
         
         new InjectMethodEmitter(model).Emit(writer);
         
