@@ -51,9 +51,7 @@ internal readonly struct RegistrationNormalizer : IEntryCommandVisitor<Registrat
         newBuffer[1] = ModifierCommandModel.AsCollection(cmd.OrderHint);
         newBuffer[0] = ModifierCommandModel.AsPrimary();
 
-        EquatableArray<ModifierCommandModel> modifiersFinal = newBuffer
-            .AsImmutableArrayUnsafe()
-            .AsEquatableArray();
+        EquatableArray<ModifierCommandModel> modifiersFinal = newBuffer.AsEquatableArrayUnsafe();
 
         return new RegistrationModel(in normalized, BuildModifiersDescriptor(modifiersFinal), modifiersFinal);
     }

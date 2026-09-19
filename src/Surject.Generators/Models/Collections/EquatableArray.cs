@@ -137,6 +137,10 @@ public readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnume
         return [.. AsImmutableArray()];
     }
 
+    public T[] AsArrayUnsafe() {
+        return _array!;
+    }
+
     /// <summary>
     /// Gets an <see cref="ImmutableArray{T}.Enumerator"/> value to traverse items in the current array.
     /// </summary>
