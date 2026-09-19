@@ -27,7 +27,7 @@ internal sealed class TypeReferenceModelFactory {
 
             if (symbol is INamedTypeSymbol named) {
                 IsGeneric = named.IsGenericType;
-                IsOpenGeneric = named.IsOpenGeneric();
+                IsUnboundGeneric = named.IsUnboundGenericType;
                 Constraints = named.GetTypeParamConstraints();
 
                 if (IsGeneric && !IsBasedOnTypeParameter && !named.IsUnboundGenericType) {
@@ -87,7 +87,7 @@ internal sealed class TypeReferenceModelFactory {
 
             return this with {
                 TypeArguments = targs,
-                IsOpenGeneric = false,
+                IsUnboundGeneric = false,
                 FQNConstructedArgBased = $"{FQNGenericOmitted}<{string.Join(", ", targs.Select(t => t.FQNConstructedArgBased))}>",
                 FlattenedNameArityBased = BuildFlattenedName()
             };
@@ -114,7 +114,7 @@ internal sealed class TypeReferenceModelFactory {
                    && FlattenedNameArityBased == other.FlattenedNameArityBased
                    && IsBasedOnTypeParameter == other.IsBasedOnTypeParameter
                    && IsGeneric == other.IsGeneric
-                   && IsOpenGeneric == other.IsOpenGeneric
+                   && IsUnboundGeneric == other.IsUnboundGeneric
                    && IsTrueValueType == other.IsTrueValueType
                    && TypeKind == other.TypeKind
                    && SpecialType == other.SpecialType;
@@ -134,7 +134,7 @@ internal sealed class TypeReferenceModelFactory {
 
         public bool IsBasedOnTypeParameter { get; init; }
         public bool IsGeneric { get; init; }
-        public bool IsOpenGeneric { get; init; }
+        public bool IsUnboundGeneric { get; init; }
         public ITypeReferenceModel? UnboundGenericTypeRef { get; init; }
         public EquatableArray<ITypeReferenceModel> TypeArguments { get; init; }
         public EquatableArray<ITypeReferenceModel> TypeParameters { get; init; }

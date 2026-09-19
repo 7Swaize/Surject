@@ -16,7 +16,7 @@ internal interface ITypeReferenceModel : IEquatable<ITypeReferenceModel> {
     
     bool IsBasedOnTypeParameter { get; init; }
     bool IsGeneric { get; init; }
-    bool IsOpenGeneric { get; init; }
+    bool IsUnboundGeneric { get; init; }
     ITypeReferenceModel? UnboundGenericTypeRef { get; init; }
     EquatableArray<ITypeReferenceModel> TypeArguments { get; init; }
     EquatableArray<ITypeReferenceModel> TypeParameters { get; init; }
