@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 public static class DictionaryExtensions {
@@ -7,5 +8,14 @@ public static class DictionaryExtensions {
 
         public TValue? GetValueOrDefault(TKey key, TValue? @default = default) =>
             self.TryGetValue(key, out TValue value) ? value : @default;
+
+        public TValue GetOrAdd(TKey key, Func<TValue> factory) {
+            if (!self.TryGetValue(key, out TValue result)) {
+                result = factory();
+                self[key] = result;
+            }
+            
+            return result;
+        }
     }
 }

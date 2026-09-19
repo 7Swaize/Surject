@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Surject.Generators.Models.Collections;
 using Surject.Generators.Models.Primitives;
@@ -17,7 +18,7 @@ internal sealed class TypeReferenceModelFactory {
             FQNGenericBased = symbol.GetGenericDefinitionFQN();
             FQNArityBased = symbol.GetGenericArityFQN();
             FQNConstructedArgBased = symbol.GetConstructedTypeFQN();
-            FlattenedNameNonArityBased = symbol.GetFlattenedConstructedName();
+            FlattenedNameArityBased = symbol.GetFlattenedConstructedName();
             Namespace = symbol.ContainingNamespace?.IsGlobalNamespace == false
                 ? symbol.ContainingNamespace.ToDisplayString()
                 : null;
@@ -71,6 +72,26 @@ internal sealed class TypeReferenceModelFactory {
 
             _underlyingTypeSymbol = new WeakReference<ITypeSymbol>(symbol, false);
         }
+
+        public ITypeReferenceModel ConstructFromTypeArguments(EquatableArray<ITypeReferenceModel> targs) {
+            string BuildFlattenedName() {
+                StringBuilder sb = new StringBuilder();
+                sb.Append(FlattenedNameArityBased);
+
+                foreach (ITypeReferenceModel arg in targs) {
+                    sb.Append(arg.FlattenedNameArityBased);
+                }
+                
+                return sb.ToString();
+            }
+
+            return this with {
+                TypeArguments = targs,
+                IsOpenGeneric = false,
+                FQNConstructedArgBased = $"{FQNGenericOmitted}<{string.Join(", ", targs.Select(t => t.FQNConstructedArgBased))}>",
+                FlattenedNameArityBased = BuildFlattenedName()
+            };
+        }
         
         // need custom hash impl so we don't get stack overflow with circular type defs. 
         public override int GetHashCode() {
@@ -90,7 +111,7 @@ internal sealed class TypeReferenceModelFactory {
                    && TypeArguments.Length == other.TypeArguments.Length
                    && FQNArityBased == other.FQNArityBased
                    && FQNConstructedArgBased == other.FQNConstructedArgBased
-                   && FlattenedNameNonArityBased == other.FlattenedNameNonArityBased
+                   && FlattenedNameArityBased == other.FlattenedNameArityBased
                    && IsBasedOnTypeParameter == other.IsBasedOnTypeParameter
                    && IsGeneric == other.IsGeneric
                    && IsOpenGeneric == other.IsOpenGeneric
@@ -108,7 +129,7 @@ internal sealed class TypeReferenceModelFactory {
         public string FQNGenericBased { get; init; }
         public string FQNArityBased { get; init; }
         public string FQNConstructedArgBased { get; init; }
-        public string FlattenedNameNonArityBased { get; init; }
+        public string FlattenedNameArityBased { get; init; }
         public string? Namespace { get; init; } // excluding 'global' 
 
         public bool IsBasedOnTypeParameter { get; init; }

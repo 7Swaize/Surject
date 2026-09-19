@@ -43,6 +43,6 @@ internal static class InjectableContainerEmitter {
         }
         
         SourceText text = SourceText.From(sr.ToString(), Encoding.UTF8);
-        return ($"{model.Decl.AsTypeRef.FlattenedNameNonArityBased}_Injection.g.cs", text);
+        return ($"{model.Decl.AsTypeRef.FlattenedNameArityBased}_Injection.g.cs", text);
     }
 }

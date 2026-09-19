@@ -51,6 +51,6 @@ internal static class ScopeOuterClassEmitter {
         }
         
         SourceText text = SourceText.From(sr.ToString(), Encoding.UTF8);
-        return ($"{model.Decl.AsTypeRef.FlattenedNameNonArityBased}_Scope.g.cs", text);
+        return ($"{model.Decl.AsTypeRef.FlattenedNameArityBased}_Scope.g.cs", text);
     }
 }

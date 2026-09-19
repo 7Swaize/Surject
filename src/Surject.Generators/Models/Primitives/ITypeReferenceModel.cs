@@ -5,11 +5,13 @@ using Surject.Generators.Models.Collections;
 namespace Surject.Generators.Models.Primitives;
 
 internal interface ITypeReferenceModel : IEquatable<ITypeReferenceModel> {
+    ITypeReferenceModel ConstructFromTypeArguments(EquatableArray<ITypeReferenceModel> targs);
+    
     string FQNGenericOmitted { get; init; }
     string FQNGenericBased { get; init; }
     string FQNArityBased { get; init; }
     string FQNConstructedArgBased { get; init; }
-    string FlattenedNameNonArityBased { get; init; }
+    string FlattenedNameArityBased { get; init; }
     string? Namespace { get; init; }
     
     bool IsBasedOnTypeParameter { get; init; }

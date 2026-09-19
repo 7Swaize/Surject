@@ -143,5 +143,16 @@ public static class EquatableDictionaryExtensions {
                 keyComparer ?? EqualityComparer<TKey>.Default,
                 valueComparer ?? EqualityComparer<TValue>.Default
             );
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public EquatableDictionary<TKey, TValue> AsEquatableDictionary(
+            IEqualityComparer<TKey>? keyComparer = null,
+            IEqualityComparer<TValue>? valueComparer = null
+        ) =>
+            new(
+                dictionary,
+                keyComparer ?? EqualityComparer<TKey>.Default,
+                valueComparer ?? EqualityComparer<TValue>.Default
+            );
     }
 }
