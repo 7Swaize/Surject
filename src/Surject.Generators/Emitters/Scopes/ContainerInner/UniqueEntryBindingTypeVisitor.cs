@@ -1,7 +1,8 @@
+using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 
-namespace Surject.Generators.Discovery.ServiceRegistration;
+namespace Surject.Generators.Emitters.Scopes.ContainerInner;
 
 internal readonly struct UniqueEntryBindingTypeVisitor : IEntryCommandVisitor<ITypeReferenceModel?> {
     public ITypeReferenceModel? VisitAdd(in EntryCommandModel cmd) => cmd.Service.TypeRef;

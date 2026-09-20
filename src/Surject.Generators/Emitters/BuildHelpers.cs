@@ -18,4 +18,42 @@ internal static class BuildHelpers {
     internal static string BuildContainerTypeFQN(ITypeReferenceModel containingType) {
         return $"global::{containingType.Namespace}.Container_{containingType.FlattenedNameArityBased}";
     }
+
+    internal static string BuildSingletonFieldNameNotKeyed(ITypeReferenceModel type) {
+        return $"__s_{type.FlattenedNameArityBased}";
+    }
+
+    internal static string BuildSingletonFieldNameKeyed(ITypeReferenceModel type, string key) {
+        return $"__s_{type.FlattenedNameArityBased}_{HashKey(key)}";
+    }
+
+    internal static string BuildTaskFieldNameNotKeyed(ITypeReferenceModel type) {
+        return $"__s_{type.FlattenedNameArityBased}_task";
+    }
+
+    internal static string BuildTaskFieldNameKeyed(ITypeReferenceModel type, string key) {
+        return $"__s_{type.FlattenedNameArityBased}_{HashKey(key)}";
+    }
+
+    internal static string BuildMultiBindArrayNotKeyed(ITypeReferenceModel type) {
+        return $"__mbarr_{type.FlattenedNameArityBased}";
+    }
+
+    internal static string BuildMultiBindArrayKeyed(ITypeReferenceModel type, string key) {
+        return $"__mbarr_{type.FlattenedNameArityBased}_{HashKey(key)}";
+    }
+
+    private static ulong HashKey(string key) {
+        const ulong offset = 14695981039346656037UL;
+        const ulong prime = 1099511628211UL;
+        
+        ulong hash = offset;
+        
+        foreach (char c in key) {
+            hash ^= c;
+            hash *= prime;
+        }
+        
+        return hash;
+    }
 }

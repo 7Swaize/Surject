@@ -1,6 +1,9 @@
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using Surject.Abstractions.Resolutions;
+using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Models.Concepts;
+using Surject.Generators.Models.Primitives;
 using Surject.Unity.Handles;
 
 namespace Surject.Generators.Emitters.Scopes.ContainerInner;
@@ -25,5 +28,19 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
         writer.WriteLine($"internal readonly global::{typeof(DisposableTracker).FullName} __disposables = new();");
         writer.WriteLine($"internal readonly global::{typeof(AsyncDisposableTracker).FullName} __asyncDisposables = new();");
         writer.WriteLine();
+
+        HashSet<ITypeReferenceModel> uniqueTypes = [];
+        UniqueEntryBindingTypeVisitor uniqueBindingVisitor = new();
+
+        foreach (RegistrationModel registration in _model.Bindings) {
+            ITypeReferenceModel? entryType = registration.Entry.Accept<UniqueEntryBindingTypeVisitor, ITypeReferenceModel?>(ref uniqueBindingVisitor);
+
+            if (entryType == null || !uniqueTypes.Add(entryType)) {
+                continue;
+            }
+            
+            SingularFieldEmitterNoOpenGenericVisitor singularFieldEmitterNoOpenGenericVisitor = new(writer, registration, entryType);
+            registration.Entry.Accept<SingularFieldEmitterNoOpenGenericVisitor, VoidVisitor>(ref singularFieldEmitterNoOpenGenericVisitor);
+        }
     }
 }

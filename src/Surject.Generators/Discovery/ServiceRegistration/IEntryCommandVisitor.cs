@@ -20,3 +20,7 @@ internal interface IEntryCommandVisitor<out TResult> {
     public TResult VisitAddFromPrefab(in EntryCommandModel cmd);
     public TResult AddAmbient(in EntryCommandModel cmd);
 }
+
+internal readonly struct VoidVisitor {
+    internal static VoidVisitor Default = new();
+}
