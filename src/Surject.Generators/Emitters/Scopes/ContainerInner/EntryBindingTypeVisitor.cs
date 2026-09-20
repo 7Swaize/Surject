@@ -4,7 +4,7 @@ using Surject.Generators.Models.Primitives;
 
 namespace Surject.Generators.Emitters.Scopes.ContainerInner;
 
-internal readonly struct UniqueEntryBindingTypeVisitor : IEntryCommandVisitor<ITypeReferenceModel?> {
+internal readonly struct EntryBindingTypeVisitor : IEntryCommandVisitor<ITypeReferenceModel?> {
     public ITypeReferenceModel? VisitAdd(in EntryCommandModel cmd) => cmd.Service.TypeRef;
     public ITypeReferenceModel? VisitAddFactory(in EntryCommandModel cmd) => cmd.AuxType1;
     public ITypeReferenceModel? VisitAddOpenGeneric(in EntryCommandModel cmd) => cmd.Service.TypeRef;
