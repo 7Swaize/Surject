@@ -29,13 +29,13 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
         writer.WriteLine($"internal readonly global::{typeof(AsyncDisposableTracker).FullName} __asyncDisposables = new();");
         writer.WriteLine();
 
-        HashSet<ITypeReferenceModel> uniqueEntryBindingTypes = [];
+        HashSet<ITypeReferenceModel> uniqueEntryRegistrationTypes = [];
         EntryBindingTypeVisitor bindingVisitor = new();
 
-        foreach (RegistrationModel registration in _model.Bindings) {
+        foreach (RegistrationModel registration in _model.Registrations) {
             ITypeReferenceModel? entryType = registration.Entry.Accept<EntryBindingTypeVisitor, ITypeReferenceModel?>(ref bindingVisitor);
 
-            if (entryType == null || !uniqueEntryBindingTypes.Add(entryType)) {
+            if (entryType == null || !uniqueEntryRegistrationTypes.Add(entryType)) {
                 continue;
             }
             

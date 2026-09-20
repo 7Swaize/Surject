@@ -28,8 +28,8 @@ public sealed class EquatableDictionary<TKey, TValue> :
     public EquatableDictionary(
         Dictionary<TKey, TValue> dictionary,
         IEqualityComparer<TKey>? keyComparer = null,
-        IEqualityComparer<TValue>? valueComparer = null
-    ) {
+        IEqualityComparer<TValue>? valueComparer = null)
+    {
         _keyComparer = keyComparer ?? EqualityComparer<TKey>.Default;
         _valueComparer = valueComparer ?? EqualityComparer<TValue>.Default;
         _dictionary = dictionary ?? throw new ArgumentNullException(nameof(dictionary));

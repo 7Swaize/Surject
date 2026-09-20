@@ -22,7 +22,7 @@ internal sealed record ContainerModel {
             .OfType<IMethodSymbol>()
             .First(m => m.Name == nameof(ScopeContext.Configure));
 
-        Bindings = registrationMethod.DeclaringSyntaxReferences[0]
+        Registrations = registrationMethod.DeclaringSyntaxReferences[0]
             .GetSyntax()
             .DescendantNodes()
             .OfType<InvocationExpressionSyntax>()
@@ -45,7 +45,7 @@ internal sealed record ContainerModel {
     internal ParentDiscoveryKind ParentDiscoveryKind { get; init; }
     internal ITypeReferenceModel? ProvidedParentScope { get; init; }
 
-    internal EquatableArray<RegistrationModel> Bindings { get; init; }
+    internal EquatableArray<RegistrationModel> Registrations { get; init; }
 }
 
 internal enum ContainerKind : byte {

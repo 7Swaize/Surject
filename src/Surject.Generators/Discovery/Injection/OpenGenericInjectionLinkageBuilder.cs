@@ -31,7 +31,7 @@ internal static class OpenGenericInjectionLinkageBuilder {
         Dictionary<ITypeReferenceModel, HashSet<ITypeReferenceModel>> bindingToConcretes = new();
         RegistrationModel[] registrations = [
             .. scopeContainers.AsArrayUnsafe()!.SelectMany(
-                c => c.Bindings.AsArrayUnsafe().Where(b => b.Entry.Kind is EntryKind.AddOpenGeneric)
+                c => c.Registrations.AsArrayUnsafe().Where(b => b.Entry.Kind is EntryKind.AddOpenGeneric)
             )
         ];
 
