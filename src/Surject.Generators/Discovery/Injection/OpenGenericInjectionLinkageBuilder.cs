@@ -86,6 +86,7 @@ internal static class OpenGenericInjectionLinkageBuilder {
         ];
 
         foreach (ref readonly InjectionTargetModel target in injectionTargets) {
+            // Hopefully the JIT can allocate this worst-case array on the stack via escape analysis
             ReadOnlySpan<InjectionTargetModel> flattenedTargets = target.InjectionSiteKind is InjectionSiteKind.Method
                 ? target.Parameters!.Value.AsSpan()
                 : new[] { target };

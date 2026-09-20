@@ -44,3 +44,7 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
         }
     }
 }
+
+internal readonly struct MultiBindCollectorNoOpenGenericVisitor : IEntryCommandVisitor<VoidVisitor> {
+    
+}
