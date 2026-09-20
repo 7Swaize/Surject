@@ -30,10 +30,10 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
         writer.WriteLine();
 
         HashSet<ITypeReferenceModel> uniqueEntryRegistrationTypes = [];
-        EntryBindingTypeVisitor bindingVisitor = new();
+        EntryRegistrationTypeVisitor registrationVisitor = new();
 
         foreach (RegistrationModel registration in _model.Registrations) {
-            ITypeReferenceModel? entryType = registration.Entry.Accept<EntryBindingTypeVisitor, ITypeReferenceModel?>(ref bindingVisitor);
+            ITypeReferenceModel? entryType = registration.Entry.Accept<EntryRegistrationTypeVisitor, ITypeReferenceModel?>(ref registrationVisitor);
 
             if (entryType == null || !uniqueEntryRegistrationTypes.Add(entryType)) {
                 continue;
