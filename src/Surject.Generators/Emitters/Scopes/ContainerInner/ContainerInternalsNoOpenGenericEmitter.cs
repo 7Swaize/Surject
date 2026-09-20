@@ -1,5 +1,4 @@
 using System.CodeDom.Compiler;
-using System.Runtime.CompilerServices;
 using Surject.Abstractions.Resolutions;
 using Surject.Generators.Models.Concepts;
 using Surject.Unity.Handles;
@@ -26,9 +25,5 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
         writer.WriteLine($"internal readonly global::{typeof(DisposableTracker).FullName} __disposables = new();");
         writer.WriteLine($"internal readonly global::{typeof(AsyncDisposableTracker).FullName} __asyncDisposables = new();");
         writer.WriteLine();
-
-        foreach (RegistrationModel registration in _model.Bindings) {
-            
-        }
     }
 }
