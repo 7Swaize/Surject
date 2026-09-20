@@ -1,7 +1,10 @@
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Linq;
 using Surject.Abstractions.Resolutions;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
+using Surject.Unity.Utility.Exceptions;
 using static Surject.Generators.Emitters.BuildHelpers;
 
 namespace Surject.Generators.Emitters.Scopes.Outer;
@@ -34,11 +37,27 @@ internal readonly ref struct SubScopeAmbientOuterClassEmitter : IChainedEmitter 
     }
 
     private void EmitBeginScope(IndentedTextWriter writer) {
+        ITypeReferenceModel modelType = _model.Decl.AsTypeRef;
+        ITypeReferenceModel[] ambientParams = [
+            .. _model.Registrations
+                .AsArrayUnsafe()
+                .Where(r => r.Entry.Kind == EntryKind.AddAmbient)
+                .Select(r => r.Entry.AuxType1)
+        ];
+        string formattedParams = string.Concat(ambientParams.Select((p, i) => $", {p.FQNConstructedArgBased} _ambient{i}"));
+        
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         writer.WriteMultiline(
-            $$"""
-              public void BeginScope(global::{{typeof(IResolver)}} parent, 
-              """
+            $$""""
+              public void BeginScope(global::{{typeof(IResolver)}} parent{{formattedParams}}) {
+                if (this.__container is not null)
+                    throw new global::{{typeof(ThrowHelpers).FullName}}.{{nameof(ThrowHelpers.ThrowSurjectRuntimeException)}}($"'BeginScope' was called more than once");
+              
+              """"
         );
+    }
+
+    private void AmbientParamNameBuilder(ITypeReferenceModel paramType) {
+        
     }
 }
