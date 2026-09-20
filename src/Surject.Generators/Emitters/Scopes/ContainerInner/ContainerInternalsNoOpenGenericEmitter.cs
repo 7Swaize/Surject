@@ -39,12 +39,65 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
                 continue;
             }
             
-            SingularFieldEmitterNoOpenGenericVisitor singularFieldEmitterNoOpenGenericVisitor = new(writer, registration, entryType);
-            registration.Entry.Accept<SingularFieldEmitterNoOpenGenericVisitor, VoidVisitor>(ref singularFieldEmitterNoOpenGenericVisitor);
+            FieldEmitterNoOpenGenericVisitor fieldEmitterNoOpenGenericVisitor = new(writer, registration, entryType);
+            registration.Entry.Accept<FieldEmitterNoOpenGenericVisitor, VoidVisitor>(ref fieldEmitterNoOpenGenericVisitor);
         }
     }
 }
 
-internal readonly struct MultiBindCollectorNoOpenGenericVisitor : IEntryCommandVisitor<VoidVisitor> {
-    
+internal readonly struct MultiBindCollectionEmitterNoOpenGenericVisitor : IModifierCommandVisitor<VoidVisitor> {
+    private readonly HashSet<ITypeReferenceModel> _emittedMultiBindCollections;
+
+    internal MultiBindCollectionEmitterNoOpenGenericVisitor(HashSet<ITypeReferenceModel> emittedMultiBindCollections)
+        => _emittedMultiBindCollections = emittedMultiBindCollections;
+
+
+    public VoidVisitor VisitTo(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor ToImmediateImplementedInterfaces(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitToAllImplementedInterfaces(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitWithId(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitEager(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitLazy(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitWithArgument(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitOverrideExisting(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitAsCollection(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitAsPrimary(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitDoNotDispose(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitTrackDisposable(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitUnderTransform(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitUnderObjectOfType(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitWithGameObjectName(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
+    public VoidVisitor VisitDoNotDestroy(in ModifierCommandModel cmd) {
+        throw new System.NotImplementedException();
+    }
 }

@@ -31,6 +31,7 @@ internal static class ScopeOuterClassEmitter {
                         new SubScopeStaticParentDiscoveryOuterClassEmitter(model).Emit(writer);
                         break;
                     case ParentDiscoveryKind.Ambient:
+                        new SubScopeAmbientOuterClassEmitter(model).Emit(writer);
                         break;
                 }
                 break;

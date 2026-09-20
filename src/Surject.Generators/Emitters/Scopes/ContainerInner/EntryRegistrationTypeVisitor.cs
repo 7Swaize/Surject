@@ -20,5 +20,5 @@ internal readonly struct EntryRegistrationTypeVisitor : IEntryCommandVisitor<ITy
     public ITypeReferenceModel? VisitAddAllFromParent(in EntryCommandModel cmd) => cmd.Service.TypeRef;
     public ITypeReferenceModel? VisitAddNewComponent(in EntryCommandModel cmd) => cmd.Service.TypeRef;
     public ITypeReferenceModel? VisitAddFromPrefab(in EntryCommandModel cmd) => cmd.Service.TypeRef;
-    public ITypeReferenceModel? AddAmbient(in EntryCommandModel cmd) => null;
+    public ITypeReferenceModel? VisitAddAmbient(in EntryCommandModel cmd) => null;
 }

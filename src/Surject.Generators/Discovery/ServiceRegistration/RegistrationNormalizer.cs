@@ -25,7 +25,7 @@ internal readonly struct RegistrationNormalizer : IEntryCommandVisitor<Registrat
     public RegistrationModel VisitAddAllFromParent(in EntryCommandModel cmd) => Wrap(in cmd);
     public RegistrationModel VisitAddNewComponent(in EntryCommandModel cmd) => Wrap(in cmd);
     public RegistrationModel VisitAddFromPrefab(in EntryCommandModel cmd) => Wrap(in cmd);
-    public RegistrationModel AddAmbient(in EntryCommandModel cmd) => Wrap(in cmd);
+    public RegistrationModel VisitAddAmbient(in EntryCommandModel cmd) => Wrap(in cmd);
 
     public RegistrationModel VisitAddToCollection(in EntryCommandModel cmd) {
         EntryCommandModel normalized = EntryCommandModel.Add(cmd.Service, cmd.Lifetime);

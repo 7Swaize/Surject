@@ -7,12 +7,12 @@ using Surject.Shared.Helpers;
 
 namespace Surject.Generators.Emitters.Scopes.ContainerInner;
 
-internal readonly struct SingularFieldEmitterNoOpenGenericVisitor : IEntryCommandVisitor<VoidVisitor> {
+internal readonly struct FieldEmitterNoOpenGenericVisitor : IEntryCommandVisitor<VoidVisitor> {
     private readonly IndentedTextWriter _writer;
     private readonly ITypeReferenceModel _entryType;
     private readonly RegistrationModel _registration;
 
-    internal SingularFieldEmitterNoOpenGenericVisitor(IndentedTextWriter writer, RegistrationModel registration, ITypeReferenceModel entryType) {
+    internal FieldEmitterNoOpenGenericVisitor(IndentedTextWriter writer, RegistrationModel registration, ITypeReferenceModel entryType) {
         _writer = writer;
         _registration = registration;
         _entryType = entryType;
@@ -26,8 +26,8 @@ internal readonly struct SingularFieldEmitterNoOpenGenericVisitor : IEntryComman
     public VoidVisitor VisitAddFromParent(in EntryCommandModel cmd) => WriteSingletonFieldDefault();
     public VoidVisitor VisitAddNewComponent(in EntryCommandModel cmd) => WriteSingletonFieldDefault();
     public VoidVisitor VisitAddFromPrefab(in EntryCommandModel cmd) => WriteSingletonFieldDefault();
+    public VoidVisitor VisitAddAmbient(in EntryCommandModel cmd) => WriteSingletonFieldDefault();
     public VoidVisitor VisitAddOpenGeneric(in EntryCommandModel cmd) => VoidVisitor.Default;
-    public VoidVisitor AddAmbient(in EntryCommandModel cmd) => VoidVisitor.Default;
 
     public VoidVisitor VisitAddAsyncFactory(in EntryCommandModel cmd) {
         if ((_registration.ModifiersDescriptor & ModifierKind.WithId) != ModifierKind.WithId) {
