@@ -33,6 +33,10 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
         EntryRegistrationTypeVisitor registrationVisitor = new();
 
         foreach (RegistrationModel registration in _model.Registrations) {
+            if (registration.Entry.Lifetime == LifetimeKind.Transient) {
+                continue;
+            }
+            
             ITypeReferenceModel? entryType = registration.Entry.Accept<EntryRegistrationTypeVisitor, ITypeReferenceModel?>(ref registrationVisitor);
 
             if (entryType == null || !uniqueEntryRegistrationTypes.Add(entryType)) {
