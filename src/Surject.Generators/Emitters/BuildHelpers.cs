@@ -32,15 +32,23 @@ internal static class BuildHelpers {
     }
 
     internal static string BuildTaskFieldNameKeyed(ITypeReferenceModel type, string key) {
-        return $"__s_{type.FlattenedNameArityBased}_{HashKey(key)}";
+        return $"__s_{type.FlattenedNameArityBased}_{HashKey(key)}_task";
+    }
+    
+    internal static string BuildMultiBindLocalArrayFieldNotKeyed(ITypeReferenceModel contract) {
+        return $"__mbarr_local_{contract.FlattenedNameArityBased}";
     }
 
-    internal static string BuildMultiBindArrayNotKeyed(ITypeReferenceModel type) {
-        return $"__mbarr_{type.FlattenedNameArityBased}";
+    internal static string BuildMultiBindLocalArrayFieldKeyed(ITypeReferenceModel contract, string key) {
+        return $"__mbarr_local_{contract.FlattenedNameArityBased}_{HashKey(key)}";
     }
 
-    internal static string BuildMultiBindArrayKeyed(ITypeReferenceModel type, string key) {
-        return $"__mbarr_{type.FlattenedNameArityBased}_{HashKey(key)}";
+    internal static string BuildFoundArrayFieldNotKeyed(ITypeReferenceModel contract) {
+        return $"__found_{contract.FlattenedNameArityBased}";
+    }
+
+    internal static string BuildFoundArrayFieldKeyed(ITypeReferenceModel contract, string key) {
+        return $"__found_{contract.FlattenedNameArityBased}_{HashKey(key)}";
     }
 
     private static ulong HashKey(string key) {
