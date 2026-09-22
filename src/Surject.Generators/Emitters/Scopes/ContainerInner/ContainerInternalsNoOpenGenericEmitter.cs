@@ -56,6 +56,10 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
         new ContainerInternalDiscoveryCollectionNoOpenGenericEmitter(_model).Emit(writer);
         writer.WriteLine();
     }
+
+    private void EmitDispose(IndentedTextWriter writer) { }
+    
+    private void EmitAsyncDispose(IndentedTextWriter writer) { }
 }
 
 internal readonly ref struct ContainerInternalMultiBindingNoOpenGenericEmitter : IChainedEmitter {
