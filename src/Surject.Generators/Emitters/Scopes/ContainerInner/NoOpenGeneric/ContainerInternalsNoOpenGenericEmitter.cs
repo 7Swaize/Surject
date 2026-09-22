@@ -1,4 +1,3 @@
-using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,7 +9,7 @@ using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 using Surject.Unity.Handles;
 
-namespace Surject.Generators.Emitters.Scopes.ContainerInner;
+namespace Surject.Generators.Emitters.Scopes.ContainerInner.NoOpenGeneric;
 
 internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEmitter {
     private readonly ContainerModel _model;

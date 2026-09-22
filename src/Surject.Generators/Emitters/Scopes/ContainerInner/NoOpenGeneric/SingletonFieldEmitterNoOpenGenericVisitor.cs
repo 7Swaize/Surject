@@ -6,7 +6,7 @@ using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
 
-namespace Surject.Generators.Emitters.Scopes.ContainerInner;
+namespace Surject.Generators.Emitters.Scopes.ContainerInner.NoOpenGeneric;
 
 internal readonly struct SingletonFieldEmitterNoOpenGenericVisitor : IEntryCommandVisitor<VoidVisitor> {
     private readonly IndentedTextWriter _writer;
