@@ -37,14 +37,14 @@ internal static class OpenGenericInjectionLinkageBuilder {
 
         foreach (RegistrationModel registration in registrations) {
             ITypeReferenceModel rootUnbound = registration.Entry.AuxType1.UnboundGenericTypeRef!;
-            HashSet<ITypeReferenceModel> concretes = bindingToConcretes.GetOrAdd(rootUnbound, () => []);
+            HashSet<ITypeReferenceModel> concretes = bindingToConcretes.GetOrAdd(rootUnbound, []);
             
             concretes.Add(rootUnbound);
 
             foreach (ref readonly ModifierCommandModel modifier in registration.Modifiers) {
                 switch (modifier.Kind) {
                     case ModifierKind.To:
-                        concretes = bindingToConcretes.GetOrAdd(modifier.TypeArg.UnboundGenericTypeRef!, () => []);
+                        concretes = bindingToConcretes.GetOrAdd(modifier.TypeArg.UnboundGenericTypeRef!, []);
                         concretes.Add(rootUnbound);
                         break;
                     case ModifierKind.ToImmediateImplementedInterfaces:
@@ -53,7 +53,7 @@ internal static class OpenGenericInjectionLinkageBuilder {
                                 continue;
                             }
                             
-                            concretes = bindingToConcretes.GetOrAdd(iface.UnboundGenericTypeRef!, () => []);
+                            concretes = bindingToConcretes.GetOrAdd(iface.UnboundGenericTypeRef!, []);
                             concretes.Add(rootUnbound);
                         }
                         break;
@@ -63,7 +63,7 @@ internal static class OpenGenericInjectionLinkageBuilder {
                                 continue;
                             }
                             
-                            concretes = bindingToConcretes.GetOrAdd(iface.UnboundGenericTypeRef!, () => []);
+                            concretes = bindingToConcretes.GetOrAdd(iface.UnboundGenericTypeRef!, []);
                             concretes.Add(rootUnbound);
                         }
                         break;
@@ -102,7 +102,7 @@ internal static class OpenGenericInjectionLinkageBuilder {
                     continue;
                 }
                 
-                var requestedCache = unboundToImpls.GetOrAdd(injectionTargetType, () => []);
+                var requestedCache = unboundToImpls.GetOrAdd(injectionTargetType, []);
                 requestedCache.Add(injectionTargetType);
 
                 foreach (ITypeReferenceModel concreteUnbound in concretes) {
@@ -110,7 +110,7 @@ internal static class OpenGenericInjectionLinkageBuilder {
                         continue;
                     }
                     
-                    var concreteUnboundCache = unboundToImpls.GetOrAdd(concreteUnbound, () => []);
+                    var concreteUnboundCache = unboundToImpls.GetOrAdd(concreteUnbound, []);
                     concreteUnboundCache.Add(
                         concreteUnbound.ConstructFromTypeArguments(injectionTargetType.TypeArguments)
                     );

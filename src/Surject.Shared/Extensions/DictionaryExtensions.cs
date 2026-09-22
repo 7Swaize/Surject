@@ -9,9 +9,9 @@ public static class DictionaryExtensions {
         public TValue? GetValueOrDefault(TKey key, TValue? @default = default) =>
             self.TryGetValue(key, out TValue value) ? value : @default;
 
-        public TValue GetOrAdd(TKey key, Func<TValue> factory) {
+        public TValue GetOrAdd(TKey key, TValue value) {
             if (!self.TryGetValue(key, out TValue result)) {
-                result = factory();
+                result = value;
                 self[key] = result;
             }
             

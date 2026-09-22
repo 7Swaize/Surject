@@ -3,7 +3,7 @@ using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 
-namespace Surject.Generators.Emitters.Scopes.ContainerInner;
+namespace Surject.Generators.Emitters.Helpers.Visitors;
 
 internal readonly struct ContractCollectorVisitor : IModifierCommandVisitor<VoidVisitor> {
     private readonly ITypeReferenceModel _selfType;

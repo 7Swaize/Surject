@@ -22,6 +22,11 @@ public static class ThrowHelpers {
     
     [DoesNotReturn]
     [MethodImpl(MethodImplOptions.NoInlining)]
+    public static TResult ThrowUnreachable<TResult>(object value) =>
+        throw new UnreachableException("Code should not be reachable");
+    
+    [DoesNotReturn]
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public static TReturn ThrowWeakReferenceCollected<TReturn>() where TReturn : class =>
         throw new ObjectDisposedException(typeof(TReturn).Name, "Weak reference has been collected by the GC");
 

@@ -1,8 +1,8 @@
 using System.CodeDom.Compiler;
+using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 using Surject.Unity;
-using static Surject.Generators.Emitters.BuildHelpers;
 
 namespace Surject.Generators.Emitters.Scopes.Outer;
 
@@ -30,11 +30,11 @@ internal readonly ref struct ApplicationRootScopeOuterClassEmitter : IChainedEmi
         ITypeReferenceModel modelType = _model.Decl.AsTypeRef; 
         
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
-        writer.WriteLine($"private {BuildContainerType(modelType)} __container;");
+        writer.WriteLine($"private {BuildHelpers.BuildContainerType(modelType)} __container;");
         writer.WriteLine();
         
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
-        writer.WriteLine($"public {BuildResolverType(modelType)} Resolver => this.__container.Resolver;");
+        writer.WriteLine($"public {BuildHelpers.BuildResolverType(modelType)} Resolver => this.__container.Resolver;");
         writer.WriteLine();
     } 
 
@@ -46,7 +46,7 @@ internal readonly ref struct ApplicationRootScopeOuterClassEmitter : IChainedEmi
         ITypeReferenceModel modelType = _model.Decl.AsTypeRef;
         
         writer.WriteLine($"global::UnityEngine.Object.DontDestroyOnLoad(this);");
-        writer.WriteLine($"this.__container = new {BuildContainerType(modelType)}(this);");
+        writer.WriteLine($"this.__container = new {BuildHelpers.BuildContainerType(modelType)}(this);");
         writer.WriteLine($"global::{typeof(SurjectRuntime).FullName}.{nameof(SurjectRuntime.Instance)}.{nameof(SurjectRuntime.RegisterRootResolver)}(this.__container.Resolver);");
 
         writer.Indent--;

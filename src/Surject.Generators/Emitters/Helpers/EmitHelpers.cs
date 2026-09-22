@@ -5,9 +5,8 @@ using Microsoft.CodeAnalysis;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Extensions;
 using Surject.Shared.Helpers;
-using Surject.Unity;
 
-namespace Surject.Generators.Emitters;
+namespace Surject.Generators.Emitters.Helpers;
 
 internal static class EmitHelpers {
     internal static void EmitGeneratedFileHeader(IndentedTextWriter writer) {

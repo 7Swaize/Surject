@@ -1,6 +1,7 @@
 using System;
 using System.CodeDom.Compiler;
 using Surject.Abstractions.Resolutions;
+using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Models.Concepts;
 using Surject.Shared.Helpers;
 

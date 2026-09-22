@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using Microsoft.CodeAnalysis.Text;
 using Surject.Abstractions.Lifecycle;
+using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Models.Concepts;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 

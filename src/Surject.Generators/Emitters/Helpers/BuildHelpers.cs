@@ -1,6 +1,6 @@
 using Surject.Generators.Models.Primitives;
 
-namespace Surject.Generators.Emitters;
+namespace Surject.Generators.Emitters.Helpers;
 
 internal static class BuildHelpers {
     internal static string BuildResolverType(ITypeReferenceModel containingType) {
@@ -55,7 +55,7 @@ internal static class BuildHelpers {
         return $"__mbarr_local_async_{contract.FlattenedNameArityBased}";
     }
 
-    internal static string BuildMultiBindLocalAsyncArrayTaskFieldKeyed(ITypeReferenceModel contract, string key) {
+    internal static string BuildMultiBindLocalAsyncArrayFieldKeyed(ITypeReferenceModel contract, string key) {
         return $"__mbarr_local_async{contract.FlattenedNameArityBased}_{HashKey(key)}";
     }
 

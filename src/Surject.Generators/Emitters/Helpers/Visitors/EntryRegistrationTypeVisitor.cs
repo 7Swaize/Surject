@@ -2,7 +2,7 @@ using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 
-namespace Surject.Generators.Emitters.Scopes.ContainerInner;
+namespace Surject.Generators.Emitters.Helpers.Visitors;
 
 internal readonly struct EntryRegistrationTypeVisitor : IEntryCommandVisitor<ITypeReferenceModel?> {
     public ITypeReferenceModel? VisitAdd(in EntryCommandModel cmd) => cmd.Service.TypeRef;

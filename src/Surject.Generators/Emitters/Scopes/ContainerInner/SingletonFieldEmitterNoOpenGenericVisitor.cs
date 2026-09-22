@@ -1,6 +1,7 @@
 using System.CodeDom.Compiler;
 using System.Threading.Tasks;
 using Surject.Generators.Discovery.ServiceRegistration;
+using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;

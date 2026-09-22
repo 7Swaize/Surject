@@ -3,9 +3,9 @@ using System.IO;
 using System.Text;
 using Microsoft.CodeAnalysis.Text;
 using Surject.Abstractions.Resolutions;
+using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Models.Concepts;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
-using static Surject.Generators.Emitters.BuildHelpers;
 
 namespace Surject.Generators.Emitters.Scopes.ContainerInner;
 
@@ -28,7 +28,7 @@ internal static class ContainerInnerEmitter {
         EmitHelpers.EmitGeneratedCodeAttribute(writer);
         EmitHelpers.EmitExcludeFromCodeCoverageAttribute(writer);
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
-        writer.WriteLine($"private sealed partial class {BuildContainerType(model.Decl.AsTypeRef)} : global::{typeof(IContainer).FullName} {{");
+        writer.WriteLine($"private sealed partial class {BuildHelpers.BuildContainerType(model.Decl.AsTypeRef)} : global::{typeof(IContainer).FullName} {{");
         writer.Indent++;
         
         new ContainerInternalsNoOpenGenericEmitter(model).Emit(writer);
