@@ -47,4 +47,18 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
             registration.Entry.Accept<SingletonFieldEmitterNoOpenGenericVisitor, VoidVisitor>(ref singletonFieldEmitterNoOpenGenericVisitor);
         }
     }
+
+    private void EmitMultiBindMembers(IndentedTextWriter writer) {
+        EntryRegistrationTypeVisitor registrationVisitor = new();
+
+        foreach (RegistrationModel registration in _model.Registrations) {
+            
+        }
+    }
+
+    private static bool IsEligibleForOrderedMultiBind(EntryKind kind) => kind switch {
+        EntryKind.AddOpenGeneric => false,
+        EntryKind.AddAmbient => false,
+        _ => true
+    };
 }

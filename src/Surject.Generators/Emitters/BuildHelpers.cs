@@ -43,6 +43,22 @@ internal static class BuildHelpers {
         return $"__mbarr_local_{contract.FlattenedNameArityBased}_{HashKey(key)}";
     }
 
+    internal static string BuildMultiBindLocalArrayTaskFieldNotKeyed(ITypeReferenceModel contract) {
+        return $"__mbarr_local_async_{contract.FlattenedNameArityBased}_task";
+    }
+    
+    internal static string BuildMultiBindLocalArrayTaskFieldKeyed(ITypeReferenceModel contract, string key) {
+        return $"__mbarr_local_async_{contract.FlattenedNameArityBased}_task_{HashKey(key)}";
+    }
+
+    internal static string BuildMultiBindLocalAsyncArrayFieldNotKeyed(ITypeReferenceModel contract) {
+        return $"__mbarr_local_async_{contract.FlattenedNameArityBased}";
+    }
+
+    internal static string BuildMultiBindLocalAsyncArrayTaskFieldKeyed(ITypeReferenceModel contract, string key) {
+        return $"__mbarr_local_async{contract.FlattenedNameArityBased}_{HashKey(key)}";
+    }
+
     internal static string BuildFoundArrayFieldNotKeyed(ITypeReferenceModel contract) {
         return $"__found_{contract.FlattenedNameArityBased}";
     }
