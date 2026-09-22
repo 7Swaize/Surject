@@ -29,4 +29,22 @@ internal static class ParseHelpers {
             modifier.Accept<ContractCollectorVisitor, VoidVisitor>(ref contractCollectorVisitor);
         }
     }
+
+    internal static bool ShouldTrackTransientDisposal(ContainerModel container) {
+        foreach (RegistrationModel registration in container.Registrations) {
+            if (registration.Entry.Lifetime != LifetimeKind.Transient) {
+                continue;
+            }
+            
+            foreach (ref readonly ModifierCommandModel modifier in registration.Modifiers) {
+                if (modifier.Kind != ModifierKind.TrackDisposable) {
+                    continue;
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

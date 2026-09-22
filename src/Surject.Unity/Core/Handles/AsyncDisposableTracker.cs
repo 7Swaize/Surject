@@ -7,8 +7,8 @@ namespace Surject.Unity.Handles;
 internal readonly struct AsyncDisposableTracker {
     private readonly List<IAsyncDisposable> _items;
     
-    internal AsyncDisposableTracker(int capacity) {
-        _items = new List<IAsyncDisposable>(capacity);
+    public AsyncDisposableTracker() {
+        _items = [];
     }
 
     internal void Track(IAsyncDisposable item) {

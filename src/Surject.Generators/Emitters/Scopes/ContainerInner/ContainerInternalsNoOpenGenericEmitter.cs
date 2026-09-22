@@ -1,3 +1,4 @@
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
     public void Emit(IndentedTextWriter writer) {
         EmitProperties(writer);
         EmitMembers(writer);
+        EmitDisposableTrackers(writer);
     }
 
     private void EmitProperties(IndentedTextWriter writer) {
@@ -28,10 +30,19 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
     }
 
     private void EmitMembers(IndentedTextWriter writer) {
-        writer.WriteLine($"internal readonly global::{typeof(DisposableTracker).FullName} __disposables = new();");
-        writer.WriteLine($"internal readonly global::{typeof(AsyncDisposableTracker).FullName} __asyncDisposables = new();");
+        EmitSingletonConcreteCaches(writer);
         writer.WriteLine();
+        
+        new ContainerInternalMultiBindingNoOpenGenericEmitter(_model).Emit(writer);
+        writer.WriteLine();
+        
+        new ContainerInternalDiscoveryCollectionNoOpenGenericEmitter(_model).Emit(writer);
+        writer.WriteLine();
+        
+        writer.WriteLine();
+    }
 
+    private void EmitSingletonConcreteCaches(IndentedTextWriter writer) {
         HashSet<ITypeReferenceModel> uniqueEntryRegistrationTypes = [];
         EntryRegistrationTypeVisitor registrationVisitor = new();
 
@@ -49,17 +60,17 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
             SingletonFieldEmitterNoOpenGenericVisitor singletonFieldEmitterNoOpenGenericVisitor = new(writer, registration, entryType);
             registration.Entry.Accept<SingletonFieldEmitterNoOpenGenericVisitor, VoidVisitor>(ref singletonFieldEmitterNoOpenGenericVisitor);
         }
-        
-        new ContainerInternalMultiBindingNoOpenGenericEmitter(_model).Emit(writer);
-        writer.WriteLine();
-        
-        new ContainerInternalDiscoveryCollectionNoOpenGenericEmitter(_model).Emit(writer);
-        writer.WriteLine();
     }
 
-    private void EmitDispose(IndentedTextWriter writer) { }
-    
-    private void EmitAsyncDispose(IndentedTextWriter writer) { }
+    private void EmitDisposableTrackers(IndentedTextWriter writer) {
+        if (!ParseHelpers.ShouldTrackTransientDisposal(_model)) {
+            return;
+        }
+        
+        writer.WriteLine($"internal readonly global::{typeof(DisposableTracker).FullName} __disposables = new();");
+        writer.WriteLine($"internal readonly global::{typeof(AsyncDisposableTracker).FullName} __asyncDisposables = new();");
+        writer.WriteLine();
+    }
 }
 
 internal readonly ref struct ContainerInternalMultiBindingNoOpenGenericEmitter : IChainedEmitter {

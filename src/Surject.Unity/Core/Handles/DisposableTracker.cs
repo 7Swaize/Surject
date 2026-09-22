@@ -6,8 +6,8 @@ namespace Surject.Unity.Handles;
 internal readonly struct DisposableTracker {
     private readonly List<IDisposable> _items;
 
-    internal DisposableTracker(int capacity) {
-        _items = new List<IDisposable>(capacity);
+    public DisposableTracker() {
+        _items = [];
     }
 
     internal void Track(IDisposable item) {
