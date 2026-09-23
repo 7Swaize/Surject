@@ -14,6 +14,10 @@ internal readonly ref struct ContainerInternalsOpenGenericEmitter : IChainedEmit
     }
 
     public void Emit(IndentedTextWriter writer) {
-        
+        EmitSingletonConcreteCaches(writer);
+    }
+
+    private void EmitSingletonConcreteCaches(IndentedTextWriter writer) {
+        throw new NotImplementedException();
     }
 }

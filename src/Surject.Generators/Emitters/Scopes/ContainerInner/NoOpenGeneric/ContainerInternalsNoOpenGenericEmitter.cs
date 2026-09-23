@@ -29,7 +29,7 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
     }
 
     private void EmitMembers(IndentedTextWriter writer) {
-        EmitSingletonConcreteCaches(writer);
+        new ContainerInternalSingletonConcreteBindingNoOpenGenericEmitter(_model).Emit(writer);
         writer.WriteLine();
         
         new ContainerInternalMultiBindingNoOpenGenericEmitter(_model).Emit(writer);
@@ -41,7 +41,23 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
         writer.WriteLine();
     }
 
-    private void EmitSingletonConcreteCaches(IndentedTextWriter writer) {
+    private void EmitDisposableTrackers(IndentedTextWriter writer) {
+        if (!ParseHelpers.ShouldTrackTransientDisposal(_model)) {
+            return;
+        }
+        
+        writer.WriteLine($"internal readonly global::{typeof(DisposableTracker).FullName} __disposables = new();");
+        writer.WriteLine($"internal readonly global::{typeof(AsyncDisposableTracker).FullName} __asyncDisposables = new();");
+        writer.WriteLine();
+    }
+}
+
+internal readonly ref struct ContainerInternalSingletonConcreteBindingNoOpenGenericEmitter : IChainedEmitter {
+    private readonly ContainerModel _model;
+    
+    internal ContainerInternalSingletonConcreteBindingNoOpenGenericEmitter(ContainerModel model) => _model = model;
+
+    public void Emit(IndentedTextWriter writer) {
         HashSet<ITypeReferenceModel> uniqueEntryRegistrationTypes = [];
         EntryRegistrationTypeVisitor registrationVisitor = new();
 
@@ -59,16 +75,6 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
             SingletonFieldEmitterNoOpenGenericVisitor singletonFieldEmitterNoOpenGenericVisitor = new(writer, registration, entryType);
             registration.Entry.Accept<SingletonFieldEmitterNoOpenGenericVisitor, VoidVisitor>(ref singletonFieldEmitterNoOpenGenericVisitor);
         }
-    }
-
-    private void EmitDisposableTrackers(IndentedTextWriter writer) {
-        if (!ParseHelpers.ShouldTrackTransientDisposal(_model)) {
-            return;
-        }
-        
-        writer.WriteLine($"internal readonly global::{typeof(DisposableTracker).FullName} __disposables = new();");
-        writer.WriteLine($"internal readonly global::{typeof(AsyncDisposableTracker).FullName} __asyncDisposables = new();");
-        writer.WriteLine();
     }
 }
 
