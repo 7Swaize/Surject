@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
 using Surject.Generators.Emitters.InjectableContainers;
+using Surject.Generators.Emitters.Scopes.ContainerInner;
 using Surject.Generators.Emitters.Scopes.Outer;
 using Surject.Generators.Models.Concepts;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
@@ -53,9 +54,8 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
             if (value is null) {
                 return;
             }
-
-            GeneratedSource source = ScopeOuterClassEmitter.Emit(value);
-            ctx.AddSource(source.name, source.sourceText);
+            
+            EmitScopeOuterClass(in ctx, value);
         });
         
         IncrementalValuesProvider<ContainerModel> sceneContainers =
@@ -69,10 +69,7 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
             )
             .WithTrackingName(TrackingNames.SceneRootContainerParse);
         
-        context.RegisterSourceOutput(sceneContainers, static (ctx, value) => {
-            GeneratedSource source = ScopeOuterClassEmitter.Emit(value);
-            ctx.AddSource(source.name, source.sourceText);
-        });
+        context.RegisterSourceOutput(sceneContainers, static (ctx, value) => EmitScopeOuterClass(in ctx, value));
 
         IncrementalValuesProvider<ContainerModel> subContainers =
             context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -85,9 +82,31 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
             )
             .WithTrackingName(TrackingNames.SubContainersParse);
 
-        context.RegisterSourceOutput(subContainers, static (ctx, value) => {
-            GeneratedSource source = ScopeOuterClassEmitter.Emit(value);
-            ctx.AddSource(source.name, source.sourceText);
+        context.RegisterSourceOutput(subContainers, static (ctx, value) => EmitScopeOuterClass(in ctx, value));
+        
+        context.RegisterSourceOutput(rootContainer, static (ctx, value) => {
+            if (value is null) {
+                return;
+            }
+            
+            EmitContainerInnerNoOpenGeneric(in ctx, value);
         });
+        context.RegisterSourceOutput(sceneContainers, static (ctx, value) => EmitContainerInnerNoOpenGeneric(in ctx, value));
+        context.RegisterSourceOutput(subContainers, static (ctx, value) => EmitContainerInnerNoOpenGeneric(in ctx, value));
+    }
+
+    private static void EmitScopeOuterClass(in SourceProductionContext context, ContainerModel container) {
+        GeneratedSource source = ScopeOuterClassEmitter.Emit(container);
+        context.AddSource(source.name, source.sourceText);
+    }
+
+    private static void EmitContainerInnerNoOpenGeneric(in SourceProductionContext context, ContainerModel container) {
+        GeneratedSource source = ContainerInnerEmitter.EmitNoOpenGenerics(container);
+        context.AddSource(source.name, source.sourceText);
+    }
+    
+    private static void EmitContainerInnerNoOpenGeneric(in SourceProductionContext context, ContainerModel container, OpenGenericInjectionLinkage linkage) {
+        GeneratedSource source = ContainerInnerEmitter.EmitOpenGeneric(container, linkage);
+        context.AddSource(source.name, source.sourceText);
     }
 }
