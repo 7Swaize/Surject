@@ -30,6 +30,8 @@ internal sealed record ContainerModel {
             .OfType<RegistrationModel>()
             .ToImmutableArray()
             .AsEquatableArray();
+        
+        EntriesDescriptor = ContainerParser.CreateEntriesDescriptor(Registrations);
 
         Decl = new TypeDeclModel((INamedTypeSymbol)context.TargetSymbol, typeRefFactory);
         ContainerKind = kind;
@@ -43,8 +45,9 @@ internal sealed record ContainerModel {
     internal ContainerKind ContainerKind { get; init; }
     internal ParentDiscoveryKind ParentDiscoveryKind { get; init; }
     internal ITypeReferenceModel? ProvidedParentScope { get; init; }
-
+    
     internal EquatableArray<RegistrationModel> Registrations { get; init; }
+    internal EntryKind EntriesDescriptor { get; init; }
 }
 
 internal enum ContainerKind : byte {

@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Surject.Abstractions.Attributes;
+using Surject.Generators.Models.Collections;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Factories;
 using Surject.Generators.Models.Primitives;
@@ -27,5 +28,15 @@ internal static class ContainerParser {
         
         ThrowHelpers.ThrowUnreachable();
         return default;
+    }
+
+    internal static EntryKind CreateEntriesDescriptor(EquatableArray<RegistrationModel> registrations) {
+        EntryKind desc = EntryKind.None;
+
+        foreach (RegistrationModel registration in registrations) {
+            desc |= registration.Entry.Kind;
+        }
+        
+        return desc;
     }
 }

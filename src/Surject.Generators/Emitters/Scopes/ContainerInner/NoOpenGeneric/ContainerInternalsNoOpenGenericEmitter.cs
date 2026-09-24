@@ -41,6 +41,7 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
         writer.WriteLine();
     }
 
+    // This is independent of an open-generic context, so we can emit it here.
     private void EmitDisposableTrackers(IndentedTextWriter writer) {
         if (!ParseHelpers.ShouldTrackTransientDisposal(_model)) {
             return;
@@ -91,8 +92,8 @@ internal readonly ref struct ContainerInternalMultiBindingNoOpenGenericEmitter :
     internal ContainerInternalMultiBindingNoOpenGenericEmitter(ContainerModel model) => _model = model;
     
     public void Emit(IndentedTextWriter writer) {
-               Dictionary<(ITypeReferenceModel Contract, string? Key), MultiBindSetAggregate> aggregateBySet = new();
-        List<(ITypeReferenceModel Contract, string? Key)> setOrder = new();
+        Dictionary<(ITypeReferenceModel Contract, string? Key), MultiBindSetAggregate> aggregateBySet = new();
+        List<(ITypeReferenceModel Contract, string? Key)> setOrder = [];
         List<ITypeReferenceModel> contractsBuffer = new(4);
         
         EntryRegistrationTypeVisitor registrationVisitor = new();

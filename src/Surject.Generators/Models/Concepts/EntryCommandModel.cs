@@ -1,3 +1,4 @@
+using System;
 using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
@@ -87,27 +88,30 @@ internal readonly record struct EntryCommandModel {
     }
 }
 
-internal enum EntryKind : byte {
-    Add,
-    AddFactory,
-    AddOpenGeneric,
-    AddAsyncFactory,
+[Flags]
+internal enum EntryKind : uint {
+    None = 0,
     
-    AddToCollection,
-    AddPrimaryToCollection,
+    Add = 1 << 0,
+    AddFactory = 1 << 1,
+    AddOpenGeneric = 1 << 2,
+    AddAsyncFactory = 1 << 3,
     
-    AddFromHierarchy,
-    AddAllFromHierarchy,
-    AddFromSibling,
-    AddFromChildren,
-    AddAllFromChildren,
-    AddFromParent,
-    AddAllFromParent,
+    AddToCollection = 1 << 4,
+    AddPrimaryToCollection = 1 << 5,
     
-    AddNewComponent,
-    AddFromPrefab,
+    AddFromHierarchy = 1 << 6,
+    AddAllFromHierarchy = 1 << 7,
+    AddFromSibling = 1 << 8,
+    AddFromChildren = 1 << 9,
+    AddAllFromChildren = 1 << 10,
+    AddFromParent = 1 << 11,
+    AddAllFromParent = 1 << 12,
     
-    AddAmbient
+    AddNewComponent = 1 << 13,
+    AddFromPrefab = 1 << 14,
+    
+    AddAmbient = 1 << 15
 }
 
 internal enum LifetimeKind : byte {
