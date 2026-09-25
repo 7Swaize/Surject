@@ -138,5 +138,8 @@ internal readonly ref struct ContainerInternalDisposalEmitter : IChainedEmitter 
             SingletonFieldAsyncDisposalEmitterNoOpenGenericVisitor asyncDisposalEmitter = new(writer, entryType, registration);
             registration.Entry.Accept<SingletonFieldAsyncDisposalEmitterNoOpenGenericVisitor, VoidVisitor>(ref asyncDisposalEmitter);
         }
+        
+        writer.Indent--;
+        writer.WriteLine("}");
     }
 }
