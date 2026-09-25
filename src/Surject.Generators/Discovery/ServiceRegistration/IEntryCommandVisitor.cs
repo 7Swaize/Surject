@@ -21,6 +21,8 @@ internal interface IEntryCommandVisitor<out TResult> {
     public TResult VisitAddAmbient(in EntryCommandModel cmd);
 }
 
+internal delegate T EntryVisitFunc<out T>(in EntryCommandModel cmd);
+
 internal readonly struct VoidVisitor {
     internal static VoidVisitor Default = new();
 }

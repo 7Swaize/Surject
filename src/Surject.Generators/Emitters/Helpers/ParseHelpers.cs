@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.CodeAnalysis;
 using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Emitters.Helpers.Visitors;
 using Surject.Generators.Models.Concepts;
@@ -8,6 +10,8 @@ using Surject.Shared.Helpers;
 namespace Surject.Generators.Emitters.Helpers;
 
 internal static class ParseHelpers {
+    internal const string KIDisposableFQN = "global::System.IDisposable";
+    
     internal static string? GetKeyExprOrNull(RegistrationModel registration) {
         if ((registration.ModifiersDescriptor & ModifierKind.WithId) == 0) {
             return null;
@@ -47,4 +51,10 @@ internal static class ParseHelpers {
 
         return false;
     }
+
+    internal static bool InheritsFromIDisposable(ITypeReferenceModel type) 
+        => type.AllInterfaces.AsArrayUnsafe().Any(iface => iface.SpecialType == SpecialType.System_IDisposable);
+
+    internal static bool InheritsFromIAsyncDisposable(ITypeReferenceModel type)
+        => type.AllInterfaces.AsArrayUnsafe().Any(iface => iface.FQNGenericOmitted.Equals(KIDisposableFQN));
 }

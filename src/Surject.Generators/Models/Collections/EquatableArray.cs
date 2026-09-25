@@ -129,6 +129,10 @@ public readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnume
         return _array is not null ? _array.AsSpan() : ReadOnlySpan<T>.Empty;
     }
 
+    public Span<T> AsSpanMut() {
+        return _array is not null ? _array.AsSpan() : Span<T>.Empty;
+    }
+
     /// <summary>
     /// Copies the contents of this <see cref="EquatableArray{T}"/> instance. to a mutable array.
     /// </summary>

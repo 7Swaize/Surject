@@ -111,16 +111,45 @@ internal readonly ref struct ContainerInternalMultiBindingOpenGenericEmitter : I
             string? key = ParseHelpers.GetKeyExprOrNull(registration);
             bool isSingleton = registration.Entry.Lifetime == LifetimeKind.Singleton;
 
-            foreach (ITypeReferenceModel contract in contractsBuffer) {
-                (ITypeReferenceModel, string?) setKey = (contract, key);
-                bool isNewSet = !aggregateBySet.TryGetValue(setKey, out bool valid);
-
-                if (isNewSet) {
-                    setOrder.Add(setKey);
+            foreach (ITypeReferenceModel unboundContract in contractsBuffer) {
+                if (!unboundContract.IsUnboundGeneric) {
+                    RegisterSetMember(unboundContract, key, isSingleton);
+                    continue;
                 }
-
-                aggregateBySet[setKey] = valid && isSingleton;
+                
+                if (!_linkage.Linkage.TryGetValue(unboundContract, out EquatableArray<ITypeReferenceModel> closedContracts)) {
+                    continue;
+                }
+                
+                foreach (ITypeReferenceModel closedContract in closedContracts) {
+                    RegisterSetMember(closedContract, key, isSingleton);
+                }
             }
+        }
+
+        foreach ((ITypeReferenceModel contract, string? key) in setOrder) {
+            if (!aggregateBySet[(contract, key)]) {
+                continue;
+            }
+            
+            string fieldName = key is null
+                ? BuildHelpers.BuildMultiBindLocalArrayFieldNotKeyed(contract)
+                : BuildHelpers.BuildMultiBindLocalArrayFieldKeyed(contract, key);
+            
+            writer.WriteLine($"internal (int Order, {contract.FQNConstructedArgBased} Instance)[]? {fieldName};");
+        }
+
+        return;
+
+        void RegisterSetMember(ITypeReferenceModel closedContract, string? key, bool isSingleton) {
+            (ITypeReferenceModel, string?) setKey = (closedContract, key);
+            bool isNewSet = !aggregateBySet.TryGetValue(setKey, out bool valid);
+
+            if (isNewSet) {
+                setOrder.Add(setKey);
+            }
+            
+            aggregateBySet[setKey] = isNewSet ? isSingleton : valid && isSingleton;
         }
     }
 }
