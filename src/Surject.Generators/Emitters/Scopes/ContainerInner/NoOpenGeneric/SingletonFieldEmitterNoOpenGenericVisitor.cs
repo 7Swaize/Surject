@@ -61,6 +61,7 @@ internal readonly struct SingletonFieldEmitterNoOpenGenericVisitor : IEntryComma
             : BuildHelpers.BuildSingletonFieldNameKeyed(_entryType, key);
 
         _writer.WriteLine($"internal {_entryType.FQNConstructedArgBased}? {fieldName};");
+        
         return VoidVisitor.Default;
     }
 }

@@ -10,7 +10,7 @@ using Surject.Shared.Helpers;
 namespace Surject.Generators.Emitters.Helpers;
 
 internal static class ParseHelpers {
-    internal const string KIAsyncDisposableFQN = "global::System.IAsyncDisposable";
+    private const string KIAsyncDisposableFQN = "global::System.IAsyncDisposable";
     
     internal static string? GetKeyExprOrNull(RegistrationModel registration) {
         if ((registration.ModifiersDescriptor & ModifierKind.WithId) == 0) {

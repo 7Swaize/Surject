@@ -1,5 +1,6 @@
 using System;
 using System.CodeDom.Compiler;
+using Surject.Abstractions.Lifecycle;
 using Surject.Abstractions.Resolutions;
 using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Models.Concepts;
@@ -15,7 +16,7 @@ internal readonly ref struct InjectMethodEmitter : IChainedEmitter {
     public void Emit(IndentedTextWriter writer) {
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         
-        writer.WriteLine($"public void __Surject_Inject(global::{typeof(IResolver).FullName!} resolver) {{");
+        writer.WriteLine($"public void {nameof(IInjectable.__Surject_Inject)}(global::{typeof(IResolver).FullName!} resolver) {{");
         writer.Indent++;
 
         foreach (ref readonly InjectionTargetModel target in _container.InjectionTargets) {
