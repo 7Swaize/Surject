@@ -6,6 +6,7 @@ using Surject.Abstractions.Attributes;
 using Surject.Generators.Emitters.InjectableContainers;
 using Surject.Generators.Emitters.Scopes.ContainerInner;
 using Surject.Generators.Emitters.Scopes.Outer;
+using Surject.Generators.Emitters.Scopes.ResolverInner;
 using Surject.Generators.Models.Concepts;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
@@ -151,6 +152,16 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
         });
         context.RegisterSourceOutput(sceneContainersPlusLinkage, static (ctx, value) => EmitContainerInnerOpenGeneric(in ctx, value.Item1, value.Item2));
         context.RegisterSourceOutput(subScopeContainersPlusLinkage, static (ctx, value) => EmitContainerInnerOpenGeneric(in ctx, value.Item1, value.Item2));
+        
+        context.RegisterSourceOutput(rootPlusLinkage, static (ctx, value) => {
+            if (value.Item1 is null) {
+                return;
+            }
+
+            EmitResolverInner(in ctx, value.Item1, value.Item2);
+        });
+        context.RegisterSourceOutput(sceneContainersPlusLinkage, static (ctx, value) => EmitResolverInner(in ctx, value.Item1, value.Item2));
+        context.RegisterSourceOutput(subScopeContainersPlusLinkage, static (ctx, value) => EmitResolverInner(in ctx, value.Item1, value.Item2));
     }
 
     private static void EmitScopeOuterClass(in SourceProductionContext context, ContainerModel container) {
@@ -171,6 +182,13 @@ internal sealed class SurjectGenerator : IIncrementalGenerator {
         context.CancellationToken.ThrowIfCancellationRequested();
         
         GeneratedSource source = ContainerInnerEmitter.EmitOpenGeneric(container, linkage);
+        context.AddSource(source.name, source.sourceText);
+    }
+    
+    private static void EmitResolverInner(in SourceProductionContext context, ContainerModel container, OpenGenericInjectionLinkage linkage) {
+        context.CancellationToken.ThrowIfCancellationRequested();
+        
+        GeneratedSource source = ResolverInnerEmitter.EmitResolver(container, linkage);
         context.AddSource(source.name, source.sourceText);
     }
 }
