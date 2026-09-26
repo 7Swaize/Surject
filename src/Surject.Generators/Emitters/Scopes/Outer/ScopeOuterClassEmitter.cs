@@ -11,17 +11,14 @@ namespace Surject.Generators.Emitters.Scopes.Outer;
 
 internal static class ScopeOuterClassEmitter {
     internal static GeneratedSource Emit(ContainerModel model) {
-        using StringWriter sr = new();
-        using IndentedTextWriter writer = new(sr);
-        
-        EmitHelpers.EmitGeneratedFileHeader(writer);
-        writer.WriteLine();
-        
-        if (model.Decl.AsTypeRef.Namespace is not null) {
-            writer.WriteLine($"namespace {model.Decl.AsTypeRef.Namespace} {{");
-            writer.Indent++;
-        }
+        return EmitHelpers.EmitFile(
+            model.Decl.AsTypeRef.Namespace,
+            $"{model.Decl.AsTypeRef.FlattenedNameArityBased}_Scope.g.cs",
+            writer => EmitClass(model, writer)
+        );
+    }
 
+    private static void EmitClass(ContainerModel model, IndentedTextWriter writer) {
         switch (model.ContainerKind) {
             case ContainerKind.SubScope:
                 switch (model.ParentDiscoveryKind) {
@@ -46,13 +43,5 @@ internal static class ScopeOuterClassEmitter {
                 ThrowHelpers.ThrowUnhandledBranch<ContainerKind>(model.ContainerKind);
                 break;
         }
-        
-        if (model.Decl.AsTypeRef.Namespace is not null) {
-            writer.Indent--;
-            writer.WriteLine("}");
-        }
-        
-        SourceText text = SourceText.From(sr.ToString(), Encoding.UTF8);
-        return ($"{model.Decl.AsTypeRef.FlattenedNameArityBased}_Scope.g.cs", text);
     }
 }

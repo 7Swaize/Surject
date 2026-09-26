@@ -1,10 +1,14 @@
 using System;
 using System.CodeDom.Compiler;
+using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Extensions;
 using Surject.Shared.Helpers;
+using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
 
 namespace Surject.Generators.Emitters.Helpers;
 
@@ -44,6 +48,29 @@ internal static class EmitHelpers {
         writer.Indent++;
         writer.WriteLine($"(int)global::{typeof(TEnum)}.{order.ToString()})]");
         writer.Indent--;
+    }
+
+    internal static GeneratedSource EmitFile(string? @namespace, string fileName, Action<IndentedTextWriter> emitBody) {
+        using StringWriter sr = new();
+        using IndentedTextWriter writer = new(sr);
+
+        EmitGeneratedFileHeader(writer);
+        writer.WriteLine();
+        
+        if (@namespace is not null) {
+            writer.WriteLine($"namespace {@namespace} {{");
+            writer.Indent++;
+        }
+        
+        emitBody(writer);
+        
+        if (@namespace is not null) {
+            writer.Indent--;
+            writer.WriteLine("}");
+        }
+
+        SourceText text = SourceText.From(sr.ToString(), Encoding.UTF8);
+        return (fileName, text);
     }
     
     internal static void EmitTypeDeclarationFromModel(
