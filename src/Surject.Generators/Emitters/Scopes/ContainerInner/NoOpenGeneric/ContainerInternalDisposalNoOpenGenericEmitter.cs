@@ -143,6 +143,10 @@ internal readonly ref struct ContainerInternalDisposalNoOpenGenericEmitter : ICh
             SingletonFieldAsyncDisposalEmitterVisitor asyncDisposalEmitter = new(writer, entryType, registration);
             registration.Entry.Accept<SingletonFieldAsyncDisposalEmitterVisitor, VoidVisitor>(ref asyncDisposalEmitter);
         }
+        writer.WriteLine();
+
+        writer.WriteLine("Dispose(disposing: false);");
+        writer.WriteLine($"global::{typeof(GC)}.{nameof(GC.SuppressFinalize)}(this);");
         
         writer.Indent--;
         writer.WriteLine("}");
