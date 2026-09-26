@@ -87,8 +87,8 @@ internal readonly ref struct ContainerInternalDisposalOpenGenericEmitter : IChai
             }
             
             foreach (ITypeReferenceModel impl in _linkage.Linkage[entryType]) {
-                SingletonFieldSyncDisposalEmitterVisitor syncDisposalEmitter = new(writer, impl, registration);
-                registration.Entry.Accept<SingletonFieldSyncDisposalEmitterVisitor, VoidVisitor>(ref syncDisposalEmitter);
+                SingletonFieldAsyncDisposalEmitterVisitor asyncDisposalEmitter = new(writer, impl, registration);
+                registration.Entry.Accept<SingletonFieldAsyncDisposalEmitterVisitor, VoidVisitor>(ref asyncDisposalEmitter);
             }
         }
         
