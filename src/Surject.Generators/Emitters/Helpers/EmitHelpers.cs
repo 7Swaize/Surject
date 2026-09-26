@@ -1,7 +1,9 @@
 using System;
 using System.CodeDom.Compiler;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
@@ -40,6 +42,17 @@ internal static class EmitHelpers {
         writer.WriteLine($"[global::System.ComponentModel.EditorBrowsable(");
         writer.Indent++;
         writer.WriteLine($"global::System.ComponentModel.EditorBrowsableState.Never)]");
+        writer.Indent--;
+    }
+
+    internal static void EmitDoesNotReturnAttribute(IndentedTextWriter writer) {
+        writer.WriteLine($"[global::System.Diagnostics.CodeAnalysis.DoesNotReturn]");
+    }
+
+    internal static void EmitMethodImplAttribute(IndentedTextWriter writer, MethodImplOptions options) {
+        writer.WriteLine("[global::System.Runtime.CompilerServices.MethodImpl(");
+        writer.Indent++;
+        writer.WriteLine($"global::System.Runtime.CompilerServices.MethodImplOptions.{options.ToString()})]");
         writer.Indent--;
     }
 
