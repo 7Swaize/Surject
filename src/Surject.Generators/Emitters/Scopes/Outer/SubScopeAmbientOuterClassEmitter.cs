@@ -47,12 +47,12 @@ internal readonly ref struct SubScopeAmbientOuterClassEmitter : IChainedEmitter 
         
         EmitHelpers.EmitEditorBrowsableNeverAttribute(writer);
         writer.WriteMultiline(
-            $$""""
+            $$"""
               public void BeginScope(global::{{typeof(IResolver)}} parent{{formattedParams}}) {
                 if (this.__container is not null)
                     throw new global::{{typeof(ThrowHelpers).FullName}}.{{nameof(ThrowHelpers.ThrowSurjectRuntimeException)}}($"'BeginScope' was called more than once");
               
-              """"
+              """
         );
     }
 
