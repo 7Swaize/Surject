@@ -4,7 +4,6 @@ using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
-using Surject.Shared.Helpers;
 
 namespace Surject.Generators.Emitters.Scopes.ContainerInner.NoOpenGeneric;
 
@@ -38,52 +37,30 @@ internal readonly struct SingletonFieldEmitterNoOpenGenericVisitor : IEntryComma
     public VoidVisitor VisitAddOpenGeneric(in EntryCommandModel cmd) => VoidVisitor.Default;
 
     public VoidVisitor VisitAddAsyncFactory(in EntryCommandModel cmd) {
-        if ((_registration.ModifiersDescriptor & ModifierKind.WithId) != ModifierKind.WithId) {
-            _writer.WriteLine($"internal {_entryType.FQNConstructedArgBased}? {BuildHelpers.BuildSingletonFieldNameNotKeyed(_entryType)};");
-            _writer.WriteLine(
-                $"internal global::{typeof(Task).FullName}<{_entryType.FQNConstructedArgBased}>? {BuildHelpers.BuildTaskFieldNameNotKeyed(_entryType)};"
-            );
+        string? key = ParseHelpers.GetKeyExprOrNull(_registration);
 
-            return VoidVisitor.Default;
-        }
+        string fieldName = key is null
+            ? BuildHelpers.BuildSingletonFieldNameNotKeyed(_entryType)
+            : BuildHelpers.BuildSingletonFieldNameKeyed(_entryType, key);
 
-        foreach (ref readonly ModifierCommandModel modifier in _registration.Modifiers) {
-            if (modifier.Kind != ModifierKind.WithId) {
-                continue;
-            }
+        string taskFieldName = key is null
+            ? BuildHelpers.BuildTaskFieldNameNotKeyed(_entryType)
+            : BuildHelpers.BuildTaskFieldNameKeyed(_entryType, key);
 
-            _writer.WriteLine(
-                $"internal {_entryType.FQNConstructedArgBased}? {BuildHelpers.BuildSingletonFieldNameKeyed(_entryType, modifier.StringArg1)};"
-            );
-            _writer.WriteLine(
-                $"internal global::{typeof(Task).FullName}<{_entryType.FQNConstructedArgBased}>? " +
-                $"{BuildHelpers.BuildTaskFieldNameKeyed(_entryType, modifier.StringArg1)};"
-            );
+        _writer.WriteLine($"internal {_entryType.FQNConstructedArgBased}? {fieldName};");
+        _writer.WriteLine($"internal global::{typeof(Task).FullName}<{_entryType.FQNConstructedArgBased}>? {taskFieldName};");
 
-            return VoidVisitor.Default;
-        }
-
-        return ThrowHelpers.ThrowUnhandledBranch<VoidVisitor>(VoidVisitor.Default);
+        return VoidVisitor.Default;
     }
     
     private VoidVisitor WriteSingletonFieldDefault() {
-        if ((_registration.ModifiersDescriptor & ModifierKind.WithId) != ModifierKind.WithId) {
-            _writer.WriteLine($"internal {_entryType.FQNConstructedArgBased}? {BuildHelpers.BuildSingletonFieldNameNotKeyed(_entryType)};");
-            return VoidVisitor.Default;
-        }
+        string? key = ParseHelpers.GetKeyExprOrNull(_registration);
 
-        foreach (ref readonly ModifierCommandModel modifier in _registration.Modifiers) {
-            if (modifier.Kind != ModifierKind.WithId) {
-                continue;
-            }
+        string fieldName = key is null
+            ? BuildHelpers.BuildSingletonFieldNameNotKeyed(_entryType)
+            : BuildHelpers.BuildSingletonFieldNameKeyed(_entryType, key);
 
-            _writer.WriteLine(
-                $"internal {_entryType.FQNConstructedArgBased}? {BuildHelpers.BuildSingletonFieldNameKeyed(_entryType, modifier.StringArg1)};"
-            );
-
-            return VoidVisitor.Default;
-        }
-
-        return ThrowHelpers.ThrowUnhandledBranch<VoidVisitor>(VoidVisitor.Default);
+        _writer.WriteLine($"internal {_entryType.FQNConstructedArgBased}? {fieldName};");
+        return VoidVisitor.Default;
     }
 }

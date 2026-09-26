@@ -1,7 +1,4 @@
 using System.CodeDom.Compiler;
-using System.IO;
-using System.Text;
-using Microsoft.CodeAnalysis.Text;
 using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Models.Concepts;
 using Surject.Shared.Helpers;

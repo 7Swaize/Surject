@@ -34,22 +34,15 @@ internal readonly ref struct ContainerInternalSingletonConcreteBindingOpenGeneri
             if (entryType == null || !uniqueEntryRegistrationTypes.Add(entryType)) {
                 continue;
             }
+            
+            string? key = ParseHelpers.GetKeyExprOrNull(registration);
 
             foreach (ITypeReferenceModel impl in _linkage.Linkage[entryType]) {
-                if ((registration.ModifiersDescriptor & ModifierKind.WithId) != ModifierKind.None) {
-                    writer.WriteLine($"internal {impl.FQNConstructedArgBased}? {BuildHelpers.BuildSingletonFieldNameNotKeyed(impl)};");
-                    continue;
-                }
+                string fieldName = key is null
+                    ? BuildHelpers.BuildSingletonFieldNameNotKeyed(impl)
+                    : BuildHelpers.BuildSingletonFieldNameKeyed(impl, key);
 
-                foreach (ref readonly ModifierCommandModel modifier in registration.Modifiers) {
-                    if (modifier.Kind != ModifierKind.WithId) {
-                        continue;
-                    }
-                    
-                    writer.WriteLine(
-                        $"internal {impl.FQNConstructedArgBased}? {BuildHelpers.BuildSingletonFieldNameKeyed(impl, modifier.StringArg1)};"
-                    );
-                }
+                writer.WriteLine($"internal {impl.FQNConstructedArgBased}? {fieldName};");
             }
         }
     }
