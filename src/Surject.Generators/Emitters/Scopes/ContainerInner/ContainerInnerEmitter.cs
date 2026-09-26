@@ -2,11 +2,12 @@ using System.CodeDom.Compiler;
 using System.IO;
 using System.Text;
 using Microsoft.CodeAnalysis.Text;
+using Surject.Abstractions.Resolutions;
 using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Emitters.Scopes.ContainerInner.NoOpenGeneric;
+using Surject.Generators.Emitters.Scopes.ContainerInner.OpenGeneric;
 using Surject.Generators.Models.Concepts;
 using GeneratedSource = (string name, Microsoft.CodeAnalysis.Text.SourceText sourceText);
-using IContainer = Surject.Abstractions.Resolutions.IContainer;
 
 namespace Surject.Generators.Emitters.Scopes.ContainerInner;
 

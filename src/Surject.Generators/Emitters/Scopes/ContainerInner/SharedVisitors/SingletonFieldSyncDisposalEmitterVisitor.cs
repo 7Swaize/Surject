@@ -6,14 +6,14 @@ using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
 
-namespace Surject.Generators.Emitters.Scopes.ContainerInner.NoOpenGeneric;
+namespace Surject.Generators.Emitters.Scopes.ContainerInner.SharedVisitors;
 
-internal readonly struct SingletonFieldSyncDisposalEmitterNoOpenGenericVisitor : IEntryCommandVisitor<VoidVisitor> {
+internal readonly struct SingletonFieldSyncDisposalEmitterVisitor : IEntryCommandVisitor<VoidVisitor> {
     private readonly IndentedTextWriter _writer;
     private readonly ITypeReferenceModel _entryType;
     private readonly RegistrationModel _registration;
 
-    internal SingletonFieldSyncDisposalEmitterNoOpenGenericVisitor(IndentedTextWriter writer, ITypeReferenceModel entryType, RegistrationModel registration) {
+    internal SingletonFieldSyncDisposalEmitterVisitor(IndentedTextWriter writer, ITypeReferenceModel entryType, RegistrationModel registration) {
         _writer = writer;
         _entryType = entryType;
         _registration = registration;
@@ -37,7 +37,7 @@ internal readonly struct SingletonFieldSyncDisposalEmitterNoOpenGenericVisitor :
     public VoidVisitor VisitAddAllFromChildren(in EntryCommandModel cmd) => VoidVisitor.Default;
     public VoidVisitor VisitAddAllFromParent(in EntryCommandModel cmd) => VoidVisitor.Default;
     
-    public VoidVisitor VisitAddOpenGeneric(in EntryCommandModel cmd) => VoidVisitor.Default;
+    public VoidVisitor VisitAddOpenGeneric(in EntryCommandModel cmd) => WriteSingletonFieldDisposalDefault();
 
     private VoidVisitor WriteSingletonFieldDisposalDefault() {
         if (!ParseHelpers.InheritsFromIDisposable(_entryType)) {

@@ -47,6 +47,6 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
     }
 
     private void EmitDisposeMethods(IndentedTextWriter writer) {
-        new ContainerInternalDisposalEmitter(_model).Emit(writer);
+        new ContainerInternalDisposalNoOpenGenericEmitter(_model).Emit(writer);
     }
 }

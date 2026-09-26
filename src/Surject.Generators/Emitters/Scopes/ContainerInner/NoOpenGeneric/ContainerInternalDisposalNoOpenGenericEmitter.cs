@@ -5,16 +5,17 @@ using System.Threading.Tasks;
 using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Emitters.Helpers.Visitors;
+using Surject.Generators.Emitters.Scopes.ContainerInner.SharedVisitors;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 using Surject.Unity.Handles;
 
 namespace Surject.Generators.Emitters.Scopes.ContainerInner.NoOpenGeneric;
 
-internal readonly ref struct ContainerInternalDisposalEmitter : IChainedEmitter {
+internal readonly ref struct ContainerInternalDisposalNoOpenGenericEmitter : IChainedEmitter {
     private readonly ContainerModel _model;
     
-    internal ContainerInternalDisposalEmitter(ContainerModel model) => _model = model;
+    internal ContainerInternalDisposalNoOpenGenericEmitter(ContainerModel model) => _model = model;
     
     public void Emit(IndentedTextWriter writer) {
         EmitOpenGenericDisposePartial(writer);
@@ -61,13 +62,15 @@ internal readonly ref struct ContainerInternalDisposalEmitter : IChainedEmitter 
         EntryRegistrationTypeVisitor registrationVisitor = new();
 
         foreach (RegistrationModel registration in _model.Registrations) {
+            if (registration.Entry.Lifetime == LifetimeKind.Transient) {
+                continue;
+            }
+            
             if ((registration.ModifiersDescriptor & ModifierKind.DoNotDispose) == ModifierKind.DoNotDispose) {
                 continue;
             }
 
-            if (registration.Entry.Lifetime == LifetimeKind.Transient
-                && (registration.ModifiersDescriptor & ModifierKind.TrackDisposable) != ModifierKind.TrackDisposable)
-            {
+            if (registration.Entry.Kind == EntryKind.AddOpenGeneric) {
                 continue;
             }
             
@@ -77,8 +80,8 @@ internal readonly ref struct ContainerInternalDisposalEmitter : IChainedEmitter 
                 continue;
             }
             
-            SingletonFieldSyncDisposalEmitterNoOpenGenericVisitor syncDisposalEmitter = new(writer, entryType, registration);
-            registration.Entry.Accept<SingletonFieldSyncDisposalEmitterNoOpenGenericVisitor, VoidVisitor>(ref syncDisposalEmitter);
+            SingletonFieldSyncDisposalEmitterVisitor syncDisposalEmitter = new(writer, entryType, registration);
+            registration.Entry.Accept<SingletonFieldSyncDisposalEmitterVisitor, VoidVisitor>(ref syncDisposalEmitter);
         }
         
         writer.Indent--;
@@ -119,13 +122,15 @@ internal readonly ref struct ContainerInternalDisposalEmitter : IChainedEmitter 
         EntryRegistrationTypeVisitor registrationVisitor = new();
 
         foreach (RegistrationModel registration in _model.Registrations) {
-            if ((registration.ModifiersDescriptor & ModifierKind.DoNotDispose) == ModifierKind.DoNotDispose) {
-                return;
+            if (registration.Entry.Lifetime == LifetimeKind.Transient) {
+                continue;
             }
             
-            if (registration.Entry.Lifetime == LifetimeKind.Transient
-                && (registration.ModifiersDescriptor & ModifierKind.TrackDisposable) != ModifierKind.TrackDisposable)
-            {
+            if ((registration.ModifiersDescriptor & ModifierKind.DoNotDispose) == ModifierKind.DoNotDispose) {
+                continue;
+            }
+            
+            if (registration.Entry.Kind == EntryKind.AddOpenGeneric) {
                 continue;
             }
 
@@ -135,8 +140,8 @@ internal readonly ref struct ContainerInternalDisposalEmitter : IChainedEmitter 
                 continue;
             }
             
-            SingletonFieldAsyncDisposalEmitterNoOpenGenericVisitor asyncDisposalEmitter = new(writer, entryType, registration);
-            registration.Entry.Accept<SingletonFieldAsyncDisposalEmitterNoOpenGenericVisitor, VoidVisitor>(ref asyncDisposalEmitter);
+            SingletonFieldAsyncDisposalEmitterVisitor asyncDisposalEmitter = new(writer, entryType, registration);
+            registration.Entry.Accept<SingletonFieldAsyncDisposalEmitterVisitor, VoidVisitor>(ref asyncDisposalEmitter);
         }
         
         writer.Indent--;

@@ -6,19 +6,19 @@ using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
 
-namespace Surject.Generators.Emitters.Scopes.ContainerInner.NoOpenGeneric;
+namespace Surject.Generators.Emitters.Scopes.ContainerInner.SharedVisitors;
 
-internal readonly struct SingletonFieldAsyncDisposalEmitterNoOpenGenericVisitor : IEntryCommandVisitor<VoidVisitor> {
+internal readonly struct SingletonFieldAsyncDisposalEmitterVisitor : IEntryCommandVisitor<VoidVisitor> {
     private readonly IndentedTextWriter _writer;
     private readonly ITypeReferenceModel _entryType;
     private readonly RegistrationModel _registration;
-    private readonly SingletonFieldSyncDisposalEmitterNoOpenGenericVisitor _syncDisposalEmitter;
+    private readonly SingletonFieldSyncDisposalEmitterVisitor _syncDisposalEmitter;
 
-    internal SingletonFieldAsyncDisposalEmitterNoOpenGenericVisitor(IndentedTextWriter writer, ITypeReferenceModel entryType, RegistrationModel registration) {
+    internal SingletonFieldAsyncDisposalEmitterVisitor(IndentedTextWriter writer, ITypeReferenceModel entryType, RegistrationModel registration) {
         _writer = writer;
         _entryType = entryType;
         _registration = registration;
-        _syncDisposalEmitter = new SingletonFieldSyncDisposalEmitterNoOpenGenericVisitor(writer, entryType, registration);
+        _syncDisposalEmitter = new SingletonFieldSyncDisposalEmitterVisitor(writer, entryType, registration);
     }
     
     public VoidVisitor VisitAdd(in EntryCommandModel cmd) => WriteSingletonFieldDisposalDefault(in cmd, _syncDisposalEmitter.VisitAdd);
@@ -39,7 +39,7 @@ internal readonly struct SingletonFieldAsyncDisposalEmitterNoOpenGenericVisitor 
     public VoidVisitor VisitAddAllFromChildren(in EntryCommandModel cmd) => VoidVisitor.Default;
     public VoidVisitor VisitAddAllFromParent(in EntryCommandModel cmd) => VoidVisitor.Default;
     
-    public VoidVisitor VisitAddOpenGeneric(in EntryCommandModel cmd) => VoidVisitor.Default;
+    public VoidVisitor VisitAddOpenGeneric(in EntryCommandModel cmd) => WriteSingletonFieldDisposalDefault(in cmd, _syncDisposalEmitter.VisitAddOpenGeneric);
     
     private VoidVisitor WriteSingletonFieldDisposalDefault(in EntryCommandModel cmd, EntryVisitFunc<VoidVisitor> syncFallback) {
         if (!ParseHelpers.InheritsFromIAsyncDisposable(_entryType)) {
