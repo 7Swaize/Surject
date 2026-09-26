@@ -47,22 +47,15 @@ internal readonly struct SingletonFieldAsyncDisposalEmitterVisitor : IEntryComma
                 ? syncFallback(in cmd)
                 : VoidVisitor.Default;
         }
+
+        string? key = ParseHelpers.GetKeyExprOrNull(_registration);
+        string fieldName = key is null
+            ? BuildHelpers.BuildSingletonFieldNameNotKeyed(_entryType)
+            : BuildHelpers.BuildSingletonFieldNameKeyed(_entryType, key);
+
+        _writer.WriteLine($"await {fieldName}?.{nameof(IAsyncDisposable.DisposeAsync)}();");
         
-        if ((_registration.ModifiersDescriptor & ModifierKind.WithId) != ModifierKind.WithId) {
-            _writer.WriteLine($"await {BuildHelpers.BuildSingletonFieldNameNotKeyed(_entryType)}?.{nameof(IAsyncDisposable.DisposeAsync)}();");
-            return VoidVisitor.Default;
-        }
-        
-        foreach (ref readonly ModifierCommandModel modifier in _registration.Modifiers) {
-            if (modifier.Kind != ModifierKind.WithId) {
-                continue;
-            }
-            
-            _writer.WriteLine($"await {BuildHelpers.BuildSingletonFieldNameKeyed(_entryType, modifier.StringArg1)}?.{nameof(IAsyncDisposable.DisposeAsync)}();");
-            return VoidVisitor.Default;
-        }
-        
-        return ThrowHelpers.ThrowUnreachable<VoidVisitor>(VoidVisitor.Default);
+        return VoidVisitor.Default;
     }
 
     private VoidVisitor WriteSingletonFieldDestroyFromRuntimeDefault(in EntryCommandModel cmd, EntryVisitFunc<VoidVisitor> defer)

@@ -43,53 +43,34 @@ internal readonly struct SingletonFieldSyncDisposalEmitterVisitor : IEntryComman
         if (!ParseHelpers.InheritsFromIDisposable(_entryType)) {
             return VoidVisitor.Default;
         }
+
+        string fieldName = ResolveFieldName();
+        _writer.WriteLine($"{fieldName}?.{nameof(IDisposable.Dispose)}();");
         
-        if ((_registration.ModifiersDescriptor & ModifierKind.WithId) != ModifierKind.WithId) {
-            _writer.WriteLine($"{BuildHelpers.BuildSingletonFieldNameNotKeyed(_entryType)}?.{nameof(IDisposable.Dispose)}();");
-            return VoidVisitor.Default;
-        }
-
-        foreach (ref readonly ModifierCommandModel modifier in _registration.Modifiers) {
-            if (modifier.Kind != ModifierKind.WithId) {
-                continue;
-            }
-            
-            _writer.WriteLine($"{BuildHelpers.BuildSingletonFieldNameKeyed(_entryType, modifier.StringArg1)}?.{nameof(IDisposable.Dispose)}();");
-            return VoidVisitor.Default;
-        }
-
-        return ThrowHelpers.ThrowUnreachable<VoidVisitor>(VoidVisitor.Default);
+        return VoidVisitor.Default;
     }
 
     private VoidVisitor WriteSingletonFieldDestroyFromRuntimeDefault() {
         if ((_registration.ModifiersDescriptor & ModifierKind.DoNotDestroy) == ModifierKind.DoNotDestroy) {
             return VoidVisitor.Default;
         }
-        
-        if ((_registration.ModifiersDescriptor & ModifierKind.WithId) != ModifierKind.WithId) {
-            string fieldName = BuildHelpers.BuildSingletonFieldNameNotKeyed(_entryType);
-            
-            _writer.WriteLine($"if ({fieldName} != null)");
-            _writer.Indent++;
-            _writer.WriteLine($"global::UnityEngine.Object.Destroy({fieldName}.gameObject);");
-            _writer.Indent--;
-            _writer.WriteLine();
-        }
 
-        foreach (ref readonly ModifierCommandModel modifier in _registration.Modifiers) {
-            if (modifier.Kind != ModifierKind.WithId) {
-                continue;
-            }
-            
-            string fieldName = BuildHelpers.BuildSingletonFieldNameKeyed(_entryType, modifier.StringArg1);
-            
-            _writer.WriteLine($"if ({fieldName} != null)");
-            _writer.Indent++;
-            _writer.WriteLine($"global::UnityEngine.Object.Destroy({fieldName}.gameObject);");
-            _writer.Indent--;
-            _writer.WriteLine();
-        }
+        string fieldName = ResolveFieldName();
+
+        _writer.WriteLine($"if ({fieldName} != null)");
+        _writer.Indent++;
+        _writer.WriteLine($"global::UnityEngine.Object.Destroy({fieldName}.gameObject);");
+        _writer.Indent--;
+        _writer.WriteLine();
+
+        return VoidVisitor.Default;
+    }
+
+    private string ResolveFieldName() {
+        string? key = ParseHelpers.GetKeyExprOrNull(_registration);
         
-        return ThrowHelpers.ThrowUnreachable<VoidVisitor>(VoidVisitor.Default);
+        return key is null
+            ? BuildHelpers.BuildSingletonFieldNameNotKeyed(_entryType)
+            : BuildHelpers.BuildSingletonFieldNameKeyed(_entryType, key);
     }
 }
