@@ -1,7 +1,9 @@
 using System.CodeDom.Compiler;
+using Surject.Abstractions.Registrations;
 using Surject.Abstractions.Resolutions;
 using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Models.Concepts;
+using Surject.Generators.Models.Primitives;
 using Surject.Unity.Handles;
 
 namespace Surject.Generators.Emitters.Scopes.ContainerInner.NoOpenGeneric;
@@ -12,10 +14,27 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
     internal ContainerInternalsNoOpenGenericEmitter(ContainerModel model) => _model = model;
     
     public void Emit(IndentedTextWriter writer) {
+        EmitCtor(writer);
         EmitProperties(writer);
         EmitMembers(writer);
         EmitDisposableTrackers(writer);
         EmitDisposeMethods(writer);
+    }
+
+    private void EmitCtor(IndentedTextWriter writer) {
+        ITypeReferenceModel modelType = _model.Decl.AsTypeRef; 
+        
+        writer.WriteMultiline(
+            $$"""
+              internal {{BuildHelpers.BuildContainerType(modelType)}}(
+                  global::{{typeof(IResolver).FullName}}? parentResolver,
+                  global::{{typeof(ScopeContext)}} scopeProvider)
+              {
+                  ParentResolver = parentResolver;
+                  Resolver = new {{BuildHelpers.BuildResolverType(_model.Decl.AsTypeRef)}}(this, parentResolver, scopeProvider);
+              }
+              """
+        );
     }
 
     private void EmitProperties(IndentedTextWriter writer) {
