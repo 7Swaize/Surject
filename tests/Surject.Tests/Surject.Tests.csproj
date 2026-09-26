@@ -6,6 +6,7 @@
     </PropertyGroup>
     
     <ItemGroup>
+        <PackageReference Include="Basic.Reference.Assemblies.NetStandard20" />
         <PackageReference Include="Microsoft.CodeAnalysis.Common" VersionOverride="5.3.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="5.3.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" VersionOverride="5.3.0" />
