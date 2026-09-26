@@ -10,7 +10,7 @@ using Surject.Shared.Helpers;
 namespace Surject.Generators.Emitters.Helpers;
 
 internal static class ParseHelpers {
-    internal const string KIDisposableFQN = "global::System.IDisposable";
+    internal const string KIAsyncDisposableFQN = "global::System.IAsyncDisposable";
     
     internal static string? GetKeyExprOrNull(RegistrationModel registration) {
         if ((registration.ModifiersDescriptor & ModifierKind.WithId) == 0) {
@@ -56,5 +56,5 @@ internal static class ParseHelpers {
         => type.AllInterfaces.AsArrayUnsafe().Any(iface => iface.SpecialType == SpecialType.System_IDisposable);
 
     internal static bool InheritsFromIAsyncDisposable(ITypeReferenceModel type)
-        => type.AllInterfaces.AsArrayUnsafe().Any(iface => iface.FQNGenericOmitted.Equals(KIDisposableFQN));
+        => type.AllInterfaces.AsArrayUnsafe().Any(iface => iface.FQNGenericOmitted.Equals(KIAsyncDisposableFQN));
 }
