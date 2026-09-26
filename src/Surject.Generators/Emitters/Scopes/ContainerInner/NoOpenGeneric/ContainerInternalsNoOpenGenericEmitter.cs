@@ -28,7 +28,7 @@ internal readonly ref struct ContainerInternalsNoOpenGenericEmitter : IChainedEm
             $$"""
               internal {{BuildHelpers.BuildContainerType(modelType)}}(
                   global::{{typeof(IResolver).FullName}}? parentResolver,
-                  global::{{typeof(ScopeContext)}} scopeProvider)
+                  {{modelType.FQNConstructedArgBased}} scopeProvider)
               {
                   ParentResolver = parentResolver;
                   Resolver = new {{BuildHelpers.BuildResolverType(_model.Decl.AsTypeRef)}}(this, parentResolver, scopeProvider);
