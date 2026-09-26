@@ -96,7 +96,7 @@ internal readonly ref struct ContainerInternalDisposalNoOpenGenericEmitter : ICh
     // for the open generic part doesn't run, and a naive partial forward decl with no definition will be invalid.
     private void EmitOpenGenericDisposeAsyncPartialAggressive(IndentedTextWriter writer) {
         if ((_model.EntriesDescriptor & EntryKind.AddOpenGeneric) != EntryKind.AddOpenGeneric) {
-            writer.WriteLine($"private {typeof(Task).FullName} DisposeOpenGenericsAsync() => {typeof(Task)}.{nameof(Task.CompletedTask)};");
+            writer.WriteLine($"private async {typeof(Task).FullName} DisposeOpenGenericsAsync() => {typeof(Task)}.{nameof(Task.CompletedTask)};");
             writer.WriteLine();
             return;
         }

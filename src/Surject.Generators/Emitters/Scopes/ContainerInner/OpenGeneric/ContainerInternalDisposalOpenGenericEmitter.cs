@@ -61,7 +61,7 @@ internal readonly ref struct ContainerInternalDisposalOpenGenericEmitter : IChai
     }
 
     private void EmitOpenGenericDisposeAsyncPartial(IndentedTextWriter writer) {
-        writer.WriteLine($"private partial {typeof(Task).FullName} DisposeOpenGenericsAsync() {{");
+        writer.WriteLine($"private async partial {typeof(Task).FullName} DisposeOpenGenericsAsync() {{");
         writer.Indent++;
         
         HashSet<ITypeReferenceModel> uniqueEntryRegistrationTypes = [];
