@@ -18,7 +18,7 @@ public class Test : ScopeContext {
             .Nullable();
 
         registry
-            .AddFactory(Lifetime.Singleton, static r => new Foo());
+            .AddFactory(Lifetime.Singleton, static resolver => new Foo());
     }
 }
 

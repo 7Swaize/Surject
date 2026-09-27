@@ -44,7 +44,7 @@ internal readonly ref struct ResolverInternalsEmitterCore : IChainedEmitter {
             $$"""
               internal {{BuildHelpers.BuildResolverType(containerType)}}(
                     {{BuildHelpers.BuildContainerType(containerType)}} c,
-                    global::{typeof(IResolver).FullName}? parent,
+                    global::{{typeof(IResolver).FullName}}? parent,
                     {{containerType.FQNConstructedArgBased}} scopeProvider)
                 {
                     _c = c;
