@@ -52,13 +52,13 @@ internal readonly struct FactoryMethodsEmitVisitor : IEntryCommandVisitor<VoidVi
         
         _writer.WriteLine($"private static {coreType.FQNConstructedArgBased} {methodName}(");
         _writer.Indent++;
-        _writer.WriteLine($"global::{typeof(IResolver).FullName} r)");
+        _writer.WriteLine($"global::{typeof(IResolver).FullName} resolver)");
         _writer.Indent--;
         _writer.WriteLine("{");
 
         switch (model.Kind) {
             case RewrittenDelegateArgumentKind.MethodGroup:
-                _writer.WriteLine($"return {model.Method.ContainingType.FQNConstructedArgBased}.{model.Method.NameWithGenericParams}(r);");
+                _writer.WriteLine($"return {model.Method.ContainingType.FQNConstructedArgBased}.{model.Method.NameWithGenericParams}(resolver);");
                 break;
             case RewrittenDelegateArgumentKind.LambdaExprExpressionBody:
                 _writer.WriteLine($"return {model.RewrittenInternals}"); // no semi colon
@@ -87,7 +87,7 @@ internal readonly struct FactoryMethodsEmitVisitor : IEntryCommandVisitor<VoidVi
         _writer.Indent++;
         _writer.WriteLine($"{methodName}(");
         _writer.Indent++;
-        _writer.WriteLine($"global::{typeof(IResolver).FullName} r,");
+        _writer.WriteLine($"global::{typeof(IResolver).FullName} resolver,");
         _writer.WriteLine($"global::{typeof(CancellationToken).FullName} ct)");
         _writer.Indent--;
         _writer.Indent--;
@@ -95,7 +95,7 @@ internal readonly struct FactoryMethodsEmitVisitor : IEntryCommandVisitor<VoidVi
         
         switch (model.Kind) {
             case RewrittenDelegateArgumentKind.MethodGroup:
-                _writer.WriteLine($"return await {model.Method.ContainingType.FQNConstructedArgBased}.{model.Method.NameWithGenericParams}(r);");
+                _writer.WriteLine($"return await {model.Method.ContainingType.FQNConstructedArgBased}.{model.Method.NameWithGenericParams}(resolver);");
                 break;
             case RewrittenDelegateArgumentKind.LambdaExprExpressionBody:
                 _writer.WriteLine($"return {model.RewrittenInternals}"); // no semi colon
