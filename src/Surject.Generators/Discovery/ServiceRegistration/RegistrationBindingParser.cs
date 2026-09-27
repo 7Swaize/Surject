@@ -10,6 +10,7 @@ using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Factories;
 using Surject.Generators.Models.Primitives;
 using Surject.Shared.Helpers;
+using UnityEngine;
 
 namespace Surject.Generators.Discovery.ServiceRegistration;
 
@@ -234,11 +235,17 @@ internal static class RegistrationBindingParser {
         TypeReferenceModelFactory typeRefFactory,
         SemanticModel semanticModel)
     {
+        return new ServiceModel {
+            TypeRef = typeRef,
+            CreationModel = GetServiceCreationModel()
+        };
+
         ServiceCreationModel GetServiceCreationModel() {
+            INamedTypeSymbol underlyingSymbol = (INamedTypeSymbol)typeRef.UnderlyingTypeSymbol;
             INamedTypeSymbol? constructAttr = 
                 semanticModel.Compilation.GetTypeByMetadataName(typeof(ConstructWithAttribute).FullName!);
 
-            foreach (IMethodSymbol method in typeRef.UnderlyingTypeSymbol.GetMembers().OfType<IMethodSymbol>()) {
+            foreach (IMethodSymbol method in underlyingSymbol.GetMembers().OfType<IMethodSymbol>()) {
                 if (!method.ValidateAnnotatedWith(constructAttr!)) {
                     continue;
                 }
@@ -249,14 +256,21 @@ internal static class RegistrationBindingParser {
                     _ => ThrowHelpers.ThrowUnhandledBranch<ServiceCreationModel>(method.MethodKind)
                 };
             }
+            
+            INamedTypeSymbol? monoBehaviourSymbol =
+                semanticModel.Compilation.GetTypeByMetadataName(typeof(MonoBehaviour).FullName!);
 
-            return new MonoBehaviourCreationModel();
+            if (underlyingSymbol.InheritsFromClass(monoBehaviourSymbol!)) {
+                return new MonoBehaviourCreationModel();
+            }
+            
+            // If not a MonoBehaviour, we can default to default ctor if it's the only one that exists.
+            if (underlyingSymbol.InstanceConstructors.Length == 1) {
+                return new ConstructorCreationModel(underlyingSymbol.InstanceConstructors[0], typeRefFactory);
+            }
+
+            return ThrowHelpers.ThrowAmbiguousServiceConstructionStrategy<MonoBehaviourCreationModel>(underlyingSymbol);
         }
-
-        return new ServiceModel {
-            TypeRef = typeRef,
-            CreationModel = GetServiceCreationModel()
-        };
     }
     
     private static LifetimeKind ExtractLifetime(InvocationExpressionSyntax syntax, SemanticModel semanticModel) {

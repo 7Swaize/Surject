@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Microsoft.CodeAnalysis;
 
 namespace Surject.Shared.Helpers;
 
@@ -34,9 +35,16 @@ public static class ThrowHelpers {
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static TReturn ThrowNonConstantExpressionException<TReturn>() =>
         throw new NonConstantExpressionException("Expected a compile-time constant expression");
+    
+    [DoesNotReturn]
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static TReturn ThrowAmbiguousServiceConstructionStrategy<TReturn>(INamedTypeSymbol service) =>
+        throw new ServiceDefinitionException($"Service '{service.Name}' has multiple constructors and no method annotated with [ConstructWith].");
 }
 
 
 public sealed class UnreachableException(string message) : Exception(message);
 
 public sealed class NonConstantExpressionException(string message) : Exception(message);
+
+public sealed class ServiceDefinitionException(string message) : Exception(message);
