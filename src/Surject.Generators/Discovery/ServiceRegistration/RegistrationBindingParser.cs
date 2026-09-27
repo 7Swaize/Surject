@@ -315,8 +315,7 @@ internal static class RegistrationBindingParser {
         IMethodSymbol targetSymbol = (semanticModel.GetSymbolInfo(argSyntax).Symbol as IMethodSymbol)!;
         MethodModel targetMethodAsModel = new MethodModel(targetSymbol, typeRefFactory);
         
-        if (argSyntax is not AnonymousMethodExpressionSyntax expressionSyntax) {
-
+        if (argSyntax is not AnonymousFunctionExpressionSyntax expressionSyntax) {
             return new RewrittenDelegateArgumentModel {
                 Kind = RewrittenDelegateArgumentKind.MethodGroup,
                 Method = targetMethodAsModel,
@@ -325,11 +324,13 @@ internal static class RegistrationBindingParser {
         }
         
         SyntaxNode body = expressionSyntax.Body;
-        AnonymousExprInternalFQNRewriter rewriter = new AnonymousExprInternalFQNRewriter(semanticModel);
+        AnonymousFunctionInternalFQNRewriter rewriter = new AnonymousFunctionInternalFQNRewriter(semanticModel);
         string rewritten = ((AnonymousFunctionExpressionSyntax)rewriter.Visit(body)).ToFullString();
 
         return new RewrittenDelegateArgumentModel {
-            Kind = RewrittenDelegateArgumentKind.LambdaExpr,
+            Kind = expressionSyntax.ExpressionBody is null
+                ? RewrittenDelegateArgumentKind.LambdaExprStatementBody
+                : RewrittenDelegateArgumentKind.LambdaExprExpressionBody,
             Method = targetMethodAsModel,
             RewrittenInternals = rewritten
         };

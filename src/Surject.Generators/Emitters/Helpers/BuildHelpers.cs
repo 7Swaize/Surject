@@ -67,6 +67,22 @@ internal static class BuildHelpers {
         return $"__found_{contract.FlattenedNameArityBased}_{HashKey(key)}";
     }
 
+    internal static string BuildSyncFactoryMethodNameNotKeyed(ITypeReferenceModel contract) {
+        return $"__Create_{contract.FlattenedNameArityBased}";
+    }
+
+    internal static string BuildSyncFactoryMethodNameKeyed(ITypeReferenceModel contract, string key) {
+        return $"__Create_{contract.FlattenedNameArityBased}_{HashKey(key)}";
+    }
+    
+    internal static string BuildAsyncFactoryMethodNameNotKeyed(ITypeReferenceModel contract) {
+        return $"__CreateAsync_{contract.FlattenedNameArityBased}";
+    }
+
+    internal static string BuildAsyncFactoryMethodNameKeyed(ITypeReferenceModel contract, string key) {
+        return $"__CreateAsync_{contract.FlattenedNameArityBased}_{HashKey(key)}";
+    }
+
     private static ulong HashKey(string key) {
         const ulong offset = 14695981039346656037UL;
         const ulong prime = 1099511628211UL;

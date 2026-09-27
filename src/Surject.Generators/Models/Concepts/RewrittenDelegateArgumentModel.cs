@@ -10,6 +10,7 @@ internal readonly record struct RewrittenDelegateArgumentModel {
 
 
 internal enum RewrittenDelegateArgumentKind : byte {
-    LambdaExpr,
+    LambdaExprExpressionBody,
+    LambdaExprStatementBody,
     MethodGroup
 }

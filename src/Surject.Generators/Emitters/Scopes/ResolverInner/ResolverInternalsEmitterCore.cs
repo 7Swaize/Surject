@@ -1,8 +1,11 @@
+using System;
 using System.CodeDom.Compiler;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Surject.Abstractions.Resolutions;
+using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Emitters.Helpers;
+using Surject.Generators.Emitters.Helpers.Visitors;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 using Surject.Unity.Utility.Exceptions;
@@ -21,6 +24,7 @@ internal readonly ref struct ResolverInternalsEmitterCore : IChainedEmitter {
     public void Emit(IndentedTextWriter writer) {
         EmitMembers(writer);
         EmitCtor(writer);
+        EmitFactories(writer);
         EmitExceptionHelpers(writer);
     }
 
@@ -49,6 +53,13 @@ internal readonly ref struct ResolverInternalsEmitterCore : IChainedEmitter {
                 
               """
         );
+    }
+
+    private void EmitFactories(IndentedTextWriter writer) {
+        foreach (RegistrationModel registration in _container.Registrations) {
+            FactoryMethodsEmitVisitor factoryMethodsEmitVisitor = new FactoryMethodsEmitVisitor(writer, registration);
+            registration.Entry.Accept<FactoryMethodsEmitVisitor, VoidVisitor>(ref factoryMethodsEmitVisitor);
+        }
     }
 
     private void EmitExceptionHelpers(IndentedTextWriter writer) {

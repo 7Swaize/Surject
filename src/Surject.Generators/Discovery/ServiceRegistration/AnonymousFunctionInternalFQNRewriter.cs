@@ -4,10 +4,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Surject.Generators.Discovery.ServiceRegistration;
 
-internal sealed class AnonymousExprInternalFQNRewriter : CSharpSyntaxRewriter {
+internal sealed class AnonymousFunctionInternalFQNRewriter : CSharpSyntaxRewriter {
     private readonly SemanticModel _semanticModel;
 
-    internal AnonymousExprInternalFQNRewriter(SemanticModel semanticModel) {
+    internal AnonymousFunctionInternalFQNRewriter(SemanticModel semanticModel) {
         _semanticModel = semanticModel;
     }
     
