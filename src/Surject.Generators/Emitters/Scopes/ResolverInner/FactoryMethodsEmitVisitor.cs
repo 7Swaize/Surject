@@ -8,6 +8,7 @@ using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Emitters.Helpers.Visitors;
 using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
+using Surject.Shared.Helpers;
 
 namespace Surject.Generators.Emitters.Scopes.ResolverInner;
 
@@ -63,8 +64,11 @@ internal readonly struct FactoryMethodsEmitVisitor : IEntryCommandVisitor<VoidVi
             case RewrittenDelegateArgumentKind.LambdaExprExpressionBody:
                 _writer.WriteLine($"return {model.RewrittenInternals}"); // no semi colon
                 break;
-            default:
+            case RewrittenDelegateArgumentKind.LambdaExprStatementBody:
                 _writer.WriteMultiline(model.RewrittenInternals!); // no semi colon
+                break;
+            default:
+                ThrowHelpers.ThrowUnhandledBranch(model.Kind);
                 break;
         }
         
@@ -100,8 +104,11 @@ internal readonly struct FactoryMethodsEmitVisitor : IEntryCommandVisitor<VoidVi
             case RewrittenDelegateArgumentKind.LambdaExprExpressionBody:
                 _writer.WriteLine($"return {model.RewrittenInternals}"); // no semi colon
                 break;
-            default:
+            case RewrittenDelegateArgumentKind.LambdaExprStatementBody:
                 _writer.WriteMultiline(model.RewrittenInternals!); // no semi colon
+                break;
+            default:
+                ThrowHelpers.ThrowUnhandledBranch(model.Kind);
                 break;
         }
         
