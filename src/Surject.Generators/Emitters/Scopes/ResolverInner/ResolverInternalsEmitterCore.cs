@@ -1,5 +1,5 @@
-using System;
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Surject.Abstractions.Resolutions;
@@ -22,13 +22,14 @@ internal readonly ref struct ResolverInternalsEmitterCore : IChainedEmitter {
     }
 
     public void Emit(IndentedTextWriter writer) {
-        EmitMembers(writer);
+        EmitFields(writer);
         EmitCtor(writer);
         EmitFactories(writer);
+        EmitPerImplResolverMethods(writer);
         EmitExceptionHelpers(writer);
     }
 
-    private void EmitMembers(IndentedTextWriter writer) {
+    private void EmitFields(IndentedTextWriter writer) {
         ITypeReferenceModel containerType = _container.Decl.AsTypeRef;
         
         writer.WriteLine($"private readonly {BuildHelpers.BuildContainerType(containerType)} _c;");
@@ -50,7 +51,6 @@ internal readonly ref struct ResolverInternalsEmitterCore : IChainedEmitter {
                     _parent = parent;
                     _scopeProvider = scopeProvider;
                 }
-                
               """
         );
     }
@@ -59,6 +59,22 @@ internal readonly ref struct ResolverInternalsEmitterCore : IChainedEmitter {
         foreach (RegistrationModel registration in _container.Registrations) {
             FactoryMethodsEmitVisitor factoryMethodsEmitVisitor = new FactoryMethodsEmitVisitor(writer, registration);
             registration.Entry.Accept<FactoryMethodsEmitVisitor, VoidVisitor>(ref factoryMethodsEmitVisitor);
+        }
+    }
+
+    private void EmitPerImplResolverMethods(IndentedTextWriter writer) {
+        HashSet<ITypeReferenceModel> uniqueEntryRegistrationTypes = [];
+        EntryRegistrationTypeVisitor registrationVisitor = new();
+        
+        foreach (RegistrationModel registration in _container.Registrations) {
+            ITypeReferenceModel? entryType = registration.Entry.Accept<EntryRegistrationTypeVisitor, ITypeReferenceModel?>(ref registrationVisitor);
+
+            if (entryType == null || !uniqueEntryRegistrationTypes.Add(entryType)) {
+                continue;
+            }
+            
+            PerImplResolverEmitVisitor perImplResolverEmitVisitor = new PerImplResolverEmitVisitor(writer, registration, entryType);
+            registration.Entry.Accept<PerImplResolverEmitVisitor, VoidVisitor>(ref perImplResolverEmitVisitor);
         }
     }
 

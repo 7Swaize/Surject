@@ -83,8 +83,8 @@ internal readonly struct FactoryMethodsEmitVisitor : IEntryCommandVisitor<VoidVi
         
         string? key = ParseHelpers.GetKeyExprOrNull(_registration);
         string methodName = key is null
-            ? BuildHelpers.BuildSyncFactoryMethodNameNotKeyed(coreType)
-            : BuildHelpers.BuildSyncFactoryMethodNameKeyed(coreType, key);
+            ? BuildHelpers.BuildAsyncFactoryMethodNameNotKeyed(coreType)
+            : BuildHelpers.BuildAsyncFactoryMethodNameKeyed(coreType, key);
         
         _writer.WriteLine($"private static async global::{typeof(Task).FullName}<{coreType.FQNConstructedArgBased}>");
         _writer.Indent++;
