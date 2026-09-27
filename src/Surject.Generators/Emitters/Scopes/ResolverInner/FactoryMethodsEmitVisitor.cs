@@ -13,14 +13,13 @@ using Surject.Shared.Helpers;
 namespace Surject.Generators.Emitters.Scopes.ResolverInner;
 
 internal readonly struct FactoryMethodsEmitVisitor : IEntryCommandVisitor<VoidVisitor> {
+    private static readonly EntryRegistrationTypeVisitor _entryRegistrationTypeVisitor = new();
     private readonly IndentedTextWriter _writer;
     private readonly RegistrationModel _registration;
-    private readonly EntryRegistrationTypeVisitor _entryRegistrationTypeVisitor;
 
     internal FactoryMethodsEmitVisitor(IndentedTextWriter writer, RegistrationModel registration) {
         _writer = writer;
         _registration = registration;
-        _entryRegistrationTypeVisitor = new EntryRegistrationTypeVisitor();
     }
 
     public VoidVisitor VisitAdd(in EntryCommandModel cmd) => VoidVisitor.Default;
