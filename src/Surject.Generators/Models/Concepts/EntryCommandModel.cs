@@ -14,6 +14,7 @@ internal readonly record struct EntryCommandModel {
 
     internal RewrittenDelegateArgumentModel RewrittenDelegateArgument { get; init; }
     
+    internal bool BoolArg { get; init; }
     internal string PrefabArg { get; init; }
     internal int OrderHint { get; init; }
     
@@ -35,26 +36,26 @@ internal readonly record struct EntryCommandModel {
     internal static EntryCommandModel AddAsyncFactory(ITypeReferenceModel impl, LifetimeKind lifetime, in RewrittenDelegateArgumentModel func) =>
         new() { Kind = EntryKind.AddAsyncFactory, AuxType1 = impl, Lifetime = lifetime, RewrittenDelegateArgument = func };
 
-    internal static EntryCommandModel AddFromHierarchy(in ServiceModel service, LifetimeKind lifetime) =>
-        new() { Kind = EntryKind.AddFromHierarchy, Service = service, Lifetime = lifetime };
+    internal static EntryCommandModel AddFromHierarchy(in ServiceModel service, LifetimeKind lifetime, bool includeInactive) =>
+        new() { Kind = EntryKind.AddFromHierarchy, Service = service, Lifetime = lifetime, BoolArg = includeInactive };
 
-    internal static EntryCommandModel AddAllFromHierarchy(in ServiceModel service, LifetimeKind lifetime) =>
-        new() { Kind = EntryKind.AddAllFromHierarchy, Service = service, Lifetime = lifetime };
+    internal static EntryCommandModel AddAllFromHierarchy(in ServiceModel service, LifetimeKind lifetime, bool includeInactive) =>
+        new() { Kind = EntryKind.AddAllFromHierarchy, Service = service, Lifetime = lifetime, BoolArg = includeInactive };
 
     internal static EntryCommandModel AddFromSibling(in ServiceModel service, LifetimeKind lifetime) =>
         new() { Kind = EntryKind.AddFromSibling, Service = service, Lifetime = lifetime };
 
-    internal static EntryCommandModel AddFromChildren(in ServiceModel service, LifetimeKind lifetime) =>
-        new() { Kind = EntryKind.AddFromChildren, Service = service, Lifetime = lifetime };
+    internal static EntryCommandModel AddFromChildren(in ServiceModel service, LifetimeKind lifetime, bool includeInactive) =>
+        new() { Kind = EntryKind.AddFromChildren, Service = service, Lifetime = lifetime, BoolArg = includeInactive };
 
-    internal static EntryCommandModel AddAllFromChildren(in ServiceModel service, LifetimeKind lifetime) =>
-        new() { Kind = EntryKind.AddAllFromChildren, Service = service, Lifetime = lifetime };
+    internal static EntryCommandModel AddAllFromChildren(in ServiceModel service, LifetimeKind lifetime, bool includeInactive) =>
+        new() { Kind = EntryKind.AddAllFromChildren, Service = service, Lifetime = lifetime, BoolArg = includeInactive };
 
-    internal static EntryCommandModel AddFromParent(in ServiceModel service, LifetimeKind lifetime) =>
-        new() { Kind = EntryKind.AddFromParent, Service = service, Lifetime = lifetime };
+    internal static EntryCommandModel AddFromParent(in ServiceModel service, LifetimeKind lifetime, bool includeInactive) =>
+        new() { Kind = EntryKind.AddFromParent, Service = service, Lifetime = lifetime, BoolArg = includeInactive };
 
-    internal static EntryCommandModel AddAllFromParent(in ServiceModel service, LifetimeKind lifetime) =>
-        new() { Kind = EntryKind.AddAllFromParent, Service = service, Lifetime = lifetime };
+    internal static EntryCommandModel AddAllFromParent(in ServiceModel service, LifetimeKind lifetime, bool includeInactive) =>
+        new() { Kind = EntryKind.AddAllFromParent, Service = service, Lifetime = lifetime, BoolArg = includeInactive };
 
     internal static EntryCommandModel AddNewComponent(in ServiceModel service, LifetimeKind lifetime) =>
         new() { Kind = EntryKind.AddNewComponent, Service = service, Lifetime = lifetime };

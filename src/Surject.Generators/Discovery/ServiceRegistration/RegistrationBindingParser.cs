@@ -110,19 +110,43 @@ internal static class RegistrationBindingParser {
                     RewriteDelegateArgumentIntoModel(entrySyntax, 1, typeRefFactory, semanticModel)
                 ),
             nameof(IServiceRegistry.AddFromHierarchy)
-                => EntryCommandModel.AddFromHierarchy(CreateServiceModelAlias(implType!), lifetime),
+                => EntryCommandModel.AddFromHierarchy(
+                    CreateServiceModelAlias(implType!),
+                    lifetime,
+                    ExtractCompileTimeConstantOrParameterDefault<bool>(entrySyntax, method, 1, semanticModel)
+                ),
             nameof(IServiceRegistry.AddAllFromHierarchy)
-                => EntryCommandModel.AddAllFromHierarchy(CreateServiceModelAlias(implType!), lifetime),
+                => EntryCommandModel.AddAllFromHierarchy(
+                    CreateServiceModelAlias(implType!),
+                    lifetime,
+                    ExtractCompileTimeConstantOrParameterDefault<bool>(entrySyntax, method, 1, semanticModel)
+                ),
             nameof(IServiceRegistry.AddFromSibling)
                 => EntryCommandModel.AddFromSibling(CreateServiceModelAlias(implType!), lifetime),
             nameof(IServiceRegistry.AddFromChildren)
-                => EntryCommandModel.AddFromChildren(CreateServiceModelAlias(implType!), lifetime),
+                => EntryCommandModel.AddFromChildren(
+                    CreateServiceModelAlias(implType!),
+                    lifetime,
+                    ExtractCompileTimeConstantOrParameterDefault<bool>(entrySyntax, method, 1, semanticModel)
+                ),
             nameof(IServiceRegistry.AddAllFromChildren)
-                => EntryCommandModel.AddAllFromChildren(CreateServiceModelAlias(implType!), lifetime),
+                => EntryCommandModel.AddAllFromChildren(
+                    CreateServiceModelAlias(implType!),
+                    lifetime,
+                    ExtractCompileTimeConstantOrParameterDefault<bool>(entrySyntax, method, 1, semanticModel)
+                ),
             nameof(IServiceRegistry.AddFromParent)
-                => EntryCommandModel.AddFromParent(CreateServiceModelAlias(implType!), lifetime),
+                => EntryCommandModel.AddFromParent(
+                    CreateServiceModelAlias(implType!),
+                    lifetime,
+                    ExtractCompileTimeConstantOrParameterDefault<bool>(entrySyntax, method, 1, semanticModel)
+                ),
             nameof(IServiceRegistry.AddAllFromParent)
-                => EntryCommandModel.AddAllFromParent(CreateServiceModelAlias(implType!), lifetime),
+                => EntryCommandModel.AddAllFromParent(
+                    CreateServiceModelAlias(implType!),
+                    lifetime,
+                    ExtractCompileTimeConstantOrParameterDefault<bool>(entrySyntax, method, 1, semanticModel)
+                ),
             nameof(IServiceRegistry.AddNewComponent)
                 => EntryCommandModel.AddNewComponent(CreateServiceModelAlias(implType!), lifetime),
             nameof(IServiceRegistry.AddFromPrefab)
@@ -313,6 +337,25 @@ internal static class RegistrationBindingParser {
         return constant.HasValue
             ? (T)constant.Value!
             : ThrowHelpers.ThrowNonConstantExpressionException<T>();
+    }
+
+    private static T ExtractCompileTimeConstantOrParameterDefault<T>(
+        InvocationExpressionSyntax syntax,
+        IMethodSymbol method,
+        int index,
+        SemanticModel semanticModel)
+    {
+        if (syntax.ArgumentList.Arguments.Count > index) {
+            return ExtractNthCompileTimeConstantArg<T>(syntax, index, semanticModel);
+        }
+        
+        IParameterSymbol parameter = method.Parameters[index];
+
+        if (parameter.HasExplicitDefaultValue) {
+            return (T)parameter.ExplicitDefaultValue!;
+        }
+        
+        return ThrowHelpers.ThrowNonConstantExpressionException<T>();
     }
 
     private static string ExtractNthArgAsString(InvocationExpressionSyntax syntax, int index) {
