@@ -206,6 +206,56 @@ internal static class BuildHelpers {
               )
               """;
     }
+    
+    internal static string BuildGetComponentCallVersionRespective(ITypeReferenceModel type) {
+        return $"GetComponent<{type.FlattenedNameArityBased}>()";
+    }
+
+    internal static string BuildFindAnyObjectOfTypeCallVersionRespective(ITypeReferenceModel type, bool includeInactive) {
+#if UNITY_2023_1_OR_NEWER
+        string findObjectsInactive = includeInactive
+            ? "global::UnityEngine.FindObjectsInactive.Include"
+            : "global::UnityEngine.FindObjectsInactive.Exclude";
+
+        return $"global::UnityEngine.Object.FindAnyObjectByType<{type.FQNConstructedArgBased}({findObjectsInactive});";
+#else
+        string findObjectsInactive = includeInactive ? "true" : "false";
+        return $"global::UnityEngine.Object.FindObjectOfType<{type.FQNConstructedArgBased}>({findObjectsInactive});";
+#endif
+    }
+
+    internal static string BuildGetComponentInChildrenVersionRespective(ITypeReferenceModel type, bool includeInactive) {
+        string findObjectsInactive = includeInactive ? "true" : "false";
+        return $"GetComponentInChildren<{type.FQNConstructedArgBased}>({findObjectsInactive});";
+    }
+
+    internal static string BuildGetComponentInParentVersionRespective(ITypeReferenceModel type, bool includeInactive) {
+        string findObjectsInactive = includeInactive ? "true" : "false";
+        return $"GetComponentInParent<{type.FQNConstructedArgBased}>({findObjectsInactive});";
+    }
+
+    internal static string BuildFindAnyObjectsOfTypeCallVersionRespective(ITypeReferenceModel type, bool includeInactive) {
+#if UNITY_2023_1_OR_NEWER
+        string findObjectsInactive = includeInactive
+            ? "global::UnityEngine.FindObjectsInactive.Include"
+            : "global::UnityEngine.FindObjectsInactive.Exclude";
+        
+        return $"global::UnityEngine.Object.FindObjectsByType<{type.FQNConstructedArgBased}>({findObjectsInactive});";
+#else
+        string findObjectsInactive = includeInactive ? "true" : "false";
+        return $"global::UnityEngine.Object.FindObjectsOfType<{type.FQNConstructedArgBased}>({findObjectsInactive});";
+#endif
+    }
+
+    internal static string BuildGetComponentsInChildrenVersionRespective(ITypeReferenceModel type, bool includeInactive) {
+        string findObjectsInactive = includeInactive ? "true" : "false";    
+        return $"GetComponentsInChildren<{type.FQNConstructedArgBased}>({findObjectsInactive});";
+    }
+
+    internal static string BuildGetComponentsInParentVersionRespective(ITypeReferenceModel type, bool includeInactive) {
+        string findObjectsInactive = includeInactive ? "true" : "false";
+        return $"GetComponentsInParent<{type.FQNConstructedArgBased}>({findObjectsInactive});";
+    }
 
     private static ulong HashKey(string key) {
         const ulong offset = 14695981039346656037UL;
