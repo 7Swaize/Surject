@@ -1,6 +1,8 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Surject.Generators.Discovery.ServiceRegistration;
 using Surject.Generators.Emitters.Helpers;
 using Surject.Generators.Models.Collections;
@@ -34,13 +36,14 @@ internal readonly struct PerImplResolverEmitVisitor : IEntryCommandVisitor<VoidV
 
     public VoidVisitor VisitAddFactory(in EntryCommandModel cmd) => EmitFactoryBackedResolve();
     
+    public VoidVisitor VisitAddAsyncFactory(in EntryCommandModel cmd) => EmitAsyncFactoryBackedResolve();
+    
     public VoidVisitor VisitAddFromHierarchy(in EntryCommandModel cmd) => EmitDiscoverBackedResolve(UnityRuntimeBackedDiscoverySearchKind.Hierarchy);
     public VoidVisitor VisitAddFromSibling(in EntryCommandModel cmd) => EmitDiscoverBackedResolve(UnityRuntimeBackedDiscoverySearchKind.Sibling);
     public VoidVisitor VisitAddFromChildren(in EntryCommandModel cmd) => EmitDiscoverBackedResolve(UnityRuntimeBackedDiscoverySearchKind.Children);
     public VoidVisitor VisitAddFromParent(in EntryCommandModel cmd) => EmitDiscoverBackedResolve(UnityRuntimeBackedDiscoverySearchKind.Parent);
     
     public VoidVisitor VisitAddOpenGeneric(in EntryCommandModel cmd) => throw new NotImplementedException();
-    public VoidVisitor VisitAddAsyncFactory(in EntryCommandModel cmd) => throw new NotImplementedException();
     public VoidVisitor VisitAddAllFromHierarchy(in EntryCommandModel cmd) => throw new NotImplementedException();
     public VoidVisitor VisitAddAllFromChildren(in EntryCommandModel cmd) => throw new NotImplementedException();
     public VoidVisitor VisitAddAllFromParent(in EntryCommandModel cmd) => throw new NotImplementedException();
@@ -114,6 +117,64 @@ internal readonly struct PerImplResolverEmitVisitor : IEntryCommandVisitor<VoidV
         _writer.WriteLine("}");
         _writer.WriteLine();
 
+        return VoidVisitor.Default;
+    }
+
+    private VoidVisitor EmitAsyncFactoryBackedResolve() {
+        string? key = ParseHelpers.GetKeyExprOrNull(_registration);
+
+        string singletonField = key is null
+            ? BuildHelpers.BuildSingletonFieldNameNotKeyed(_coreType)
+            : BuildHelpers.BuildSingletonFieldNameKeyed(_coreType, key);
+
+        string taskField = key is null
+            ? BuildHelpers.BuildTaskFieldNameNotKeyed(_coreType)
+            : BuildHelpers.BuildTaskFieldNameKeyed(_coreType, key);
+
+        string createAsyncMethod = key is null
+            ? BuildHelpers.BuildAsyncFactoryMethodNameNotKeyed(_coreType)
+            : BuildHelpers.BuildAsyncFactoryMethodNameKeyed(_coreType, key);
+
+        string hotMethod = key is null
+            ? BuildHelpers.BuildAsyncResolveMethodNameNotKeyed(_coreType)
+            : BuildHelpers.BuildAsyncResolveMethodNameKeyed(_coreType, key);
+
+        string slowMethod = key is null
+            ? BuildHelpers.BuildAsyncResolveSlowMethodNameNotKeyed(_coreType)
+            : BuildHelpers.BuildAsyncResolveSlowMethodNameKeyed(_coreType, key);
+        
+        _writer.WriteMultiline(
+            $$"""
+              internal global::{{typeof(ValueTask).FullName}}<{{_coreType.FQNConstructedArgBased}}> {{hotMethod}}(
+                  global::{{typeof(CancellationToken).FullName}} ct = default)
+              {
+                  return _c.{{singletonField}} is { } existing
+                      ? new global::{{typeof(ValueTask).FullName}}<{{_coreType.FQNConstructedArgBased}}>(existing)
+                      : new global::{{typeof(ValueTask).FullName}}<{{_coreType.FQNConstructedArgBased}}>({{slowMethod}}(ct));
+              }
+              """
+        );
+        _writer.WriteLine();
+        
+        _writer.WriteMultiline(
+            $$"""
+              private async global::{{typeof(Task).FullName}}<{{_coreType.FQNConstructedArgBased}}> {{slowMethod}}(
+                  global::{{typeof(CancellationToken).FullName}} ct)
+              {
+                  if (_c.{{taskField}} is null) {
+                      global::{{typeof(Task).FullName}}<{{_coreType.FQNConstructedArgBased}}> started = {{createAsyncMethod}}(this, ct);
+                      global::{{typeof(Interlocked)}}.{{nameof(Interlocked.CompareExchange)}}(ref _c.{{taskField}}, started, null);
+                  }
+
+                  var result = await _c.{{taskField}}.ConfigureAwait(false);
+                  _c.{{singletonField}} = result;
+
+                  return result;
+              }
+              """
+        );
+        _writer.WriteLine();
+        
         return VoidVisitor.Default;
     }
     
