@@ -38,7 +38,7 @@ internal readonly ref struct InjectMethodEmitter : IChainedEmitter {
     }
 
     private static void EmitStandardInit(in InjectionTargetModel target, IndentedTextWriter writer) {
-        writer.WriteMultiline($"this.{target.Name} = {BuildResolverCall(in target)};");
+        writer.WriteMultiline($"this.{target.Name} = {BuildHelpers.BuildResolverCall(in target)};");
     }
 
     private static void EmitMethodCall(in InjectionTargetModel target, IndentedTextWriter writer) {
@@ -50,7 +50,7 @@ internal readonly ref struct InjectMethodEmitter : IChainedEmitter {
         for (int i = 0; i < parameters.Length; i++) {
             ref readonly InjectionTargetModel parameter = ref parameters[i];
             
-            string resolverCall = BuildResolverCall(in parameter);
+            string resolverCall = BuildHelpers.BuildResolverCall(in parameter);
             string suffix = (i == parameters.Length - 1) ? "" : ",";
 
             writer.WriteMultiline($"{resolverCall}{suffix}");
@@ -58,47 +58,5 @@ internal readonly ref struct InjectMethodEmitter : IChainedEmitter {
         
         writer.Indent--;
         writer.WriteLine(");");
-    }
-
-    private static string BuildResolverCall(in InjectionTargetModel target) {
-        InjectionDeferralKind deferralKind = target.InjectionDeferralKind;
-        string method;
-
-        if ((deferralKind & InjectionDeferralKind.Async) == InjectionDeferralKind.Async) {
-            if ((deferralKind & InjectionDeferralKind.All) == InjectionDeferralKind.All) {
-                method = nameof(IAsyncResolver.ResolveAllAsync);
-            }
-            else if ((deferralKind & InjectionDeferralKind.Optional) == InjectionDeferralKind.Optional) {
-                method = nameof(IAsyncResolver.ResolveOptionalAsync);
-            }
-            else {
-                method = nameof(IAsyncResolver.ResolveAsync);
-            }
-        }
-        else if ((deferralKind & InjectionDeferralKind.Optional) == InjectionDeferralKind.Optional) {
-            method = nameof(IResolver.ResolveOptional);
-        }
-        else if ((deferralKind & InjectionDeferralKind.All) == InjectionDeferralKind.All) {
-            method = nameof(IResolver.ResolveAll);
-        } 
-        else {
-            method = nameof(IResolver.Resolve);
-        }
-        
-        if ((deferralKind & InjectionDeferralKind.Keyed) == InjectionDeferralKind.Keyed) {
-            return
-                $$"""
-                  resolver.{{method}}<{{target.UnwrappedTypeToRequest!.FQNConstructedArgBased}}, {{target.IdType!.FQNConstructedArgBased}}>(
-                      new global::Surject.Abstractions.Resolutions.ResolveContext<{{target.IdType!.FQNConstructedArgBased}}> { Key = {{target.IdAsText}} }
-                  )
-                  """;
-        }
-        
-        return
-            $$"""
-              resolver.{{method}}<{{target.UnwrappedTypeToRequest!.FQNConstructedArgBased}}, global::Surject.Abstractions.Resolutions.NoneKey>(
-                  new global::Surject.Abstractions.Resolutions.ResolveContext<global::Surject.Abstractions.Resolutions.NoneKey> { }
-              )
-              """;
     }
 }

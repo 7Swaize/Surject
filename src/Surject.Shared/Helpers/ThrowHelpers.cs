@@ -40,6 +40,11 @@ public static class ThrowHelpers {
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static TReturn ThrowAmbiguousServiceConstructionStrategy<TReturn>(INamedTypeSymbol service) =>
         throw new ServiceDefinitionException($"Service '{service.Name}' has multiple constructors and no method annotated with [ConstructWith].");
+
+    [DoesNotReturn]
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static TReturn ThrowEmitException<TReturn>(string message)
+        => throw new EmitException(message);
 }
 
 
@@ -48,3 +53,5 @@ public sealed class UnreachableException(string message) : Exception(message);
 public sealed class NonConstantExpressionException(string message) : Exception(message);
 
 public sealed class ServiceDefinitionException(string message) : Exception(message);
+
+public sealed class EmitException(string message) : Exception(message);

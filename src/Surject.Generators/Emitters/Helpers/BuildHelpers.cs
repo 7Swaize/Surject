@@ -1,3 +1,5 @@
+using Surject.Abstractions.Resolutions;
+using Surject.Generators.Models.Concepts;
 using Surject.Generators.Models.Primitives;
 
 namespace Surject.Generators.Emitters.Helpers;
@@ -161,6 +163,48 @@ internal static class BuildHelpers {
 
     internal static string BuildAsyncResolveSlowMethodNameKeyed(ITypeReferenceModel type, string key) {
         return $"__ResolveAsyncSlow_{type.FlattenedNameArityBased}_{HashKey(key)}";
+    }
+    
+    internal static string BuildResolverCall(in InjectionTargetModel target) {
+        InjectionDeferralKind deferralKind = target.InjectionDeferralKind;
+        string method;
+
+        if ((deferralKind & InjectionDeferralKind.Async) == InjectionDeferralKind.Async) {
+            if ((deferralKind & InjectionDeferralKind.All) == InjectionDeferralKind.All) {
+                method = nameof(IAsyncResolver.ResolveAllAsync);
+            }
+            else if ((deferralKind & InjectionDeferralKind.Optional) == InjectionDeferralKind.Optional) {
+                method = nameof(IAsyncResolver.ResolveOptionalAsync);
+            }
+            else {
+                method = nameof(IAsyncResolver.ResolveAsync);
+            }
+        }
+        else if ((deferralKind & InjectionDeferralKind.Optional) == InjectionDeferralKind.Optional) {
+            method = nameof(IResolver.ResolveOptional);
+        }
+        else if ((deferralKind & InjectionDeferralKind.All) == InjectionDeferralKind.All) {
+            method = nameof(IResolver.ResolveAll);
+        } 
+        else {
+            method = nameof(IResolver.Resolve);
+        }
+        
+        if ((deferralKind & InjectionDeferralKind.Keyed) == InjectionDeferralKind.Keyed) {
+            return
+                $$"""
+                  resolver.{{method}}<{{target.UnwrappedTypeToRequest!.FQNConstructedArgBased}}, {{target.IdType!.FQNConstructedArgBased}}>(
+                      new global::Surject.Abstractions.Resolutions.ResolveContext<{{target.IdType!.FQNConstructedArgBased}}> { Key = {{target.IdAsText}} }
+                  )
+                  """;
+        }
+        
+        return
+            $$"""
+              resolver.{{method}}<{{target.UnwrappedTypeToRequest!.FQNConstructedArgBased}}, global::Surject.Abstractions.Resolutions.NoneKey>(
+                  new global::Surject.Abstractions.Resolutions.ResolveContext<global::Surject.Abstractions.Resolutions.NoneKey> { }
+              )
+              """;
     }
 
     private static ulong HashKey(string key) {

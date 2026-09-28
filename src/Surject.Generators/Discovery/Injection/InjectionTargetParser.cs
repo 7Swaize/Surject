@@ -28,15 +28,7 @@ internal static class InjectionTargetParser {
         TypeReferenceModelFactory typeRefFactory) 
     {
         ImmutableArray<InjectionTargetModel>.Builder builder = ImmutableArray.CreateBuilder<InjectionTargetModel>();
-        Dictionary<INamedTypeSymbol, InjectionDeferralKind> deferralMap = new(SymbolEqualityComparer.Default);
-
-        foreach (var attr in InjectionAttributes) {
-            INamedTypeSymbol? symbol = compilation.GetTypeByMetadataName(attr.AttributeType.FullName!);
-
-            if (symbol is not null) {
-                deferralMap[symbol] = attr.Deferral;
-            }
-        }
+        Dictionary<INamedTypeSymbol, InjectionDeferralKind> deferralMap = BuildDeferralMap(compilation);
 
         foreach (ISymbol member in containing.GetMembers()) {
             if (GetDeferral(member, deferralMap) is var deferral && deferral == InjectionDeferralKind.None) {
@@ -49,6 +41,43 @@ internal static class InjectionTargetParser {
         return builder.ToImmutable().AsEquatableArray();
     }
 
+    internal static EquatableArray<InjectionTargetModel> GetConstructWithInjectionTargets(
+        IMethodSymbol method,
+        Compilation compilation,
+        TypeReferenceModelFactory typeRefFactory) 
+    {
+        if (method.Parameters.Length == 0) {
+            return Array.Empty<InjectionTargetModel>().AsEquatableArrayUnsafe();
+        }
+        
+        ImmutableArray<InjectionTargetModel>.Builder builder = ImmutableArray.CreateBuilder<InjectionTargetModel>();
+        Dictionary<INamedTypeSymbol, InjectionDeferralKind> deferralMap = BuildDeferralMap(compilation);
+
+        foreach (IParameterSymbol param in method.Parameters) {
+            if (GetDeferral(param, deferralMap) is var deferral && deferral == InjectionDeferralKind.None) {
+                continue;
+            }
+            
+            builder.Add(Parse(param, deferral, compilation, typeRefFactory, deferralMap));
+        }
+        
+        return builder.ToImmutable().AsEquatableArray();
+    }
+    
+    private static Dictionary<INamedTypeSymbol, InjectionDeferralKind> BuildDeferralMap(Compilation compilation) {
+        Dictionary<INamedTypeSymbol, InjectionDeferralKind> deferralMap = new(SymbolEqualityComparer.Default);
+        
+        foreach (var attr in InjectionAttributes) {
+            INamedTypeSymbol? symbol = compilation.GetTypeByMetadataName(attr.AttributeType.FullName!);
+
+            if (symbol is not null) {
+                deferralMap[symbol] = attr.Deferral;
+            }
+        }
+
+        return deferralMap;
+    }
+    
     private static InjectionDeferralKind GetDeferral(ISymbol member, Dictionary<INamedTypeSymbol, InjectionDeferralKind> deferralMap) {
         InjectionDeferralKind res = InjectionDeferralKind.None;
         

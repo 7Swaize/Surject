@@ -251,8 +251,8 @@ internal static class RegistrationBindingParser {
                 }
 
                 return method.MethodKind switch {
-                    MethodKind.Constructor => new ConstructorCreationModel(method, typeRefFactory),
-                    MethodKind.Ordinary => new FactoryMethodCreationModel(method, typeRefFactory),
+                    MethodKind.Constructor => new ConstructorCreationModel(method, semanticModel.Compilation, typeRefFactory),
+                    MethodKind.Ordinary => new FactoryMethodCreationModel(method, semanticModel.Compilation, typeRefFactory),
                     _ => ThrowHelpers.ThrowUnhandledBranch<ServiceCreationModel>(method.MethodKind)
                 };
             }
@@ -266,7 +266,7 @@ internal static class RegistrationBindingParser {
             
             // If not a MonoBehaviour, we can default to default ctor if it's the only one that exists.
             if (underlyingSymbol.InstanceConstructors.Length == 1) {
-                return new ConstructorCreationModel(underlyingSymbol.InstanceConstructors[0], typeRefFactory);
+                return new ConstructorCreationModel(underlyingSymbol.InstanceConstructors[0], semanticModel.Compilation, typeRefFactory);
             }
 
             return ThrowHelpers.ThrowAmbiguousServiceConstructionStrategy<MonoBehaviourCreationModel>(underlyingSymbol);
