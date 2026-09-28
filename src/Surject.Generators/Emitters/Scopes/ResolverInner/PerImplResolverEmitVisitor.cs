@@ -104,7 +104,7 @@ internal readonly struct PerImplResolverEmitVisitor : IEntryCommandVisitor<VoidV
             ? BuildHelpers.BuildSyncFactoryMethodNameNotKeyed(_coreType)
             : BuildHelpers.BuildSyncFactoryMethodNameKeyed(_coreType, key);
         
-        _writer.WriteLine($"internal {_coreType.FQNConstructedArgBased} {methodName}() {{");
+        _writer.WriteLine($"private {_coreType.FQNConstructedArgBased} {methodName}() {{");
         _writer.Indent++;
         
         _writer.WriteLine(
@@ -145,7 +145,7 @@ internal readonly struct PerImplResolverEmitVisitor : IEntryCommandVisitor<VoidV
         
         _writer.WriteMultiline(
             $$"""
-              internal global::{{typeof(ValueTask).FullName}}<{{_coreType.FQNConstructedArgBased}}> {{hotMethod}}(
+              private global::{{typeof(ValueTask).FullName}}<{{_coreType.FQNConstructedArgBased}}> {{hotMethod}}(
                   global::{{typeof(CancellationToken).FullName}} ct = default)
               {
                   return _c.{{singletonField}} is { } existing

@@ -1,0 +1,17 @@
+namespace Surject.Abstractions.Registrations;
+
+public interface IFactoryBindingBuilder<in T> {
+    public IBindingBuilder<T> To<TContract>() where TContract : class?;
+    public IBindingBuilder<T> ToImmediateImplementedInterfaces();
+    public IBindingBuilder<T> ToAllImplementedInterfaces();
+    public IBindingBuilder<T> WithId<TId>(TId id);
+
+    public IBindingBuilder<T> Eager();
+    public IBindingBuilder<T> Lazy();
+    
+    public IBindingBuilder<T> AsCollection(int order = 0);
+    public IBindingBuilder<T> AsPrimary();
+    
+    public IBindingBuilder<T> DoNotDispose();
+    public IBindingBuilder<T> TrackDisposable();
+}

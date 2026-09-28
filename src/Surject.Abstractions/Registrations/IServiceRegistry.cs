@@ -10,18 +10,18 @@ namespace Surject.Abstractions.Registrations;
 
 public interface IServiceRegistry {
     public IBindingBuilder<TImpl> Add<TImpl>(Lifetime lifetime) where TImpl : class;
-    public IBindingBuilder<TImpl> AddFactory<TImpl>(
+    public IBindingBuilder<TImpl> AddToCollection<TImpl>(Lifetime lifetime, int order = 0) where TImpl : class;
+    public IBindingBuilder<TImpl> AddPrimaryToCollection<TImpl>(Lifetime lifetime, int order = 0) where TImpl : class;
+
+    public IOpenGenericBindingBuilder AddOpenGeneric(Lifetime lifetime, Type openImplType);
+    
+    public IFactoryBindingBuilder<TImpl> AddFactory<TImpl>(
         Lifetime lifetime,
         [RequireStaticDelegate(IsError = true)] Func<IResolver, TImpl> factory
     )
         where TImpl : class;
-
-    public IOpenGenericBindingBuilder AddOpenGeneric(Lifetime lifetime, Type openImplType);
     
-    public IBindingBuilder<TImpl> AddToCollection<TImpl>(Lifetime lifetime, int order = 0) where TImpl : class;
-    public IBindingBuilder<TImpl> AddPrimaryToCollection<TImpl>(Lifetime lifetime, int order = 0) where TImpl : class;
-    
-    public IAsyncBindingBuilder<TImpl> AddAsyncFactory<TImpl>(
+    public IAsyncFactoryBindingBuilder<TImpl> AddAsyncFactory<TImpl>(
         Lifetime lifetime,
         [RequireStaticDelegate(IsError = true)] Func<IResolver, CancellationToken, ValueTask<TImpl>> factory
     )
