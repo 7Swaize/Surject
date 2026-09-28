@@ -27,13 +27,13 @@ public interface IServiceRegistry {
     )
         where TImpl : class;
     
-    public IComponentBindingBuilder<TImpl> AddFromHierarchy<TImpl>(Lifetime lifetime) where TImpl : Component;
-    public IComponentBindingBuilder<TImpl> AddAllFromHierarchy<TImpl>(Lifetime lifetime) where TImpl : Component;
+    public IComponentBindingBuilder<TImpl> AddFromHierarchy<TImpl>(Lifetime lifetime, bool includeInactive = false) where TImpl : Component;
+    public IComponentBindingBuilder<TImpl> AddAllFromHierarchy<TImpl>(Lifetime lifetime, bool includeInactive = false) where TImpl : Component;
+    public IComponentBindingBuilder<TImpl> AddFromChildren<TImpl>(Lifetime lifetime, bool includeInactive = false) where TImpl : Component;
+    public IComponentBindingBuilder<TImpl> AddAllFromChildren<TImpl>(Lifetime lifetime, bool includeInactive = false) where TImpl : Component;
+    public IComponentBindingBuilder<TImpl> AddFromParent<TImpl>(Lifetime lifetime, bool includeInactive = false) where TImpl : Component;
+    public IComponentBindingBuilder<TImpl> AddAllFromParent<TImpl>(Lifetime lifetime, bool includeInactive = false) where TImpl : Component;
     public IComponentBindingBuilder<TImpl> AddFromSibling<TImpl>(Lifetime lifetime) where TImpl : Component;
-    public IComponentBindingBuilder<TImpl> AddFromChildren<TImpl>(Lifetime lifetime) where TImpl : Component;
-    public IComponentBindingBuilder<TImpl> AddAllFromChildren<TImpl>(Lifetime lifetime) where TImpl : Component;
-    public IComponentBindingBuilder<TImpl> AddFromParent<TImpl>(Lifetime lifetime) where TImpl : Component;
-    public IComponentBindingBuilder<TImpl> AddAllFromParent<TImpl>(Lifetime lifetime) where TImpl : Component;
     
     public IComponentInstantiationBindingBuilder<TImpl> AddNewComponent<TImpl>(Lifetime lifetime)
         where TImpl : Component;
