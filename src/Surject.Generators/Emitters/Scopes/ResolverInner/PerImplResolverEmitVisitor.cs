@@ -15,9 +15,9 @@ namespace Surject.Generators.Emitters.Scopes.ResolverInner;
 internal readonly struct PerImplResolverEmitVisitor : IEntryCommandVisitor<VoidVisitor> {
     private enum UnityRuntimeBackedDiscoverySearchKind : byte {
         Hierarchy,
-        Sibling,
+        Parent,
         Children,
-        Parent
+        Sibling
     }
     
     private readonly IndentedTextWriter _writer;
@@ -104,13 +104,13 @@ internal readonly struct PerImplResolverEmitVisitor : IEntryCommandVisitor<VoidV
             ? BuildHelpers.BuildSyncFactoryMethodNameNotKeyed(_coreType)
             : BuildHelpers.BuildSyncFactoryMethodNameKeyed(_coreType, key);
         
-        _writer.WriteLine($"private {_coreType.FQNConstructedArgBased} {methodName}() {{");
+        _writer.WriteLine($"private {_coreType.FQNConstructedArgBased} {methodName}()");
         _writer.Indent++;
         
         _writer.WriteLine(
             _registration.Entry.Lifetime == LifetimeKind.Transient
-                ? $"return {factoryMethodName}(this);"
-                : $"return _c.{fieldName} ??= {factoryMethodName}(this);"
+                ? $"=> {factoryMethodName}(this);"
+                : $"=> _c.{fieldName} ??= {factoryMethodName}(this);"
         );
         
         _writer.Indent--;
@@ -173,6 +173,57 @@ internal readonly struct PerImplResolverEmitVisitor : IEntryCommandVisitor<VoidV
               }
               """
         );
+        _writer.WriteLine();
+        
+        return VoidVisitor.Default;
+    }
+
+    private VoidVisitor EmitDiscoverBackedResolve(UnityRuntimeBackedDiscoverySearchKind searchKind) {
+        bool includeInactive = _registration.Entry.BoolArg;
+        string? key = ParseHelpers.GetKeyExprOrNull(_registration);
+
+        string fieldName = key is null
+            ? BuildHelpers.BuildSingletonFieldNameNotKeyed(_coreType)
+            : BuildHelpers.BuildSingletonFieldNameKeyed(_coreType, key);
+
+        string discoverMethodName = key is null
+            ? BuildHelpers.BuildDiscoverMethodNameNotKeyed(_coreType)
+            : BuildHelpers.BuildDiscoverMethodNameKeyed(_coreType, key);
+
+        string resolveMethodName = key is null
+            ? BuildHelpers.BuildResolveMethodNameNotKeyed(_coreType)
+            : BuildHelpers.BuildResolveMethodNameKeyed(_coreType, key);
+        
+        string searchExpr = searchKind switch {
+            UnityRuntimeBackedDiscoverySearchKind.Hierarchy => 
+                BuildHelpers.BuildFindAnyObjectOfTypeCallVersionRespective(_coreType, includeInactive),
+            UnityRuntimeBackedDiscoverySearchKind.Parent => 
+                $"_scopeProvider.{BuildHelpers.BuildGetComponentInParentVersionRespective(_coreType, includeInactive)}",
+            UnityRuntimeBackedDiscoverySearchKind.Children => 
+                $"_scopeProvider.{BuildHelpers.BuildGetComponentInChildrenVersionRespective(_coreType, includeInactive)}",
+            UnityRuntimeBackedDiscoverySearchKind.Sibling => 
+                $"_scopeProvider.{BuildHelpers.BuildGetComponentCallVersionRespective(_coreType)}",
+            _ => ThrowHelpers.ThrowUnhandledBranch<string>(searchKind)
+        };
+        
+        _writer.WriteMultiline(
+            $$"""
+               private {{_coreType.FQNConstructedArgBased}} {{discoverMethodName}}() {
+                    return {{searchExpr}}();
+               """
+        );
+        _writer.WriteLine();
+        
+        _writer.WriteLine($"private {_coreType.FQNConstructedArgBased} {resolveMethodName}()");
+        _writer.Indent++;
+        
+        _writer.WriteLine(
+            _registration.Entry.Lifetime == LifetimeKind.Transient
+                ? $"=> {discoverMethodName}();"
+                : $"=> _c.{fieldName} ??= {discoverMethodName}();"
+        );
+        
+        _writer.Indent--;
         _writer.WriteLine();
         
         return VoidVisitor.Default;
